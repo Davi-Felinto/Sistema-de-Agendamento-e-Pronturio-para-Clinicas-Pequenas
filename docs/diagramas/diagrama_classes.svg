@@ -1,0 +1,338 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1150" width="100%" height="100%" style="background-color: #f8fafc; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Sombra suave para os cards -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.08" />
+    </filter>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Marcadores de Relacionamentos UML -->
+    <!-- Herança (Triângulo oco) -->
+    <marker id="arrow-inherit" viewBox="0 0 20 20" refX="18" refY="10" markerWidth="14" markerHeight="14" orient="auto">
+      <polygon points="2,2 18,10 2,18" fill="#ffffff" stroke="#475569" stroke-width="2" />
+    </marker>
+
+    <!-- Associação / Dependência (Seta aberta) -->
+    <marker id="arrow-assoc" viewBox="0 0 20 20" refX="16" refY="10" markerWidth="10" markerHeight="10" orient="auto">
+      <polyline points="4,4 16,10 4,16" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" />
+    </marker>
+
+    <!-- Composição (Losango preenchido) -->
+    <marker id="diamond-comp" viewBox="0 0 24 24" refX="2" refY="12" markerWidth="14" markerHeight="14" orient="auto">
+      <polygon points="2,12 12,5 22,12 12,19" fill="#334155" stroke="#334155" stroke-width="1.5" />
+    </marker>
+
+    <!-- Agregação (Losango oco) -->
+    <marker id="diamond-aggr" viewBox="0 0 24 24" refX="2" refY="12" markerWidth="14" markerHeight="14" orient="auto">
+      <polygon points="2,12 12,5 22,12 12,19" fill="#ffffff" stroke="#475569" stroke-width="2" />
+    </marker>
+  </defs>
+
+  <!-- Cabeçalho do Diagrama -->
+  <g transform="translate(60, 40)">
+    <rect width="1480" height="90" rx="16" fill="#1e293b" />
+    <text x="35" y="42" fill="#38bdf8" font-size="13" font-weight="700" letter-spacing="1.5">SISTEMA DE AGENDAMENTO E PRONTUÁRIO • FASE POO (C#)</text>
+    <text x="35" y="68" fill="#f8fafc" font-size="24" font-weight="800">Diagrama de Classes do Domínio (UML)</text>
+    <text x="1445" y="55" fill="#94a3b8" font-size="13" text-anchor="end">Modelagem aderente a RF01–RF28 e Regras de Negócio RN01–RN17</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- PACOTE 1: SEGURANÇA E USUÁRIOS (ROXO)     -->
+  <!-- ========================================== -->
+
+  <!-- Classe: Usuario (Abstrata) -->
+  <g transform="translate(60, 160)" filter="url(#shadow)">
+    <rect width="280" height="200" rx="12" fill="#ffffff" stroke="#c4b5fd" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 268,0 C 274.7,0 280,5.3 280,12 L 280,52 L 0,52 Z" fill="#ede9fe" />
+    <text x="140" y="24" fill="#6d28d9" font-size="11" font-weight="600" text-anchor="middle">&lt;&lt;abstract&gt;&gt;</text>
+    <text x="140" y="42" fill="#4c1d95" font-size="16" font-weight="700" text-anchor="middle">Usuario</text>
+    <line x1="0" y1="52" x2="280" y2="52" stroke="#ddd6fe" stroke-width="1.5" />
+
+    <!-- Atributos -->
+    <text x="16" y="74" fill="#334155" font-size="12"># Guid Id</text>
+    <text x="16" y="94" fill="#334155" font-size="12"># string Nome</text>
+    <text x="16" y="114" fill="#334155" font-size="12"># string Login</text>
+    <text x="16" y="134" fill="#334155" font-size="12"># string HashSenha</text>
+    <text x="16" y="154" fill="#334155" font-size="12"># PerfilUsuario Perfil</text>
+    <line x1="0" y1="166" x2="280" y2="166" stroke="#f1f5f9" stroke-width="1" />
+
+    <!-- Métodos -->
+    <text x="16" y="184" fill="#0f172a" font-size="12" font-weight="500">+ bool Autenticar(string senha)</text>
+  </g>
+
+  <!-- Classe: ProfissionalSaude (Herda Usuario) -->
+  <g transform="translate(60, 410)" filter="url(#shadow)">
+    <rect width="280" height="150" rx="12" fill="#ffffff" stroke="#c4b5fd" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 268,0 C 274.7,0 280,5.3 280,12 L 280,45 L 0,45 Z" fill="#f5f3ff" />
+    <text x="140" y="30" fill="#4c1d95" font-size="15" font-weight="700" text-anchor="middle">ProfissionalSaude</text>
+    <line x1="0" y1="45" x2="280" y2="45" stroke="#ddd6fe" stroke-width="1.5" />
+
+    <!-- Atributos -->
+    <text x="16" y="68" fill="#334155" font-size="12">+ string RegistroProfissional</text>
+    <text x="16" y="88" fill="#334155" font-size="12">+ string Especialidade</text>
+    <line x1="0" y1="102" x2="280" y2="102" stroke="#f1f5f9" stroke-width="1" />
+
+    <!-- Métodos -->
+    <text x="16" y="122" fill="#0f172a" font-size="11" font-weight="500">+ List&lt;Agendamento&gt; VerAgenda()</text>
+  </g>
+
+  <!-- Classe: Administrador (Herda Usuario) -->
+  <g transform="translate(60, 600)" filter="url(#shadow)">
+    <rect width="280" height="130" rx="12" fill="#ffffff" stroke="#c4b5fd" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 268,0 C 274.7,0 280,5.3 280,12 L 280,45 L 0,45 Z" fill="#f5f3ff" />
+    <text x="140" y="30" fill="#4c1d95" font-size="15" font-weight="700" text-anchor="middle">Administrador</text>
+    <line x1="0" y1="45" x2="280" y2="45" stroke="#ddd6fe" stroke-width="1.5" />
+
+    <!-- Métodos -->
+    <text x="16" y="74" fill="#0f172a" font-size="11" font-weight="500">+ ResumoFinanceiro GerarResumo()</text>
+    <text x="16" y="98" fill="#0f172a" font-size="11" font-weight="500">+ List&lt;LogAcesso&gt; AuditarLogs()</text>
+  </g>
+
+  <!-- Log de Acesso (Auditoria LGPD) -->
+  <g transform="translate(60, 770)" filter="url(#shadow)">
+    <rect width="280" height="160" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 268,0 C 274.7,0 280,5.3 280,12 L 280,45 L 0,45 Z" fill="#f8fafc" />
+    <text x="140" y="30" fill="#334155" font-size="15" font-weight="700" text-anchor="middle">LogAcesso</text>
+    <line x1="0" y1="45" x2="280" y2="45" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <text x="16" y="68" fill="#475569" font-size="12">+ Guid Id</text>
+    <text x="16" y="88" fill="#475569" font-size="12">+ Guid UsuarioId</text>
+    <text x="16" y="108" fill="#475569" font-size="12">+ DateTime DataHora</text>
+    <text x="16" y="128" fill="#475569" font-size="12">+ string Operacao</text>
+    <text x="16" y="148" fill="#475569" font-size="12">+ string RecursoAcessado</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- PACOTE 2: AGENDAMENTO (ÂMBAR)             -->
+  <!-- ========================================== -->
+
+  <!-- Classe: Agendamento -->
+  <g transform="translate(420, 310)" filter="url(#shadow)">
+    <rect width="320" height="340" rx="12" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 308,0 C 314.7,0 320,5.3 320,12 L 320,48 L 0,48 Z" fill="#fef3c7" />
+    <text x="160" y="32" fill="#92400e" font-size="17" font-weight="700" text-anchor="middle">Agendamento</text>
+    <line x1="0" y1="48" x2="320" y2="48" stroke="#fde68a" stroke-width="1.5" />
+
+    <!-- Atributos -->
+    <text x="16" y="72" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="92" fill="#334155" font-size="12">+ Guid PacienteId</text>
+    <text x="16" y="112" fill="#334155" font-size="12">+ Guid ProfissionalId</text>
+    <text x="16" y="132" fill="#334155" font-size="12">+ DateTime DataHoraInicio</text>
+    <text x="16" y="152" fill="#334155" font-size="12">+ DateTime DataHoraFim</text>
+    <text x="16" y="172" fill="#334155" font-size="12">+ StatusAgendamento Status</text>
+    <text x="16" y="192" fill="#334155" font-size="12">+ string Observacoes</text>
+    <text x="16" y="212" fill="#b45309" font-size="12" font-weight="600">+ bool CancelamentoTardio (RN10)</text>
+    <line x1="0" y1="226" x2="320" y2="226" stroke="#fef3c7" stroke-width="1" />
+
+    <!-- Métodos -->
+    <text x="16" y="248" fill="#0f172a" font-size="12" font-weight="500">+ void Confirmar()</text>
+    <text x="16" y="270" fill="#0f172a" font-size="12" font-weight="500">+ void Remarcar(DateTime inicio, DateTime fim)</text>
+    <text x="16" y="292" fill="#0f172a" font-size="12" font-weight="500">+ void Cancelar(DateTime momentoCancelamento)</text>
+    <text x="16" y="314" fill="#0f172a" font-size="12" font-weight="500">+ bool TemConflito(DateTime ini, DateTime fim)</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- PACOTE 3: PACIENTE E PRONTUÁRIO (AZUL/CYAN) -->
+  <!-- ========================================== -->
+
+  <!-- Classe: Paciente -->
+  <g transform="translate(820, 160)" filter="url(#shadow)">
+    <rect width="320" height="340" rx="12" fill="#ffffff" stroke="#7dd3fc" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 308,0 C 314.7,0 320,5.3 320,12 L 320,48 L 0,48 Z" fill="#e0f2fe" />
+    <text x="160" y="32" fill="#0369a1" font-size="17" font-weight="700" text-anchor="middle">Paciente</text>
+    <line x1="0" y1="48" x2="320" y2="48" stroke="#bae6fd" stroke-width="1.5" />
+
+    <!-- Atributos -->
+    <text x="16" y="72" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="92" fill="#334155" font-size="12">+ string Nome</text>
+    <text x="16" y="112" fill="#334155" font-size="12">+ string Cpf</text>
+    <text x="16" y="132" fill="#334155" font-size="12">+ DateTime DataNascimento</text>
+    <text x="16" y="152" fill="#334155" font-size="12">+ string Telefone</text>
+    <text x="16" y="172" fill="#334155" font-size="12">+ string Email</text>
+    <text x="16" y="192" fill="#334155" font-size="12">+ string Endereco</text>
+    <text x="16" y="212" fill="#334155" font-size="12">+ string Alergias</text>
+    <text x="16" y="232" fill="#334155" font-size="12">+ string CondicoesPreexistentes</text>
+    <text x="16" y="252" fill="#0284c7" font-size="12" font-weight="600">+ bool Ativo</text>
+    <line x1="0" y1="264" x2="320" y2="264" stroke="#e0f2fe" stroke-width="1" />
+
+    <!-- Métodos -->
+    <text x="16" y="286" fill="#0f172a" font-size="12" font-weight="500">+ void AtualizarContato(tel, email, end)</text>
+    <text x="16" y="308" fill="#0284c7" font-size="12" font-weight="600">+ void InativarComAnonimizacao() (LGPD)</text>
+    <text x="16" y="328" fill="#0f172a" font-size="12" font-weight="500">+ void AtualizarCondicoesClinicas(info)</text>
+  </g>
+
+  <!-- Classe: SessaoProntuario -->
+  <g transform="translate(820, 560)" filter="url(#shadow)">
+    <rect width="320" height="230" rx="12" fill="#ffffff" stroke="#7dd3fc" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 308,0 C 314.7,0 320,5.3 320,12 L 320,48 L 0,48 Z" fill="#e0f2fe" />
+    <text x="160" y="32" fill="#0369a1" font-size="17" font-weight="700" text-anchor="middle">SessaoProntuario</text>
+    <line x1="0" y1="48" x2="320" y2="48" stroke="#bae6fd" stroke-width="1.5" />
+
+    <text x="16" y="72" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="92" fill="#334155" font-size="12">+ Guid AgendamentoId</text>
+    <text x="16" y="112" fill="#334155" font-size="12">+ Guid PacienteId</text>
+    <text x="16" y="132" fill="#334155" font-size="12">+ DateTime DataAtendimento</text>
+    <text x="16" y="152" fill="#334155" font-size="12">+ string AnotacaoAtual</text>
+    <line x1="0" y1="166" x2="320" y2="166" stroke="#e0f2fe" stroke-width="1" />
+
+    <text x="16" y="188" fill="#0f172a" font-size="12" font-weight="500">+ void RegistrarAnotacao(string texto)</text>
+    <text x="16" y="210" fill="#0369a1" font-size="12" font-weight="600">+ void AlterarAnotacao(novo, motivo) (RN17)</text>
+  </g>
+
+  <!-- Classe: VersaoAnotacao (Composição com SessaoProntuario) -->
+  <g transform="translate(820, 840)" filter="url(#shadow)">
+    <rect width="320" height="150" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 308,0 C 314.7,0 320,5.3 320,12 L 320,42 L 0,42 Z" fill="#f1f5f9" />
+    <text x="160" y="28" fill="#334155" font-size="15" font-weight="700" text-anchor="middle">VersaoAnotacao</text>
+    <line x1="0" y1="42" x2="320" y2="42" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <text x="16" y="66" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="86" fill="#334155" font-size="12">+ DateTime DataModificacao</text>
+    <text x="16" y="106" fill="#334155" font-size="12">+ string ConteudoAnterior</text>
+    <text x="16" y="126" fill="#334155" font-size="12">+ string MotivoAlteracao</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- PACOTE 4: FINANCEIRO (VERDE)              -->
+  <!-- ========================================== -->
+
+  <!-- Classe: Pagamento -->
+  <g transform="translate(420, 720)" filter="url(#shadow)">
+    <rect width="320" height="240" rx="12" fill="#ffffff" stroke="#86efac" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 308,0 C 314.7,0 320,5.3 320,12 L 320,48 L 0,48 Z" fill="#dcfce7" />
+    <text x="160" y="32" fill="#166534" font-size="17" font-weight="700" text-anchor="middle">Pagamento</text>
+    <line x1="0" y1="48" x2="320" y2="48" stroke="#bbf7d0" stroke-width="1.5" />
+
+    <!-- Atributos -->
+    <text x="16" y="72" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="92" fill="#334155" font-size="12">+ Guid AgendamentoId</text>
+    <text x="16" y="112" fill="#334155" font-size="12">+ decimal Valor</text>
+    <text x="16" y="132" fill="#334155" font-size="12">+ StatusPagamento Status</text>
+    <text x="16" y="152" fill="#334155" font-size="12">+ FormaPagamento? Forma</text>
+    <text x="16" y="172" fill="#334155" font-size="12">+ DateTime? DataPagamento</text>
+    <line x1="0" y1="186" x2="320" y2="186" stroke="#dcfce7" stroke-width="1" />
+
+    <!-- Métodos -->
+    <text x="16" y="210" fill="#0f172a" font-size="12" font-weight="500">+ void Quitar(FormaPagamento forma)</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- PACOTE 5: NOTIFICAÇÃO (ROSA / SLATE)       -->
+  <!-- ========================================== -->
+
+  <!-- Classe: Notificacao -->
+  <g transform="translate(1210, 160)" filter="url(#shadow)">
+    <rect width="330" height="280" rx="12" fill="#ffffff" stroke="#fbcfe8" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 318,0 C 324.7,0 330,5.3 330,12 L 330,48 L 0,48 Z" fill="#fce7f3" />
+    <text x="165" y="32" fill="#9d174d" font-size="17" font-weight="700" text-anchor="middle">Notificacao</text>
+    <line x1="0" y1="48" x2="330" y2="48" stroke="#fbcfe8" stroke-width="1.5" />
+
+    <text x="16" y="72" fill="#334155" font-size="12">+ Guid Id</text>
+    <text x="16" y="92" fill="#334155" font-size="12">+ Guid AgendamentoId</text>
+    <text x="16" y="112" fill="#334155" font-size="12">+ TipoNotificacao Tipo</text>
+    <text x="16" y="132" fill="#334155" font-size="12">+ StatusNotificacao Status</text>
+    <text x="16" y="152" fill="#334155" font-size="12">+ DateTime DataHoraEnvio</text>
+    <text x="16" y="172" fill="#9d174d" font-size="12" font-weight="600">+ int Tentativas (RN14/RN15)</text>
+    <line x1="0" y1="186" x2="330" y2="186" stroke="#fce7f3" stroke-width="1" />
+
+    <text x="16" y="210" fill="#0f172a" font-size="12" font-weight="500">+ void RegistrarSucesso()</text>
+    <text x="16" y="232" fill="#0f172a" font-size="12" font-weight="500">+ void RegistrarFalha()</text>
+    <text x="16" y="254" fill="#9d174d" font-size="12" font-weight="600">+ bool PodeReenviar() (RN14)</text>
+  </g>
+
+  <!-- Interface: INotificador -->
+  <g transform="translate(1210, 480)" filter="url(#shadow)">
+    <rect width="330" height="120" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6,4" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 318,0 C 324.7,0 330,5.3 330,12 L 330,45 L 0,45 Z" fill="#f8fafc" />
+    <text x="165" y="24" fill="#64748b" font-size="11" font-weight="600" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text x="165" y="40" fill="#1e293b" font-size="15" font-weight="700" text-anchor="middle">INotificador</text>
+    <line x1="0" y1="45" x2="330" y2="45" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <text x="16" y="80" fill="#0f172a" font-size="12" font-weight="500">+ bool Enviar(string destinatario, string msg)</text>
+  </g>
+
+  <!-- Implementação: NotificadorWhatsApp -->
+  <g transform="translate(1210, 640)" filter="url(#shadow)">
+    <rect width="330" height="100" rx="12" fill="#ffffff" stroke="#86efac" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 318,0 C 324.7,0 330,5.3 330,12 L 330,42 L 0,42 Z" fill="#dcfce7" />
+    <text x="165" y="28" fill="#166534" font-size="15" font-weight="700" text-anchor="middle">NotificadorWhatsApp</text>
+    <line x1="0" y1="42" x2="330" y2="42" stroke="#bbf7d0" stroke-width="1.5" />
+
+    <text x="16" y="74" fill="#0f172a" font-size="12" font-weight="500">+ bool Enviar(string destino, string msg)</text>
+  </g>
+
+  <!-- Bloco de Enumerações Consolidadas -->
+  <g transform="translate(1210, 780)" filter="url(#shadow)">
+    <rect width="330" height="240" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <path d="M 0,12 C 0,5.3 5.3,0 12,0 L 318,0 C 324.7,0 330,5.3 330,12 L 330,40 L 0,40 Z" fill="#f1f5f9" />
+    <text x="165" y="26" fill="#475569" font-size="13" font-weight="700" text-anchor="middle">&lt;&lt;enumerações de domínio&gt;&gt;</text>
+    <line x1="0" y1="40" x2="330" y2="40" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <text x="16" y="66" fill="#334155" font-size="11"><b>PerfilUsuario:</b> Profissional, Administrador</text>
+    <text x="16" y="94" fill="#334155" font-size="11"><b>StatusAgendamento:</b> Agendado, Confirmado,</text>
+    <text x="32" y="112" fill="#64748b" font-size="11">Realizado, Remarcado, Cancelado</text>
+    <text x="16" y="140" fill="#334155" font-size="11"><b>StatusPagamento:</b> Pendente, Pago</text>
+    <text x="16" y="168" fill="#334155" font-size="11"><b>FormaPagamento:</b> Pix, Cartao, Dinheiro</text>
+    <text x="16" y="196" fill="#334155" font-size="11"><b>TipoNotificacao:</b> Confirmacao, Lembrete24h</text>
+    <text x="16" y="222" fill="#334155" font-size="11"><b>StatusNotificacao:</b> Pendente, Enviado, Falha, Reenviado</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- CONECTORES E LINHAS DE RELACIONAMENTO      -->
+  <!-- ========================================== -->
+
+  <!-- Herança Usuario -> ProfissionalSaude -->
+  <path d="M 200,410 L 200,360" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow-inherit)" />
+
+  <!-- Herança Usuario -> Administrador -->
+  <path d="M 120,600 L 120,380 L 180,380 L 180,360" fill="none" stroke="#475569" stroke-width="2" />
+
+  <!-- Usuario -> LogAcesso -->
+  <path d="M 200,730 L 200,770" fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow-assoc)" />
+  <text x="210" y="755" fill="#64748b" font-size="11">1 .. *</text>
+
+  <!-- ProfissionalSaude (1) -> (*) Agendamento -->
+  <path d="M 340,480 L 420,480" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-assoc)" />
+  <text x="350" y="470" fill="#64748b" font-size="12" font-weight="600">1</text>
+  <text x="395" y="470" fill="#64748b" font-size="12" font-weight="600">1..*</text>
+
+  <!-- Paciente (1) -> (*) Agendamento -->
+  <path d="M 820,340 L 740,340" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-assoc)" />
+  <text x="795" y="330" fill="#64748b" font-size="12" font-weight="600">1</text>
+  <text x="755" y="330" fill="#64748b" font-size="12" font-weight="600">0..*</text>
+
+  <!-- Agendamento (1) -> (0..1) SessaoProntuario -->
+  <path d="M 680,650 L 680,680 L 820,680" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-assoc)" />
+  <text x="690" y="665" fill="#64748b" font-size="12" font-weight="600">1</text>
+  <text x="770" y="672" fill="#64748b" font-size="12" font-weight="600">0..1 (RN05)</text>
+
+  <!-- SessaoProntuario (1) *-> (*) VersaoAnotacao [Composição] -->
+  <path d="M 980,840 L 980,790" fill="none" stroke="#334155" stroke-width="2" marker-start="url(#diamond-comp)" />
+  <text x="990" y="815" fill="#334155" font-size="12" font-weight="600">1       1..* (RN17)</text>
+
+  <!-- Agendamento (1) -> (0..1) Pagamento -->
+  <path d="M 540,650 L 540,720" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-assoc)" />
+  <text x="550" y="675" fill="#64748b" font-size="12" font-weight="600">1</text>
+  <text x="550" y="710" fill="#64748b" font-size="12" font-weight="600">0..1 (RN07)</text>
+
+  <!-- Agendamento (1) -> (*) Notificacao -->
+  <path d="M 620,310 L 620,230 L 1210,230" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-assoc)" />
+  <text x="630" y="270" fill="#64748b" font-size="12" font-weight="600">1</text>
+  <text x="1150" y="220" fill="#64748b" font-size="12" font-weight="600">0..* (RN03/RN04)</text>
+
+  <!-- Implementação INotificador ..|> NotificadorWhatsApp -->
+  <path d="M 1375,640 L 1375,600" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-inherit)" />
+
+  <!-- Notificacao -> INotificador -->
+  <path d="M 1375,440 L 1375,480" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#arrow-assoc)" />
+
+  <!-- Rodapé com Metadados -->
+  <g transform="translate(60, 1050)">
+    <rect width="1480" height="50" rx="8" fill="#ffffff" stroke="#e2e8f0" />
+    <text x="25" y="31" fill="#64748b" font-size="13">Projeto Integrador • Eng. Requisitos + POO (C#) + BDII + Interface • CEUB</text>
+    <text x="1455" y="31" fill="#64748b" font-size="13" text-anchor="end">Legenda: ──▷ Herança / Realização | ◆── Composição Forte | ──▶ Associação Unidirecional</text>
+  </g>
+</svg>
