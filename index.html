@@ -80,6 +80,19 @@
 
     const INITIAL_PATIENTS = [
       {
+        id: 'p_andrade',
+        nome: 'Andrade Valadão',
+        cpf: '711.200.804-00',
+        nascimento: '2008-11-07',
+        telefone: '+55 61 8412-2936',
+        email: 'cacheadaLinda@gmail.com',
+        endereco: 'algum lugar na 104 q eu ainda vou conhecer',
+        alergias: 'Alegia a não aceitar sair comigo',
+        condicoesPreexistentes: 'Pode ir avisando todo q um dia a gente vai namorar kkkk',
+        status: 'ativo',
+        profissionalId: 'u1'
+      },
+      {
         id: 'p1',
         nome: 'Mariana Duarte Souza',
         cpf: '123.456.789-00',
@@ -123,6 +136,23 @@
     const getTodayDateStr = () => new Date().toISOString().split('T')[0];
 
     const INITIAL_APPOINTMENTS = [
+      {
+        id: 'a_andrade',
+        pacienteId: 'p_andrade',
+        profissionalId: 'u1',
+        data: getTodayDateStr(),
+        horario: '08:30',
+        duracaoMin: 60,
+        status: 'confirmado',
+        tipo: 'consulta',
+        observacoes: 'Atendimento Especial - Acompanhamento do Coração ❤️',
+        valor: 0,
+        statusPagamento: 'pago',
+        formaPagamento: 'Amor / Pix simbólico',
+        notificacaoStatus: 'enviado',
+        notificacaoTentativas: 1,
+        cancelamentoTardio: false
+      },
       {
         id: 'a1',
         pacienteId: 'p1',
@@ -178,6 +208,17 @@
 
     const INITIAL_RECORDS = [
       {
+        id: 'pr_andrade',
+        pacienteId: 'p_andrade',
+        agendamentoId: 'a_andrade',
+        data: `${getTodayDateStr()} 08:30`,
+        profissionalId: 'u1',
+        profissionalNome: 'Dr. Davi Felinto',
+        anotacao: 'Avaliação clínica especial (RF18): Paciente apresenta quadro crônico de extrema formosura e cachos deslumbrantes. Prescrição: Aceitar o convite para sair e conhecer novos lugares na 104. Prognóstico: 100% de chance de namoro kkkk.',
+        versao: 1,
+        historicoVersoes: []
+      },
+      {
         id: 'pr1',
         pacienteId: 'p1',
         agendamentoId: 'a1',
@@ -221,17 +262,51 @@
 
       const [patients, setPatients] = useState(() => {
         const saved = localStorage.getItem('clinix_patients');
-        return saved ? JSON.parse(saved) : INITIAL_PATIENTS;
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            const exists = parsed.some(p => p.id === 'p_andrade' || p.nome?.includes('Andrade Valadão'));
+            if (!exists) {
+              return [INITIAL_PATIENTS[0], ...parsed];
+            }
+            return parsed.map(p => (p.id === 'p_andrade' || p.nome?.includes('Andrade Valadão')) ? INITIAL_PATIENTS[0] : p);
+          } catch (e) {
+            return INITIAL_PATIENTS;
+          }
+        }
+        return INITIAL_PATIENTS;
       });
 
       const [appointments, setAppointments] = useState(() => {
         const saved = localStorage.getItem('clinix_appointments');
-        return saved ? JSON.parse(saved) : INITIAL_APPOINTMENTS;
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (!parsed.some(a => a.id === 'a_andrade' || a.pacienteId === 'p_andrade')) {
+              return [INITIAL_APPOINTMENTS[0], ...parsed];
+            }
+            return parsed;
+          } catch (e) {
+            return INITIAL_APPOINTMENTS;
+          }
+        }
+        return INITIAL_APPOINTMENTS;
       });
 
       const [records, setRecords] = useState(() => {
         const saved = localStorage.getItem('clinix_records');
-        return saved ? JSON.parse(saved) : INITIAL_RECORDS;
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (!parsed.some(r => r.pacienteId === 'p_andrade')) {
+              return [INITIAL_RECORDS[0], ...parsed];
+            }
+            return parsed;
+          } catch (e) {
+            return INITIAL_RECORDS;
+          }
+        }
+        return INITIAL_RECORDS;
       });
 
       const [logs, setLogs] = useState(() => {
@@ -675,9 +750,69 @@
       const todayAppointments = appointments.filter(a => a.data === todayStr && a.status !== 'cancelado');
       const pendingPayments = appointments.filter(a => a.statusPagamento === 'pendente');
       const failedNotifications = appointments.filter(a => a.notificacaoStatus === 'falha');
+      const andradePatient = patients.find(p => p.id === 'p_andrade' || p.nome?.includes('Andrade Valadão'));
 
       return (
         <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Card Destaque de Máxima Visibilidade: Andrade Valadão */}
+          {andradePatient && (
+            <div className="relative overflow-hidden bg-gradient-to-r from-rose-500 via-pink-500 to-emerald-600 rounded-3xl p-6 text-white shadow-xl shadow-pink-500/15 border border-white/30 transition-all hover:shadow-2xl">
+              <div className="absolute top-0 right-0 -mt-6 -mr-6 w-44 h-44 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner border border-white/30 shrink-0">
+                    💖
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      <span className="bg-white/25 backdrop-blur-sm text-white text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full border border-white/30 shadow-xs">
+                        Paciente em Destaque Especial • RF18
+                      </span>
+                      <span className="bg-emerald-400 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow-xs">
+                        Consulta Prioritária 👑
+                      </span>
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-black tracking-tight flex items-center gap-2">
+                      {andradePatient.nome}
+                      <span className="text-sm font-semibold opacity-90 text-pink-100">(07/11/2008)</span>
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-pink-100 mt-1.5 font-medium">
+                      <span className="flex items-center gap-1">📞 <strong>Telefone:</strong> {andradePatient.telefone}</span>
+                      <span className="flex items-center gap-1">✉️ <strong>Email:</strong> {andradePatient.email}</span>
+                      <span className="flex items-center gap-1">📍 <strong>Endereço:</strong> {andradePatient.endereco}</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onOpenProntuario(andradePatient.id)}
+                  className="self-stretch md:self-auto bg-white hover:bg-pink-50 text-rose-700 font-extrabold text-xs px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0 border border-white/80"
+                >
+                  <span>Abrir Prontuário Clínico (RN17)</span>
+                  <span className="text-base">📋 →</span>
+                </button>
+              </div>
+
+              {/* Informações Clínicas Gerais (RF18) em Alta Visibilidade */}
+              <div className="mt-4 pt-4 border-t border-white/20 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="bg-black/20 backdrop-blur-md p-3.5 rounded-2xl border border-white/15">
+                  <span className="font-extrabold text-pink-200 block text-[11px] uppercase tracking-wider mb-0.5">
+                    ⚠️ Alergias Conhecidas (RF18):
+                  </span>
+                  <span className="font-semibold text-white text-sm">
+                    {andradePatient.alergias}
+                  </span>
+                </div>
+                <div className="bg-black/20 backdrop-blur-md p-3.5 rounded-2xl border border-white/15">
+                  <span className="font-extrabold text-emerald-200 block text-[11px] uppercase tracking-wider mb-0.5">
+                    🩺 Condições Preexistentes (RF18):
+                  </span>
+                  <span className="font-semibold text-white text-sm">
+                    {andradePatient.condicoesPreexistentes}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Alerta de Falha de Notificação WhatsApp (RN15) */}
           {failedNotifications.length > 0 && (
             <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-sm">
