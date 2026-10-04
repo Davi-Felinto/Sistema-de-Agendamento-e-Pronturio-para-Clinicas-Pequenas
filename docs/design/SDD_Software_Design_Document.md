@@ -529,23 +529,32 @@ Cada entidade de domínio e regra de negócio é desenvolvida estritamente segui
 
 ### 9.2 Matriz de Cobertura de Testes Prioritários (TDD)
 
-| Teste Automatizado | Regra / Requisito Coberto | Cenário Validado |
-| :--- | :--- | :--- |
-| `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis (e-mail, telefone) são mascarados/limpos. |
-| `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se uma nova consulta coincidir com o intervalo de outra confirmada. |
-| `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando a solicitação ocorre a menos de 24h da consulta. |
-| `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar uma anotação, a versão anterior é salva no histórico imutável com data e motivo. |
-| `NotificacaoTests.PodeReenviar_ApenasUmaTentativaApos15Minutos()` | RN14, RN15 | Garante que apenas 1 nova tentativa seja autorizada após 15 minutos de falha. |
-| `UsuarioTests.Autenticar_ComSenhaIncorreta_DeveRetornarFalse()` | RF26, RQ08 | Garante validação segura com hash sem expor senhas em texto puro. |
+| Teste Automatizado | Regra / Requisito Coberto | Cenário Validado | Status |
+| :--- | :--- | :--- | :---: |
+| `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis (e-mail, telefone) são anonimizados. | ✅ Aprovado |
+| `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se uma nova consulta coincidir com o intervalo de outra confirmada. | ✅ Aprovado |
+| `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando a solicitação ocorre a menos de 24h da consulta. | ✅ Aprovado |
+| `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar uma anotação, a versão anterior é salva no histórico imutável com data e motivo. | ✅ Aprovado |
+| `PagamentoTests.RegistrarPagamento_DeveAtualizarStatusParaPagoEData()` | RN07, RN08 | Registra a quitação da consulta, atualizando status para Pago e gravando forma/data. | ✅ Aprovado |
+| `NotificacaoTests.PodeReenviar_ApenasUmaTentativaApos15Minutos()` | RN14, RN15 | Garante que apenas 1 nova tentativa seja autorizada após 15 minutos de falha. | ✅ Aprovado |
+| `LogAcessoTests.Deve_Criar_Log_Com_Sucesso_E_DataHora_Atual()` | RF28, RN13, RQ07 | Valida criação de logs de auditoria imutáveis com rastreabilidade exigida pela LGPD. | ✅ Aprovado |
+| `UsuarioTests.Autenticar_ComSenhaIncorreta_DeveRetornarFalse()` | RF26, RQ08 | Garante validação segura com hash sem expor senhas em texto puro. | ✅ Aprovado |
+| `UsuarioTests.Administrador_Deve_Poder_Auditar_Logs()` | RN12 | Polimorfismo: Administrador pode auditar logs; usuário comum não tem permissão. | ✅ Aprovado |
 
 ---
 
-## 10. Conclusão e Próximos Passos
+## 10. Conclusão e Status de Implementação
 
-Com este **Software Design Document (SDD)** devidamente formalizado:
-1. O escopo técnico está completamente alinhado aos requisitos aprovados;
-2. As decisões arquiteturais protegem contra retrabalhos futuros nas disciplinas de Banco de Dados II e Desenvolvimento de Interface;
-3. A metodologia TDD garante que cada linha de POO nasça acompanhada de sua validação automatizada.
+### 10.1 Status das Entregas de POO
 
-**Próximo Passo Imediato:**
-Inicializar a solução .NET em `src/` contendo os dois projetos (`ClinicaApp` e `ClinicaApp.Tests`), configurando a suíte xUnit para iniciarmos o ciclo TDD da primeira entidade (`Paciente.cs`).
+* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído**  
+  Todas as 9 entidades de domínio (`Paciente`, `Agendamento`, `SessaoProntuario`, `VersaoAnotacao`, `Pagamento`, `Notificacao`, `LogAcesso`, `Usuario`, `ProfissionalSaude`, `Administrador`) e os 7 enums foram implementados e cobertos por **23 testes automatizados via xUnit**, executando com 0 falhas (`dotnet test src/`).
+
+* **Bloco 2 — Interfaces e Repositórios In-Memory:** 🚀 **Foco Imediato**  
+  Criação das interfaces de persistência (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `INotificador`) e suas implementações em memória (`List<T>`) para desacoplamento completo do banco de dados relacional.
+
+* **Bloco 3 — Serviços de Aplicação (Casos de Uso):** ⏳ Planejado  
+  Orquestração dos fluxos de negócio (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`).
+
+* **Bloco 4 — Interface de Demonstração (MVP):** ⏳ Planejado  
+  Apresentação interativa do fluxo completo da clínica.

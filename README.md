@@ -51,14 +51,56 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
 - [ ] **Parte 2 — Programação Orientada a Objetos (C#)**
   - [x] Modelagem do Diagrama de Classes UML (SVG e Excalidraw)
   - [x] Documento de Arquitetura e Design de Software (SDD)
-  - [ ] Implementação das entidades do domínio (`Paciente`, `Agendamento`, `SessaoProntuario`, etc.)
-  - [ ] Implementação das regras de negócio em serviços (`AgendaService`, `ProntuarioService`, `FinanceiroService`)
+  - [x] Implementação de 100% das entidades de domínio e enumerações em C# (.NET 8):
+    - `Paciente` (RD01, RN16, RQ03 — exclusão lógica com anonimização LGPD)
+    - `Agendamento` (RD02, RN01, RN02, RN10 — colisão de horários e cancelamento tardio <24h)
+    - `SessaoProntuario` e `VersaoAnotacao` (RD04, RN05, RN06, RN17 — histórico imutável de edições)
+    - `Pagamento` (RD05, RN07, RN08 — quitação financeira e controle de status)
+    - `Notificacao` (RF12–RF14, RN14, RN15 — resiliência com 1 retentativa após 15 min)
+    - `LogAcesso` (RF28, RN13, RQ07 — auditoria imutável de acessos sensíveis)
+    - `Usuario`, `ProfissionalSaude`, `Administrador` (RF26, RF27, RN12, RQ08 — herança, hash SHA256 e polimorfismo)
+  - [x] Suíte de Testes Automatizados (TDD com xUnit — 23 testes unitários aprovados)
+  - [ ] Implementação de Interfaces e Repositórios em memória (`List<T>`)
+  - [ ] Implementação das regras de negócio em serviços (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`)
   - [ ] Interface Console interativa para testes e demonstração do MVP
 - [ ] **Parte 3 — Banco de Dados II**
   - [ ] Modelo Conceitual e Lógico/Físico (DER)
   - [ ] Scripts DDL/DML, integridade e transações de concorrência
 - [ ] **Parte 4 — Desenvolvimento de Interface**
   - [ ] Protótipo e telas de usuário simplificadas
+
+---
+
+## 🧪 Como Executar os Testes Automatizados
+
+O projeto utiliza a metodologia **TDD (Test-Driven Development)** com o framework **xUnit** no **.NET 8**.
+
+### Pré-requisitos
+* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) instalado.
+
+### Executar a suíte de testes
+No terminal, a partir da raiz do repositório:
+
+```bash
+dotnet test src/
+```
+
+**Resultado esperado:**
+```text
+Aprovado! – Com falha: 0, Aprovado: 23, Ignorado: 0, Total: 23
+```
+
+### Regras de Negócio Validadas nos Testes
+| Regra / Requisito | Cenário de Teste Validado | Arquivo de Teste |
+| :--- | :--- | :--- |
+| **RN01 / RN02** | Detecção de conflito e colisão de horários entre consultas | `AgendamentoTests.cs` |
+| **RN10** | Identificação automática de cancelamento tardio (< 24h) | `AgendamentoTests.cs` |
+| **RN16 / RQ03** | Inativação com anonimização de dados pessoais (LGPD) | `PacienteTests.cs` |
+| **RN17** | Histórico imutável de anotações do prontuário ao editar | `SessaoProntuarioTests.cs` |
+| **RN07 / RN08** | Ciclo de quitação e transição de status de pagamento | `PagamentoTests.cs` |
+| **RN14 / RN15** | Resiliência: permite apenas 1 retentativa 15 min pós-falha | `NotificacaoTests.cs` |
+| **RF28 / RQ07** | Registro de auditoria imutável de acessos sensíveis | `LogAcessoTests.cs` |
+| **RQ08 / RN12** | Autenticação via hash SHA256 e permissões de auditoria | `UsuarioTests.cs` |
 
 ---
 
@@ -78,7 +120,16 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
 │   ├── requisitos/
 │   │   └── Documento_Especificacao_Requisitos_Final.docx # Especificação formal completa
 │   └── Projeto_Integrador_Contexto_Completo.md # Memória e histórico unificado do projeto
-├── src/                                        # Código-fonte C# (.NET em construção)
+├── src/
+│   ├── ClinicaApp.slnx                         # Solução .NET 8
+│   ├── ClinicaApp/                             # Core de Domínio e Regras da Clínica
+│   │   ├── Domain/
+│   │   │   ├── Entities/                       # Paciente, Agendamento, SessaoProntuario, etc.
+│   │   │   └── Enums/                          # StatusAgendamento, PerfilUsuario, etc.
+│   │   └── ClinicaApp.csproj
+│   └── ClinicaApp.Tests/                       # Suíte de Testes Automatizados (xUnit)
+│       ├── Domain/                             # Testes unitários das regras de negócio
+│       └── ClinicaApp.Tests.csproj
 └── README.md
 ```
 
