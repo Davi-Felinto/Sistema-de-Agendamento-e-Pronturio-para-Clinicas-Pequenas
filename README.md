@@ -50,6 +50,7 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
   - [x] Validação com cliente simulado e consolidação de decisões (LGPD, exclusão lógica, WhatsApp)
 - [ ] **Parte 2 — Programação Orientada a Objetos (C#)**
   - [x] Modelagem do Diagrama de Classes UML (SVG e Excalidraw)
+  - [x] Documento de Arquitetura e Design de Software (SDD)
   - [ ] Implementação das entidades do domínio (`Paciente`, `Agendamento`, `SessaoProntuario`, etc.)
   - [ ] Implementação das regras de negócio em serviços (`AgendaService`, `ProntuarioService`, `FinanceiroService`)
   - [ ] Interface Console interativa para testes e demonstração do MVP
@@ -65,14 +66,19 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
 
 ```
 ├── docs/
+│   ├── design/
+│   │   └── SDD_Software_Design_Document.md     # Documento de Arquitetura e Design de Software
 │   ├── diagramas/
-│   │   ├── README.md                           # Detalhamento arquitetural do diagrama de classes
-│   │   ├── diagrama_classes.svg                # Diagrama vetorial estilizado para visualização
-│   │   └── diagrama_classes.excalidraw         # Arquivo nativo editável no Excalidraw
+│   │   ├── README.md                           # Catálogo central de todos os diagramas
+│   │   ├── diagrama_classes.svg                # Diagrama de Classes UML (vetorial estilizado)
+│   │   ├── diagrama_classes.excalidraw         # Diagrama de Classes UML (editável no Excalidraw)
+│   │   ├── diagrama_sequencia.md               # Diagramas de Sequência UML (Fluxos Críticos)
+│   │   ├── diagrama_arquitetura.md             # Diagrama de Arquitetura em Camadas
+│   │   └── diagrama_bpmn_processo.md           # Diagrama de Processo de Negócio TO-BE (BPMN / Raias)
 │   ├── requisitos/
 │   │   └── Documento_Especificacao_Requisitos_Final.docx # Especificação formal completa
 │   └── Projeto_Integrador_Contexto_Completo.md # Memória e histórico unificado do projeto
-├── src/                                        # Código-fonte C# (.NET Console App em construção)
+├── src/                                        # Código-fonte C# (.NET em construção)
 └── README.md
 ```
 
