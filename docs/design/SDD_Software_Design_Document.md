@@ -550,11 +550,11 @@ Cada entidade de domínio e regra de negócio é desenvolvida estritamente segui
 * **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído**  
   Todas as 9 entidades de domínio (`Paciente`, `Agendamento`, `SessaoProntuario`, `VersaoAnotacao`, `Pagamento`, `Notificacao`, `LogAcesso`, `Usuario`, `ProfissionalSaude`, `Administrador`) e os 7 enums foram implementados e cobertos por **23 testes automatizados via xUnit**, executando com 0 falhas (`dotnet test src/`).
 
-* **Bloco 2 — Interfaces e Repositórios In-Memory:** 🚀 **Foco Imediato**  
-  Criação das interfaces de persistência (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `INotificador`) e suas implementações em memória (`List<T>`) para desacoplamento completo do banco de dados relacional.
+* **Bloco 2 — Interfaces e Repositórios In-Memory:** ✅ **100% Concluído**  
+  Implementação de 100% dos contratos de domínio (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `ILogAcessoRepository`, `INotificador`) e dos seus respectivos repositórios em memória baseados em `List<T>` com LINQ (`InMemoryPacienteRepository`, `InMemoryAgendamentoRepository`, `InMemoryProntuarioRepository`, `InMemoryPagamentoRepository`, `InMemoryUsuarioRepository`, `InMemoryLogAcessoRepository`), garantindo desacoplamento total para a transição futura para o MySQL em BD II.
 
-* **Bloco 3 — Serviços de Aplicação (Casos de Uso):** ⏳ Planejado  
-  Orquestração dos fluxos de negócio (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`).
+* **Bloco 3 — Serviços de Aplicação (Casos de Uso e Orquestração):** 🚀 **Foco Imediato**  
+  Implementação das regras de negócio orquestradas (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`) e o canal concreto `NotificadorWhatsApp`.
 
 * **Bloco 4 — Interface de Demonstração (MVP):** ⏳ Planejado  
   Apresentação interativa do fluxo completo da clínica.

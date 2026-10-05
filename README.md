@@ -60,7 +60,15 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
     - `LogAcesso` (RF28, RN13, RQ07 — auditoria imutável de acessos sensíveis)
     - `Usuario`, `ProfissionalSaude`, `Administrador` (RF26, RF27, RN12, RQ08 — herança, hash SHA256 e polimorfismo)
   - [x] Suíte de Testes Automatizados (TDD com xUnit — 23 testes unitários aprovados)
-  - [ ] Implementação de Interfaces e Repositórios em memória (`List<T>`)
+  - [x] Implementação de 100% das Interfaces de Domínio (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `ILogAcessoRepository`, `INotificador`)
+  - [x] Implementação de 100% dos Repositórios em Memória (`List<T>`) na Infraestrutura:
+    - `InMemoryPacienteRepository`
+    - `InMemoryAgendamentoRepository`
+    - `InMemoryProntuarioRepository`
+    - `InMemoryPagamentoRepository`
+    - `InMemoryUsuarioRepository`
+    - `InMemoryLogAcessoRepository`
+  - [ ] Implementação de Notificador concreto (`NotificadorWhatsApp`)
   - [ ] Implementação das regras de negócio em serviços (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`)
   - [ ] Interface Console interativa para testes e demonstração do MVP
 - [ ] **Parte 3 — Banco de Dados II**
@@ -125,7 +133,10 @@ Aprovado! – Com falha: 0, Aprovado: 23, Ignorado: 0, Total: 23
 │   ├── ClinicaApp/                             # Core de Domínio e Regras da Clínica
 │   │   ├── Domain/
 │   │   │   ├── Entities/                       # Paciente, Agendamento, SessaoProntuario, etc.
-│   │   │   └── Enums/                          # StatusAgendamento, PerfilUsuario, etc.
+│   │   │   ├── Enums/                          # StatusAgendamento, PerfilUsuario, etc.
+│   │   │   └── Interfaces/                     # Contratos de repositório e notificação
+│   │   ├── Infrastructure/
+│   │   │   └── InMemory/                       # Implementações de persistência em memória (List<T>)
 │   │   └── ClinicaApp.csproj
 │   └── ClinicaApp.Tests/                       # Suíte de Testes Automatizados (xUnit)
 │       ├── Domain/                             # Testes unitários das regras de negócio
