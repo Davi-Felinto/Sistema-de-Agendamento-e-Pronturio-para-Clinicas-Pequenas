@@ -2,146 +2,119 @@
 ## Sistema de Agendamento, Prontuário e Gestão Clínica (Clinix)
 
 > **Documento de Estratégia de Monetização, Benchmark de Mercado e Modelos de Proposta**  
+> **Modelos Cobertos:** Assinatura Recorrente (SaaS) **E** Projeto de Software Dedicado / Licença (Não-SaaS)  
 > **Autor:** Davi Felinto — Engenharia de Software (CEUB)  
-> **Objetivo:** Definir a política de precificação para o primeiro cliente real e estruturar a viabilidade comercial do projeto  
-> **Data:** Outubro / 2026 — Versão: 1.0  
+> **Objetivo:** Oferecer flexibilidade comercial total para o fechamento com o primeiro cliente real  
+> **Data:** Outubro / 2026 — Versão: 2.0  
 
 ---
 
 ## 1. Visão Geral e Posicionamento Estratégico
 
-A entrada de um primeiro cliente interessado no sistema representa a transição do projeto de um ambiente acadêmico para um **produto de mercado real (Micro-SaaS)**.
+A entrada de um primeiro cliente interessado representa o momento de transição de um projeto acadêmico para um produto de mercado real. 
 
-Como o projeto está no 2º semestre da graduação e continuará recebendo melhorias técnicas e arquiteturais (Banco de Dados relacional, infraestrutura em nuvem e novas funcionalidades), o modelo financeiro deve atender a três objetivos estratégicos:
+Na prática comercial com profissionais de saúde, existem dois perfis distintos de clientes:
+1. **O cliente que prefere baixo custo inicial:** Quer pagar pouco por mês, sem se preocupar com servidores, backups ou manutenção (**Modelo SaaS — Assinatura**).
+2. **O cliente que não quer mensalidades eternas:** Quer "comprar a solução", ter o sistema próprio no consultório e pagar um valor pelo projeto/licença com garantia (**Modelo Não-SaaS — Projeto Dedicado / Licença**).
 
-1. **Garantir a adesão imediata da cliente:** Sem barreiras financeiras altas que causem desistência ou hesitação.
-2. **Gerar receita recorrente previsível:** Para cobrir custos de infraestrutura e recompensar o tempo investido em suporte e evolução.
-3. **Validar o produto no mundo real:** Transformar a cliente em um **case de sucesso de referência** para atrair novos consultórios.
-
----
-
-## 2. Por que NÃO Vender por Valor Único Fechado?
-
-Na área de software médico e de gestão clínica, a cobrança por valor único (ex.: *"vender o código ou licença vitalícia por R$ 2.000"*) é um erro grave:
-
-| Risco do Modelo Fechado | Impacto Prático no Projeto |
-| :--- | :--- |
-| **Trabalho Não Remunerado** | Sistemas de saúde exigem manutenção, backups e suporte. Cobrar apenas na entrega obriga o desenvolvedor a prestar suporte contínuo de graça. |
-| **Insegurança da Cliente** | Desembolsar R$ 2.000 ou R$ 3.000 à vista por uma solução em validação gera atrito e medo de risco financeiro. |
-| **Bloqueio de Evolução** | O software fica congelado no tempo na versão vendida, inviabilizando o modelo de plataforma que atende várias clínicas. |
-
-> **Diretriz:** O modelo correto e sustentável é o de **Assinatura Recorrente (Software as a Service — SaaS)** com um período inicial de **Programa de Cliente Piloto**.
+Ao dominar **ambas as abordagens**, você ganha o poder da **ancoragem de preço**: se a cliente achar a compra do projeto cara, a assinatura parece extremamente barata; se ela odiar mensalidades, você tem a opção de projeto fechado na manga para não perder a venda.
 
 ---
 
-## 3. Benchmark de Mercado (Preços no Brasil)
+## 2. Comparativo Estruturado: Modelo SaaS vs. Modelo Não-SaaS
 
-Pesquisa de mercado em soluções concorrentes para profissionais autônomos e consultórios de pequeno porte:
-
-| Plataforma Concorrente | Funcionalidades Básicas | Mensalidade Praticada |
-| :--- | :--- | :---: |
-| **Sistemas de Entrada** *(iClinic, Doctoralia básico)* | Apenas agenda e prontuário simples | **R$ 99,00 a R$ 149,00 / mês** |
-| **Sistemas com WhatsApp & Financeiro** *(Simples Dental, Zenklub Pro)* | Lembretes automáticos, histórico e fluxo de caixa | **R$ 160,00 a R$ 260,00 / mês** |
-| **Sistemas Clínicos Completos** *(Feegow, Amplimed)* | Faturamento convênios, recepção integrada | **R$ 350,00 a R$ 600,00+ / mês** |
-
-### Percepção de Valor e Retorno sobre o Investimento (ROI):
-* Em consultórios particulares, o valor médio de uma única consulta varia de **R$ 150,00 a R$ 300,00**.
-* O módulo de **confirmação e lembrete automático via WhatsApp** reduz as faltas de pacientes em até 40%.
-* **Argumento Central:** Se o sistema evitar que **1 único paciente falte no mês inteiro**, ele já gerou mais economia do que o custo da sua mensalidade!
+| Critério | Modelo A: Assinatura (SaaS) | Modelo B: Projeto Dedicado (Não-SaaS) |
+| :--- | :--- | :--- |
+| **Investimento Inicial** | R$ 0,00 (30 dias gratuitos no piloto) | R$ 1.800,00 a R$ 3.200,00 (parcelado) |
+| **Custo Recorrente** | R$ 97,00 a R$ 127,00 / mês | R$ 0,00 (ou R$ 80 a R$ 120/mês para suporte opcional) |
+| **Infraestrutura** | Hospedagem na nuvem sob responsabilidade sua | Instalado em servidor/nuvem em nome da clínica |
+| **Garantia / Suporte** | Suporte contínuo incluso na mensalidade | 90 dias de garantia contra bugs inclusa |
+| **Evolução do Sistema** | Recebe todas as novas atualizações do Clinix | Congelado no escopo entregue (novas funções são orçadas à parte) |
+| **Perfil Ideal de Cliente** | Consultórios que querem praticidade sem desembolso inicial | Clínicas que querem ser "donas" da sua ferramenta |
 
 ---
 
-## 4. Modelos de Precificação Propostos
+## 3. Modelo 1: Projeto de Software Dedicado / Licença (Não-SaaS)
 
-Para apresentar à cliente, são definidos dois modelos viáveis, com destaque para a Opção A.
+Neste modelo, o Clinix é contratado como um **projeto de software sob medida** ou **venda de licença de uso exclusiva para a clínica**.
 
-### 🟢 Opção A (Recomendada): Plano Parceiro Fundador (SaaS Recorrente)
+### 3.1 Faixa de Preço Recomendada para o Primeiro Projeto
+Para um estudante do 2º semestre com uma solução já testada (23 testes automatizados e regras de negócio homologadas):
 
-Proposta focada em eliminar o risco inicial da cliente e construir um relacionamento de longo prazo.
+* **Valor do Projeto Fechado:** **R$ 2.000,00 a R$ 2.800,00**
+  *(Benchmark: Software houses e agências cobram entre R$ 6.000,00 e R$ 12.000,00 para criar um sistema com prontuário e agenda).*
 
-* **Etapa 1: Piloto de Validação (30 dias gratuitos):**
-  * **Investimento:** R$ 0,00.
-  * **Compromisso da Cliente:** Utilizar o sistema na rotina diária e realizar dois alinhamentos de feedback (quinzenais) com o desenvolvedor.
-* **Etapa 2: Mensalidade de Parceiro Fundador:**
-  * **Valor:** **R$ 97,00 a R$ 127,00 / mês** (valor travado por 12 meses em contrato).
-  * **O que inclui:**
-    * Acesso multi-dispositivo ilimitado (computador, tablet e celular);
-    * Suporte técnico via WhatsApp em horário comercial;
-    * Hospedagem segura na nuvem com rotina de backup diário;
-    * Automação de notificações de agendamento e lembretes via WhatsApp;
-    * Todas as melhorias e novos módulos lançados ao longo do ano.
+### 3.2 Condições de Pagamento e Entregas (Milestones)
+Nunca receba apenas no final. Divida o valor em marcos de entrega:
+* **Entrada (40% — ex.: R$ 1.000,00):** Fechamento do contrato, parametrização dos horários, serviços da clínica e configuração do banco de dados dedicado.
+* **Intermediária (30% — ex.: R$ 750,00):** Demonstração do sistema populado com a base de dados da clínica e validação do fluxo clínico.
+* **Entrega Final (30% — ex.: R$ 750,00):** Treinamento da equipe/profissional, homologação e início do uso oficial.
 
----
+*(Ou parcelamento facilitado em até 4x no cartão/boleto para viabilizar o investimento).*
 
-### 🔵 Opção B: Taxa de Implantação (Setup) + Mensalidade Reduzida
+### 3.3 O que está incluso no Modelo Não-SaaS:
+- Implantação e configuração completa do sistema para o consultório;
+- Importação da lista inicial de pacientes e tabela de procedimentos;
+- Treinamento operacional (presencial ou por vídeo);
+- **Garantia Técnica de 90 dias:** Correção gratuita e prioritária de quaisquer bugs ou inconsistências no código.
 
-Modelo indicado caso a cliente exija que você realize a migração manual de fichas antigas ou treinamento presencial da equipe de recepção.
-
-* **Taxa de Implantação e Configuração (Setup Único):**
-  * **Valor:** **R$ 350,00 a R$ 500,00** (pago na contratação).
-  * **Serviços inclusos:** Parametrização da agenda, cadastro de serviços/valores, importação da lista inicial de pacientes e treinamento operacional da equipe.
-* **Mensalidade de Manutenção e Hospedagem:**
-  * **Valor:** **R$ 79,00 a R$ 97,00 / mês**.
-  * **Serviços inclusos:** Hospedagem na nuvem, backups diários, suporte técnico e manutenção preventiva.
-
----
-
-## 5. Estimativa de Custos Operacionais e Lucratividade
-
-Para manter o sistema em produção para 1 a 3 clínicas, a infraestrutura requer custos mínimos:
-
-| Componente | Provedor / Solução Técnica | Custo Mensal Estimado |
-| :--- | :--- | :---: |
-| **Hospedagem Front/Backend** | Railway, Render ou VPS básica (Hetzner / Hostinger) | R$ 0,00 a R$ 30,00 |
-| **Banco de Dados (MySQL)** | Supabase, Railway ou servidor MySQL na VPS | R$ 0,00 a R$ 25,00 |
-| **Disparo de WhatsApp** | Evolution API / Z-API / WhatsApp Webhook | R$ 0,00 a R$ 40,00 |
-| **Custo Total Estimado:** | | **~ R$ 30,00 a R$ 50,00 / mês** |
-
-### 📈 Projeção Financeira e Margem de Lucro:
-* **Com 1 Cliente (R$ 119,00/mês):** Cobre 100% dos custos operacionais e gera lucro líquido de ~R$ 70,00 a R$ 85,00/mês.
-* **Com 5 Clientes (R$ 119,00/mês = R$ 595,00):** O custo de infraestrutura quase não se altera, gerando lucro líquido superior a **R$ 500,00/mês recorrentes**.
+### 3.4 Pós-Garantia: O Contrato de Suporte e Sustentação Opcional
+No modelo não-SaaS, você não fica desamparado após a entrega. Ofereça um plano de sustentação pós-garantia:
+* **Plano de Manutenção e Backups (Opcional):** **R$ 80,00 a R$ 120,00 / mês**.
+  * Cobre monitoramento de backups, suporte técnico a dúvidas e pequenas correções preventivas.
+* **Hora de Desenvolvimento Avulsa:** **R$ 60,00 a R$ 90,00 / hora**.
+  * Se a cliente quiser um relatório novo, campos customizados ou formulários específicos no futuro.
+* **Custos de Servidor:** Ficam diretamente no cartão/nome da própria clínica (cerca de R$ 20 a R$ 35/mês em provedores como Railway, Render ou VPS).
 
 ---
 
-## 6. Roteiro de Negociação e Apresentação da Proposta
+## 4. Modelo 2: Assinatura Mensal Recorrente (SaaS — Clinix Cloud)
 
-Quando a cliente perguntar sobre os valores do sistema durante a reunião:
+O modelo de serviço contínuo com barreira de entrada zero.
 
-### 🗣️ Script de Negociação Recomendado:
-> *"Hoje, softwares consolidados desse segmento cobram entre R$ 180 e R$ 260 por mês, além de taxas altas de implantação, e muitas vezes oferecem interfaces engessadas e suporte impessoal.*
+### 4.1 O "Plano Parceiro Fundador"
+* **Fase Piloto (30 dias gratuitos):** R$ 0,00 de investimento inicial em troca de feedback e depoimento.
+* **Mensalidade Pós-Piloto:** **R$ 97,00 a R$ 127,00 / mês** (travada por 12 meses).
+* **Vantagens:** Todas as atualizações que você fizer na faculdade (relatórios, novos designs, integrações) entram automaticamente para a cliente sem custo extra.
+
+---
+
+## 5. Como Apresentar os Dois Modelos na Reunião (A Técnica das Duas Portas)
+
+Apresentar as duas opções é a forma mais profissional de negociar. Você não empurra uma fórmula: você oferece **opções de escolha**.
+
+### 🗣️ Exemplo de Discurso Comercial:
+> *"Para atendermos ao seu consultório da forma mais confortável para o seu momento financeiro, nós trabalhamos com dois formatos:*
 > 
-> *Como o Clinix está iniciando a fase de implantação com profissionais parceiros selecionados, nós criamos o **Programa de Parceiro Fundador**:*
+> ***Opção 1 — Assinatura Leve (Plano Parceiro Fundador):***  
+> *Você não paga nada de taxa de desenvolvimento. Liberamos **30 dias de uso piloto gratuito** para você testar no dia a dia. Se aprovar, você assume uma mensalidade de apenas **R$ 119,00 por mês**, com servidores, backups diários, suporte direto comigo e todas as novas atualizações inclusas.*
 > 
-> 1. *Disponibilizamos **30 dias de uso piloto sem qualquer custo** no seu consultório, para você validar na prática o ganho de tempo e a redução de faltas.*
-> 2. *Após esse período de 30 dias, se o sistema atender plenamente às suas expectativas, você passa a ter uma mensalidade especial fixada de apenas **R$ 119,00 por mês** [ou R$ 97,00].*
-> 3. *Esse valor cobre a hospedagem na nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações que lançarmos, sem qualquer taxa de fidelidade ou multa de cancelamento.*
+> ***Opção 2 — Projeto Dedicado do Consultório (Sem Mensalidades):***  
+> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento único do seu consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00** (que podemos dividir em entrada + etapas de entrega). Essa opção inclui a instalação exclusiva, importação dos seus dados, treinamento e **90 dias de garantia técnica total**, com a opção de contratar manutenção apenas se você desejar.*
 > 
-> *O que acha dessa proposta para estruturarmos o início do piloto?"*
+> *Qual desses dois modelos faz mais sentido para a realidade da sua clínica hoje?"*
 
 ---
 
-## 7. Como Lidar com Objeções Comuns de Preço
+## 6. Como Responder a Objeções em Cada Modelo
 
-| Objeção da Cliente | Abordagem Recomendada |
-| :--- | :--- |
-| **"Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar a engenharia e os 23 testes de qualidade. Para operar no seu consultório, o sistema consome servidores profissionais em nuvem, rotinas de backup diário e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam seguros e dentro da LGPD."* |
-| **"Achei um sistema grátis na internet."** | *"Sistemas gratuitos geralmente não têm suporte, não realizam backup garantido e costumam monetizar vendendo anúncios ou limitando o número de pacientes quando você mais precisa. O Clinix oferece canal direto de atendimento e segurança jurídica no prontuário."* |
-| **"Não quero pagar mensalidade, prefiro pagar uma vez só."** | *"O modelo de assinatura é a garantia de que o seu sistema nunca ficará desatualizado ou abandonado. Ele garante que a hospedagem esteja sempre ativa, com backups diários e novos recursos sendo adicionados continuamente sem custos surpresa."* |
+### Se você estiver negociando o Modelo Não-SaaS (Projeto Fechado):
+* **"Achei R$ 2.400 caro para pagar agora":**
+  > *"Compreendo perfeitamente! É exatamente por isso que temos a Opção 1 de Assinatura. Você não desembolsa nada agora, ganha 30 dias de piloto grátis e depois mantém apenas R$ 119,00/mês, que é menos que o valor de uma única consulta do seu consultório."*
+* **"E se eu quiser colocar mais recursos depois da entrega?":**
+  > *"O sistema já vem completo com os fluxos essenciais (agenda, prontuário com histórico imutável, WhatsApp e financeiro). Caso você queira criar módulos específicos no futuro, como teleconsulta ou convênios, podemos orçar por hora de desenvolvimento ou incluir no nosso pacote de sustentação."*
+
+### Se você estiver negociando o Modelo SaaS (Assinatura):
+* **"Não gosto da ideia de pagar mensalidade para sempre":**
+  > *"Sem problemas! A vantagem do nosso projeto é a flexibilidade. Nós podemos formalizar a contratação como Projeto Fechado por R$ 2.400,00 com 90 dias de garantia e sem qualquer mensalidade obrigatória."*
 
 ---
 
-## 8. Alinhamento de Expectativas e Limites do Acordo (SLA)
+## 7. Recomendações para o Davi (Decisão Prática)
 
-Para preservar o seu tempo e foco nos estudos:
-
-1. **Horário e Canal de Suporte:**
-   - Atendimento via WhatsApp em horário comercial (segunda a sexta, das 08h às 18h).
-   - Prazo de resposta para dúvidas: até 4 horas úteis.
-   - Chamados críticos (ex.: indisponibilidade): prioridade imediata.
-2. **Escopo do Sistema:**
-   - O plano cobre os módulos de Agenda, Cadastro de Pacientes, Prontuário Eletrônico, Controle Financeiro e Trilha de Auditoria.
-   - Demandas de novas funcionalidades complexas (ex.: faturamento de convênios TISS, nota fiscal eletrônica) entrarão na lista de evolução e serão orçadas separadamente se exigirem customização exclusiva.
-3. **Propriedade dos Dados:**
-   - Todos os dados cadastrais, históricos de consultas e prontuários pertencem 100% à cliente e à clínica, podendo ser exportados a qualquer momento em conformidade com a LGPD.
-4. **Contrapartida de Case de Sucesso:**
-   - Ao final dos 30 dias de piloto, a cliente concorda em fornecer um breve depoimento sobre os resultados práticos obtidos (ganho de tempo e redução de faltas), autorizando a citação do consultório como case de referência.
+1. **Se a cliente for profissional autônoma (psicóloga, nutricionista, fisioterapeuta):**  
+   Geralmente preferem a **Opção 1 (SaaS / R$ 97 a R$ 127/mês)** devido ao baixo fluxo de caixa imediato e à praticidade de não precisar lidar com servidores.
+2. **Se a cliente for dona de uma clínica estruturada (com recepcionista e mais movimento):**  
+   Muitas vezes têm verba para investimento e preferem a **Opção 2 (Projeto Dedicado / R$ 2.000 a R$ 2.800)**, pois enxergam como ativo permanente da empresa.
+3. **Formalize em Contrato Simples:**  
+   Independentemente da opção escolhida, elabore um termo de 2 páginas especificando o escopo (os 5 módulos entregues), o cronograma de pagamento e a garantia técnica de 90 dias.
