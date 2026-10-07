@@ -1,19 +1,20 @@
 # Roteiro de Apresentação do Sistema para Cliente
 ## Sistema de Agendamento, Prontuário e Gestão Clínica (Clinix)
 
-> **Documento de Condução Comercial, Demonstração Prática e Status do Projeto**  
+> **Documento de Condução Comercial, Demonstração Prática e Fechamento com a Cliente**  
 > **Autor:** Davi Felinto — Engenharia de Software (CEUB)  
 > **Público-alvo:** Profissional de Saúde / Gestor(a) de Clínica Pequena interessado(a) na solução  
+> **Modelos Comerciais Integrados:** Assinatura Recorrente (SaaS) **e** Projeto Dedicado do Consultório (Não-SaaS)  
 > **Duração estimada da reunião:** 35 a 45 minutos  
-> **Versão:** 1.0 — Outubro / 2026  
+> **Versão:** 2.0 (100% Alinhada com a Proposta Comercial) — Outubro / 2026  
 
 ---
 
 ## 1. Visão Geral e Estrutura da Apresentação
 
-O objetivo desta apresentação é transformar o interesse da cliente em confiança e adoção prática do sistema. A reunião não deve focar apenas em detalhes puramente acadêmicos, mas em demonstrar **como o sistema resolve os gargalos diários do consultório** (faltas de pacientes, agenda desorganizada, insegurança jurídica no prontuário e descontrole financeiro), evidenciando a maturidade e a solidez da engenharia por trás do projeto.
+O objetivo desta apresentação é transformar o interesse da cliente em confiança e adoção prática do sistema. A reunião não foca apenas em detalhes acadêmicos, mas em demonstrar **como o sistema resolve os gargalos diários do consultório** (faltas de pacientes, agenda desorganizada, insegurança jurídica no prontuário e descontrole financeiro), conectando a demonstração prática com uma proposta comercial flexível e sem barreiras.
 
-### ⏱️ Cronograma Sugerido da Reunião
+### ⏱️ Cronograma da Reunião
 
 | Bloco | Etapa | Foco Principal | Tempo |
 | :---: | :--- | :--- | :---: |
@@ -22,7 +23,7 @@ O objetivo desta apresentação é transformar o interesse da cliente em confian
 | **3** | **Posicionamento & Proposta de Valor** | Apresentar o propósito e os 4 pilares do sistema | 3 a 5 min |
 | **4** | **Demonstração Prática (Ao Vivo)** | Conduzir o fluxo completo na interface interativa | 15 a 20 min |
 | **5** | **Andamento do Projeto & Engenharia** | Transparência: status atual, testes em C# e LGPD | 5 min |
-| **6** | **Feedback, Objeções & Próximos Passos** | Alinhamento de piloto e proposta de implantação | 5 a 10 min |
+| **6** | **Proposta Comercial & Fechamento** | Apresentação das Duas Portas (SaaS vs Não-SaaS) e piloto | 5 a 10 min |
 
 ---
 
@@ -33,17 +34,18 @@ Antes de entrar na chamada de vídeo ou reunião presencial:
 - [ ] **Ambiente de Demonstração Aberto:** Abra o arquivo `index.html` em navegador moderno (Chrome, Edge ou Firefox). Pressione `F11` para colocar em tela cheia e evitar distrações.
 - [ ] **Aba Inicial:** Deixe a tela posicionada na aba **"Visão Geral / Dashboard"**.
 - [ ] **Dados de Demonstração Carregados:** Certifique-se de que há pacientes fictícios (ex.: Mariana Duarte, Carlos Neves, Beatriz Vasconcelos) e consultas para hoje.
-- [ ] **Bloco de Anotações:** Mantenha um bloco à mão para anotar termos e rotinas específicas da cliente (ex.: se ela utiliza "anamnese", "evolução", "paciente" ou "cliente").
-- [ ] **Postura Consultiva:** Lembre-se: o foco é resolver os problemas dela. Demonstre segurança e ouça antes de apresentar soluções.
+- [ ] **Documentos de Apoio:** Tenha à mão a [Proposta Comercial](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Proposta_Precificacao_Estrategia_Comercial.md) com a minuta de adesão.
+- [ ] **Bloco de Anotações:** Mantenha um bloco para anotar termos e procedimentos específicos da cliente.
+- [ ] **Postura Consultiva:** Lembre-se: o foco é resolver os problemas dela. Ouça antes de apresentar soluções.
 
 ---
 
 ## 3. Bloco 1: Abertura e Diagnóstico das Dores (5 a 7 min)
 
-> **Regra de Ouro:** Não comece abrindo telas imediatamente. Quem ouve primeiro identifica os pontos críticos e conduz a demonstração exatamente nas dores que mais incomodam a cliente.
+> **Regra de Ouro:** Não comece abrindo telas imediatamente. Quem ouve primeiro identifica os pontos críticos da rotina e conduz a demonstração exatamente nas dores que mais incomodam a cliente.
 
 ### 🗣️ Exemplo de Fala de Abertura:
-> *"Olá, [Nome da Cliente], muito obrigado pela oportunidade de conversarmos hoje! Antes de abrir telas ou botões, quero entender um pouco da sua rotina prática. O Clinix foi projetado especificamente para profissionais e clínicas que querem fugir da burocracia de sistemas pesados e caros, focando em simplicidade, segurança jurídica e agilidade no atendimento. Como funciona o seu dia a dia hoje?"*
+> *"Olá, [Nome da Cliente], muito obrigado pela oportunidade de conversarmos hoje! Antes de abrir telas ou botões, quero entender um pouco da sua rotina prática. O Clinix foi projetado especificamente para profissionais e clínicas que querem fugir da burocracia de sistemas pesados e caros, focando em simplicidade, segurança jurídica e agilidade no atendimento. Como funciona o seu dia a dia no consultório hoje?"*
 
 ### ❓ Perguntas Investigativas:
 1. **Agendamento e Faltas:**
@@ -52,9 +54,9 @@ Antes de entrar na chamada de vídeo ou reunião presencial:
 2. **Prontuário e Histórico:**
    - *"Onde ficam salvas as anotações e evoluções de cada paciente? É fácil recuperar o histórico de atendimentos antigos durante uma consulta?"*
 3. **Controle Financeiro:**
-   - *"Como você controla quem já pagou, quem ficou devendo no final do dia e quanto você faturou no mês?"*
+   - *"Como você controla quem já pagou, quem ficou pendente no final do dia e quanto você faturou no mês?"*
 4. **Equipe e Sigilo:**
-   - *"Você atende sozinha ou conta com recepcionista/secretária? Há preocupação com o sigilo das fichas médicas?"*
+   - *"Você atende sozinha ou conta com recepcionista/secretária? Há preocupação com o sigilo das fichas médicas e a LGPD?"*
 
 ---
 
@@ -74,7 +76,7 @@ Após ouvir as respostas da cliente, conecte as dores citadas com a proposta de 
 
 ## 5. Bloco 3: Como o Sistema Vai Funcionar (Demonstração Prática - 15 a 20 min)
 
-Aqui você compartilha a tela com a aplicação aberta. Siga o fluxo natural da clínica, da recepção ao pós-atendimento:
+Aqui você compartilha a tela com o protótipo interativo aberto (`index.html`). Siga o fluxo natural do atendimento da clínica:
 
 ```
 Fluxo da Demonstração:
@@ -98,13 +100,13 @@ Fluxo da Demonstração:
 
 ---
 
-### Passo 2: O Agendamento em 3 Cliques e Proteção Anti-Conflito
+### Passo 2: O Agendamento em 3 Cliques e Proteção Anti-Conflito (RN01 / RN02)
 - **O que mostrar:** Clique na aba **"Agenda Clínica"**.
 - **Demonstração A (Agendamento rápido):**
   - Clique em um horário vago (ex.: 10:00).
   - Selecione o paciente, tipo de consulta e confirme.
   - Aponte que o agendamento foi concluído em segundos.
-- **Demonstração B (Inteligência Anti-Conflito — RN01 / RN02):**
+- **Demonstração B (Inteligência Anti-Conflito):**
   - Tente propositalmente marcar outro paciente no mesmo horário das 10:00.
   - Mostre o sistema bloqueando a ação e emitindo o alerta de choque de horário.
 - **O que falar:**
@@ -115,47 +117,45 @@ Fluxo da Demonstração:
 ### Passo 3: Automação de Confirmações e Lembretes via WhatsApp (RN03 / RN04)
 - **O que mostrar:** O ícone e status de envio de mensagem ao lado da consulta na agenda.
 - **O que falar:**
-  > *"Assim que a consulta é confirmada, o sistema gera a confirmação direta no WhatsApp do paciente. Além disso, ele agenda automaticamente o disparo de um lembrete 24 horas antes do horário marcado. Estudos na área de saúde mostram que essa automação simples reduz as faltas e o esquecimento de pacientes em até 40%."*
+  > *"Assim que a consulta é confirmada, o sistema gera a confirmação direta no WhatsApp do paciente. Além disso, ele agenda automaticamente o disparo de um lembrete 24 horas antes do horário marcado. Estudos na área de saúde mostram que essa comunicação reduz faltas em até 40%."*
 - **Destaque extra (Cancelamento Tardio — RN10):** Mostre como o sistema detecta cancelamentos feitos a menos de 24 horas da consulta e marca na ficha do paciente para controle da taxa de desmarcação.
 
 ---
 
 ### Passo 4: O Momento do Atendimento — Prontuário com Histórico Imutável (RN17)
-- **O que mostrar:** Navegue para a aba **"Prontuário Eletrônico"** (ou use o atalho de busca rápida `Ctrl + K`).
+- **O que mostrar:** Navegue para a aba **"Prontuário Eletrônico"** (ou use a busca rápida `Ctrl + K`).
 - **Demonstração A (Ficha e Linha do Tempo):**
   - Selecione a paciente Mariana Duarte.
-  - Aponte o cabeçalho clínico com alertas destacados de alergias e condições pré-existentes.
-  - Mostre a linha do tempo com os atendimentos anteriores organizados cronologicamente.
+  - Aponte os alertas destacados de alergias e condições pré-existentes e a linha do tempo cronológica.
 - **Demonstração B (Edição com Versionamento Imutável — O Diferencial Ético/Jurídico):**
   - Clique para editar uma anotação já registrada.
-  - Modifique o texto (ex.: acrescentando uma dosagem ou evolução) e informe o motivo.
+  - Modifique o texto (ex.: acrescentando uma evolução) e informe o motivo da alteração.
   - Salve e abra o **Histórico de Versões** daquela sessão, mostrando o texto antigo preservado com data, hora e motivo.
 - **O que falar:**
-  > *"Este é um dos recursos mais avançados e importantes para o profissional de saúde: a conformidade ética e jurídica. Em muitos sistemas simples ou blocos de notas, se você edita um prontuário, o texto antigo se perde. Aqui não: cada edição gera um snapshot permanente. O histórico de tudo o que foi escrito fica arquivado com data e motivo. Isso oferece tranquilidade e segurança total em casos de auditoria do Conselho Regional ou disputas judiciais."*
+  > *"Este é um dos recursos mais avançados e importantes para o profissional de saúde: o respaldo ético e legal. Em sistemas comuns ou blocos de notas, se alguém edita uma anotação, o histórico antigo é sobrescrito. No Clinix, cada alteração gera uma versão arquivada definitiva com data e motivo. Isso oferece segurança total perante conselhos de classe e eventuais disputas judiciais."*
 
 ---
 
 ### Passo 5: Fechamento da Consulta e Controle Financeiro (RN07 / RN08 / RN09)
 - **O que mostrar:** Aba **"Financeiro & Relatórios"**.
 - **Demonstração:**
-  - Mostre a lista de atendimentos finalizados.
   - Dê baixa em uma consulta pendente selecionando a forma de pagamento (Pix, Cartão ou Dinheiro).
-  - Mostre o resumo consolidado do mês atualizando em tempo real com total arrecadado, pendente e atendimentos realizados.
+  - Mostre o resumo consolidado do mês atualizando em tempo real com total arrecadado, pendências e atendimentos realizados.
 - **O que falar:**
-  > *"Assim que o paciente sai da sala, você ou sua recepção clica em 'Baixar Pagamento' e escolhe se foi Pix, cartão ou dinheiro. Se ficar para pagar depois, o sistema mantém o alerta na lista de pendências. No final do mês, você não precisa somar comprovantes ou bater extratos: o relatório consolidado mostra o faturamento exato da clínica com um clique."*
+  > *"Assim que o paciente sai da sala, com um clique você dá baixa informando se foi Pix, cartão ou dinheiro. Se ficar para acertar depois, o valor permanece visível na lista de pendências. No final do mês, você não precisa somar comprovantes ou bater planilhas: o sistema fecha o faturamento automaticamente."*
 
 ---
 
 ### Passo 6: Segurança, Controle de Perfis e LGPD (RN11, RN12, RN13, RN16)
 - **O que mostrar:** Alterne o perfil de acesso no menu lateral (Profissional vs Administrador) e mostre a aba **"Auditoria & Logs"**.
 - **O que falar:**
-  > *"O sistema separa rigorosamente quem acessa o quê. Se você tiver uma recepcionista, ela pode agendar, emitir recibos e cadastrar contatos, mas ela **não tem permissão para ler prontuários médicos ou sigilosos**. Além disso, cada acesso a prontuário fica registrado em uma trilha de auditoria inviolável, e o cadastro de pacientes é totalmente aderente à LGPD, permitindo inativação com anonimização caso o paciente solicite a exclusão dos seus dados."*
+  > *"O sistema separa rigorosamente quem acessa o quê. Se você tiver uma recepcionista, ela pode agendar, emitir recibos e cadastrar contatos, mas ela **não tem permissão para ler prontuários médicos sigilosos**, que ficam restritos ao profissional. Além disso, cada acesso a prontuário fica registrado em uma trilha de auditoria inviolável, e o cadastro permite anonimização imediata para atender à LGPD."*
 
 ---
 
 ## 6. Bloco 4: Andamento do Projeto e Rigor Técnico (5 min)
 
-Nesta etapa, você demonstra a maturidade e a seriedade da construção do software, transmitindo credibilidade total.
+Nesta etapa, você demonstra a maturidade e a seriedade da construção do software:
 
 ### 📊 Painel de Status do Projeto
 
@@ -176,29 +176,42 @@ Nesta etapa, você demonstra a maturidade e a seriedade da construção do softw
 
 ---
 
-## 7. Bloco 5: Coleta de Feedback e Fechamento Comercial (5 a 10 min)
+## 7. Bloco 5: Proposta Comercial e Fechamento (5 a 10 min)
 
-Conclua a reunião transformando a cliente em parceira de validação (co-autora da solução):
+Aqui você apresenta a proposta comercial alinhada com as **duas opções de contratação** (SaaS vs Não-SaaS):
 
-### ❓ Perguntas Estratégicas de Fechamento:
-1. *"Olhando o fluxo que demonstramos agora, como você enxerga isso funcionando na sua rotina diária?"*
-2. *"Teve alguma tela ou detalhe que chamou mais a sua atenção?"*
-3. *"Na sua especialidade, existe algum campo clínico ou documento específico (ex.: anamnese personalizada, atestado ou recibo) que seria indispensável no seu primeiro dia de uso?"*
+### 🗣️ Script de Transição e Apresentação das Duas Opções:
+> *"Dra. [Nome], agora que você viu como o sistema funciona na prática, quero te apresentar como nós estruturamos a contratação. Para que você tenha total conforto financeiro, nós trabalhamos com **dois formatos**:*
+>
+> ***Opção 1 — Assinatura Leve (Plano Parceiro Fundador):***  
+> *Você não paga nada de taxa de desenvolvimento. Nós liberamos **30 dias de uso piloto gratuito** no seu consultório para você e sua equipe testarem na rotina real. Se você aprovar, você mantém uma mensalidade especial fixada de apenas **R$ 119,00 por mês** [ou R$ 97,00], com servidores em nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações inclusas, sem taxa de cancelamento.*
+>
+> ***Opção 2 — Projeto Dedicado do Consultório (Sem Mensalidades):***  
+> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento próprio do consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00**. Dividimos esse valor em etapas conforme as entregas: 40% de entrada, 30% na validação dos dados reais e 30% após o treinamento da equipe. Essa opção inclui a instalação exclusiva, importação dos seus pacientes e **90 dias de garantia técnica total**, sem mensalidades obrigatórias."*
 
-### 🎯 Proposta de Próximo Passo (Chamada para Ação):
-> *"O nosso próximo passo ideal é cadastrar as configurações do seu consultório (seus horários de atendimento, serviços e valores) e liberar um período de testes piloto de 15 dias para você experimentar na prática e nos dar suas impressões. O que você acha de alinharmos os dados para iniciarmos esse piloto?"*
+### ❓ Pergunta de Fechamento:
+> *"Dra. [Nome], considerando a rotina e o momento atual do seu consultório, **qual desses dois formatos faz mais sentido para você começar?**"*
+
+### 🎯 Como Conduzir as Respostas:
+* **Se escolher a Opção 1 (SaaS / Piloto):**  
+  > *"Excelente! O piloto de 30 dias é a melhor forma de você sentir o ganho de tempo sem nenhum risco. Vou coletar seus horários e serviços para parametrizar o sistema e na próxima semana já liberamos o seu acesso para você começar a usar."*
+* **Se escolher a Opção 2 (Projeto Fechado):**  
+  > *"Perfeito! Vou emitir o nosso termo de projeto com o cronograma das três entregas e o detalhamento da garantia de 90 dias. Podemos programar a entrada para [data de preferência dela] para iniciarmos a configuração?"*
+* **Se ela hesitar ("Preciso pensar..."):**  
+  > *"Compreendo perfeitamente, Dra. [Nome]! Para você não precisar tomar nenhuma decisão financeira hoje, o que acha de aproveitarmos os 30 dias de piloto gratuito da Opção 1? Você usa o sistema no consultório neste mês e, no final dos 30 dias, você decide com calma se prefere continuar na assinatura ou converter para o projeto fechado. O que acha?"*
 
 ---
 
-## 8. Guia de Respostas para Objeções e Dúvidas Comuns
+## 8. Guia de Respostas para Objeções de Preço e Técnicas
 
-| Dúvida da Cliente | Resposta Estruturada Recomendada |
+| Objeção da Cliente | Resposta Estruturada Recomendada |
 | :--- | :--- |
-| **"E se a internet cair durante o atendimento?"** | *"O sistema é leve e pode operar em modo local ou sincronizado na nuvem. Em caso de oscilações breves, seus dados na tela permanecem preservados."* |
-| **"Consigo acessar pelo celular ou tablet?"** | *"Sim! A interface foi desenhada com layout totalmente responsivo. Você pode consultar a agenda ou o histórico de pacientes tanto no computador da clínica quanto no celular."* |
-| **"Meus dados e prontuários estão seguros contra vazamentos?"** | *"Totalmente. Adotamos padrões rigorosos da LGPD: senhas criptografadas, perfis de acesso separados para que recepcionistas não vejam prontuários, e trilha de auditoria que registra cada consulta realizada."* |
-| **"Já posso começar a usar hoje?"** | *"As telas e regras já estão 100% operacionais como você viu. Estamos finalizando a configuração da base de dados com rotina de backup automático para garantir segurança jurídica absoluta aos seus pacientes. Nosso cronograma prevê a liberação do piloto nas próximas semanas."* |
-| **"O sistema emite nota fiscal ou faz teleconsulta?"** | *"Essas funcionalidades estão no nosso roadmap para as próximas versões. Essa parceria com você é excelente justamente para mapearmos as prioridades do seu consultório e incluirmos nas próximas entregas."* |
+| **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Você não desembolsa absolutamente nada agora, ganha 30 dias de piloto gratuito e depois mantém apenas R$ 119,00 por mês, que é menos que o valor de uma única consulta particular da sua clínica."* |
+| **No Modelo SaaS: "Não gosto de pagar mensalidade pra sempre"** | *"Sem problemas! Nós podemos formalizar a entrega como Projeto Fechado por R$ 2.400,00 (divididos em 3 etapas de entrega), com 90 dias de garantia técnica inclusa e sem qualquer cobrança mensal obrigatória."* |
+| **Em Qualquer Modelo: "Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 23 testes automatizados. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam 100% seguros na LGPD."* |
+| **"E se a internet cair durante o atendimento?"** | *"O sistema é leve e opera com cache local seguro no navegador. Em caso de oscilações breves, seus dados na tela permanecem preservados."* |
+| **"Consigo acessar pelo celular ou tablet?"** | *"Sim! A interface é 100% responsiva. Você pode consultar a agenda ou prontuários tanto no computador do consultório quanto no celular."* |
+| **"E se der algum problema ou bug no sistema?"** | *"No modelo de projeto fechado, você conta com 90 dias de garantia técnica com correção prioritária sem custo. No modelo de assinatura, essa garantia e suporte são permanentes enquanto o plano estiver ativo."* |
 
 ---
 
@@ -208,15 +221,16 @@ Mantenha esta tabela visível em uma segunda tela durante a apresentação:
 
 ```
 ┌───────┬───────────────────────────────────┬───────────────────────────────────────────────┐
-│ MIN   │ ETAPA                             │ AÇÃO NA TELA / FALHA CHAVE                    │
+│ MIN   │ ETAPA DA REUNIÃO                  │ AÇÃO NA TELA / MENSAGEM-CHAVE                 │
 ├───────┼───────────────────────────────────┼───────────────────────────────────────────────┤
 │ 00-05 │ Diagnóstico e Perguntas           │ Ouvir: "Como agenda?", "Faltas?", "Prontuário?"│
 │ 05-08 │ Proposta de Valor                 │ Destacar: 3 cliques, WhatsApp, Prontuário, Fin│
-│ 08-12 │ Agenda & Anti-Conflito            │ Agendar em 3 cliques -> Forçar conflito propos│
-│ 12-16 │ Prontuário & Versionamento        │ Ver paciente -> Editar evolução -> Mostrar his│
-│ 16-20 │ Financeiro & Relatórios           │ Baixar Pix/Cartão -> Ver faturamento consolid │
-│ 20-24 │ Perfis, LGPD e Auditoria          │ Alternar Profissional/Admin -> Mostrar Logs   │
-│ 24-28 │ Andamento & Engenharia C#         │ Citar 23 testes TDD xUnit, robustez e futuro  │
-│ 28-35 │ Fechamento & Proposta de Piloto   │ "O que achou?" -> Propor teste de 15 dias     │
+│ 08-12 │ Agenda & Anti-Conflito            │ Agendar em 3 cliques -> Forçar marcação dupla │
+│ 12-16 │ Prontuário & Versionamento        │ Abrir paciente -> Editar anotação -> Histórico│
+│ 16-20 │ Financeiro & Relatórios           │ Baixar Pix/Cartão -> Resumo mensal em 1 clique│
+│ 20-24 │ Perfis, LGPD e Auditoria          │ Alternar Profissional/Admin -> Trilha de Logs │
+│ 24-28 │ Andamento & Engenharia C#         │ Citar os 23 testes TDD xUnit e maturidade     │
+│ 28-35 │ Apresentação das Duas Portas      │ Oferecer Opção 1 (R$ 119/mês) vs Opção 2      │
+│       │ & Fechamento Comercial            │ (Projeto R$ 2.400) -> Conduzir p/ Piloto 30d  │
 └───────┴───────────────────────────────────┴───────────────────────────────────────────────┘
 ```
