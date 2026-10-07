@@ -59,7 +59,7 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
     - `Notificacao` (RF12–RF14, RN14, RN15 — resiliência com 1 retentativa após 15 min)
     - `LogAcesso` (RF28, RN13, RQ07 — auditoria imutável de acessos sensíveis)
     - `Usuario`, `ProfissionalSaude`, `Administrador` (RF26, RF27, RN12, RQ08 — herança, hash SHA256 e polimorfismo)
-  - [x] Suíte de Testes Automatizados (TDD com xUnit — 23 testes unitários aprovados)
+  - [x] Suíte de Testes Automatizados (TDD com xUnit — 38 testes unitários aprovados)
   - [x] Implementação de 100% das Interfaces de Domínio (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `ILogAcessoRepository`, `INotificador`)
   - [x] Implementação de 100% dos Repositórios em Memória (`List<T>`) na Infraestrutura:
     - `InMemoryPacienteRepository`
@@ -68,14 +68,18 @@ O diagrama abaixo representa as entidades, métodos, enumerações e relações 
     - `InMemoryPagamentoRepository`
     - `InMemoryUsuarioRepository`
     - `InMemoryLogAcessoRepository`
-  - [ ] Implementação de Notificador concreto (`NotificadorWhatsApp`)
-  - [ ] Implementação das regras de negócio em serviços (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`)
+  - [x] Implementação de Notificador concreto (`NotificadorWhatsApp`)
+  - [x] Implementação dos Serviços de Aplicação (Application Services com regras de negócio e TDD):
+    - [x] `AuthService` (RF26, RQ08 — autenticação com hash SHA-256 e Salt)
+    - [x] `AgendaService` (RF06, RF08, RN01, RN02, RN03, RN10 — colisão de horários, WhatsApp e cancelamento tardio)
+    - [ ] `ProntuarioService` (RF15–RF18, RN05, RN06, RN13, RN17)
+    - [ ] `FinanceiroService` (RF19–RF22, RN07–RN09)
   - [ ] Interface Console interativa para testes e demonstração do MVP
 - [ ] **Parte 3 — Banco de Dados II**
   - [ ] Modelo Conceitual e Lógico/Físico (DER)
   - [ ] Scripts DDL/DML, integridade e transações de concorrência
 - [ ] **Parte 4 — Desenvolvimento de Interface**
-  - [ ] Protótipo e telas de usuário simplificadas
+  - [x] Protótipo web responsivo e landing page publicada via GitHub Pages (`index.html`)
 
 ---
 
@@ -95,20 +99,21 @@ dotnet test src/
 
 **Resultado esperado:**
 ```text
-Aprovado! – Com falha: 0, Aprovado: 23, Ignorado: 0, Total: 23
+Aprovado!  – Com falha: 0, Aprovado: 38, Ignorado: 0, Total: 38
 ```
 
 ### Regras de Negócio Validadas nos Testes
 | Regra / Requisito | Cenário de Teste Validado | Arquivo de Teste |
 | :--- | :--- | :--- |
-| **RN01 / RN02** | Detecção de conflito e colisão de horários entre consultas | `AgendamentoTests.cs` |
-| **RN10** | Identificação automática de cancelamento tardio (< 24h) | `AgendamentoTests.cs` |
-| **RN16 / RQ03** | Inativação com anonimização de dados pessoais (LGPD) | `PacienteTests.cs` |
+| **RN01 / RN02** | Detecção de conflito e colisão de horários entre consultas | `AgendamentoTests.cs`, `AgendaServiceTests.cs` |
+| **RN03 / RF12** | Disparo de notificação de confirmação via WhatsApp ao agendar | `AgendaServiceTests.cs` |
+| **RN10** | Identificação automática de cancelamento tardio (< 24h) | `AgendamentoTests.cs`, `AgendaServiceTests.cs` |
+| **RN16 / RQ03** | Inativação com anonimização de dados pessoais (LGPD) | `PacienteTests.cs`, `AgendaServiceTests.cs` |
 | **RN17** | Histórico imutável de anotações do prontuário ao editar | `SessaoProntuarioTests.cs` |
 | **RN07 / RN08** | Ciclo de quitação e transição de status de pagamento | `PagamentoTests.cs` |
 | **RN14 / RN15** | Resiliência: permite apenas 1 retentativa 15 min pós-falha | `NotificacaoTests.cs` |
 | **RF28 / RQ07** | Registro de auditoria imutável de acessos sensíveis | `LogAcessoTests.cs` |
-| **RQ08 / RN12** | Autenticação via hash SHA256 e permissões de auditoria | `UsuarioTests.cs` |
+| **RQ08 / RF26** | Autenticação via hash com salt e proteção de credenciais | `UsuarioTests.cs`, `AuthServiceTests.cs` |
 
 ---
 
