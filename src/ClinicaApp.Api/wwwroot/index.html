@@ -1,0 +1,2870 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinix - Sistema de Agendamento e Prontuário</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel Standalone para JSX no Browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            clinical: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: white !important; color: black !important; }
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    const INITIAL_USERS = [
+      { id: 'u1', name: 'Dr. Davi Felinto', role: 'Profissional', email: 'davi.profissional@clinix.com', espec: 'Psicologia Clínica & Neuropsicologia' },
+      { id: 'u2', name: 'Juliana Costa', role: 'Administrador', email: 'admin@clinix.com', espec: 'Gestão & Recepção Clínica' }
+    ];
+
+    const INITIAL_PATIENTS = [
+      {
+        id: 'p1',
+        nome: 'Mariana Duarte Souza',
+        cpf: '123.456.789-00',
+        nascimento: '1992-05-14',
+        telefone: '(61) 98765-4321',
+        email: 'mariana.duarte@email.com',
+        endereco: 'Asa Norte, Bloco C, Apto 302 - Brasília/DF',
+        alergias: 'Penicilina, Dipirona',
+        condicoesPreexistentes: 'Rinite alérgica crônica, Ansiedade generalizada',
+        status: 'ativo',
+        profissionalId: 'u1'
+      },
+      {
+        id: 'p2',
+        nome: 'Carlos Eduardo Neves',
+        cpf: '987.654.321-11',
+        nascimento: '1985-11-20',
+        telefone: '(61) 99123-9988',
+        email: 'carlos.neves@email.com',
+        endereco: 'Águas Claras, Rua 24 Sul - Brasília/DF',
+        alergias: 'Nenhuma conhecida',
+        condicoesPreexistentes: 'Hipertensão leve',
+        status: 'ativo',
+        profissionalId: 'u1'
+      },
+      {
+        id: 'p3',
+        nome: 'Beatriz Vasconcelos Ramos',
+        cpf: '456.789.012-33',
+        nascimento: '1998-03-08',
+        telefone: '(61) 98222-1144',
+        email: 'beatriz.ramos@email.com',
+        endereco: 'Sudoeste, QMSW 5, Bloco B - Brasília/DF',
+        alergias: 'Frutos do mar',
+        condicoesPreexistentes: 'Insônia pontual',
+        status: 'ativo',
+        profissionalId: 'u1'
+      }
+    ];
+
+    const getTodayDateStr = () => new Date().toISOString().split('T')[0];
+
+    const INITIAL_APPOINTMENTS = [
+      {
+        id: 'a1',
+        pacienteId: 'p1',
+        profissionalId: 'u1',
+        data: getTodayDateStr(),
+        horario: '09:00',
+        duracaoMin: 60,
+        status: 'confirmado',
+        tipo: 'consulta',
+        observacoes: 'Acompanhamento quinzenal com foco em manejo de estresse',
+        valor: 200,
+        statusPagamento: 'pago',
+        formaPagamento: 'Pix',
+        notificacaoStatus: 'enviado',
+        notificacaoTentativas: 1,
+        cancelamentoTardio: false
+      },
+      {
+        id: 'a2',
+        pacienteId: 'p2',
+        profissionalId: 'u1',
+        data: getTodayDateStr(),
+        horario: '10:30',
+        duracaoMin: 60,
+        status: 'confirmado',
+        tipo: 'consulta',
+        observacoes: 'Sessão de reavaliação dos exames',
+        valor: 180,
+        statusPagamento: 'pendente',
+        formaPagamento: 'Em aberto',
+        notificacaoStatus: 'falha',
+        notificacaoTentativas: 2,
+        cancelamentoTardio: false
+      },
+      {
+        id: 'a3',
+        pacienteId: null,
+        profissionalId: 'u1',
+        data: getTodayDateStr(),
+        horario: '12:00',
+        duracaoMin: 60,
+        status: 'bloqueado',
+        tipo: 'bloqueio',
+        observacoes: 'Intervalo de Almoço / Estudo Clínico (RF11)',
+        valor: 0,
+        statusPagamento: 'isento',
+        formaPagamento: 'N/A',
+        notificacaoStatus: 'nao_aplicavel',
+        notificacaoTentativas: 0,
+        cancelamentoTardio: false
+      }
+    ];
+
+    const INITIAL_RECORDS = [
+      {
+        id: 'pr1',
+        pacienteId: 'p1',
+        agendamentoId: 'a1',
+        data: '2026-09-15 10:00',
+        profissionalId: 'u1',
+        profissionalNome: 'Dr. Davi Felinto',
+        anotacao: 'Paciente relata remissão das crises de pânico e melhor qualidade do sono. Foi mantida a prática do registro de pensamentos disfuncionais.',
+        versao: 1,
+        historicoVersoes: []
+      }
+    ];
+
+    const INITIAL_LOGS = [
+      {
+        id: 'l1',
+        timestamp: new Date().toISOString(),
+        usuarioId: 'u1',
+        usuarioNome: 'Dr. Davi Felinto',
+        operacao: 'Autenticação no Sistema (RF26)',
+        detalhes: 'Sessão iniciada como Profissional'
+      },
+      {
+        id: 'l2',
+        timestamp: new Date().toISOString(),
+        usuarioId: 'u1',
+        usuarioNome: 'Dr. Davi Felinto',
+        operacao: 'Acesso ao Prontuário (RN13)',
+        detalhes: 'Ficha médica consultada: Mariana Duarte Souza'
+      }
+    ];
+
+    function App() {
+      const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem('clinix_auth') === 'true';
+      });
+
+      const [currentUser, setCurrentUser] = useState(() => {
+        const saved = localStorage.getItem('clinix_user');
+        return saved ? JSON.parse(saved) : INITIAL_USERS[0];
+      });
+
+      const [patients, setPatients] = useState(() => {
+        const saved = localStorage.getItem('clinix_patients');
+        return saved ? JSON.parse(saved) : INITIAL_PATIENTS;
+      });
+
+      const [appointments, setAppointments] = useState(() => {
+        const saved = localStorage.getItem('clinix_appointments');
+        return saved ? JSON.parse(saved) : INITIAL_APPOINTMENTS;
+      });
+
+      const [records, setRecords] = useState(() => {
+        const saved = localStorage.getItem('clinix_records');
+        return saved ? JSON.parse(saved) : INITIAL_RECORDS;
+      });
+
+      const [logs, setLogs] = useState(() => {
+        const saved = localStorage.getItem('clinix_logs');
+        return saved ? JSON.parse(saved) : INITIAL_LOGS;
+      });
+
+      // Navegação entre Telas: 'dashboard' | 'agenda' | 'pacientes' | 'prontuario' | 'financeiro' | 'logs'
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [selectedPatientForRecord, setSelectedPatientForRecord] = useState(null);
+      const [toast, setToast] = useState(null);
+      const [dialogConfig, setDialogConfig] = useState(null);
+      const [showReqGuide, setShowReqGuide] = useState(false);
+      const [showSearchModal, setShowSearchModal] = useState(false);
+      const [showRequirementsModal, setShowRequirementsModal] = useState(false);
+
+      // Atalho Global de Usabilidade: Ctrl+K / Cmd+K para Busca Rápida (RQ10)
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            setShowSearchModal(prev => !prev);
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, []);
+
+      // Persistência local contínua
+      useEffect(() => {
+        localStorage.setItem('clinix_auth', isAuthenticated ? 'true' : 'false');
+        localStorage.setItem('clinix_user', JSON.stringify(currentUser));
+        localStorage.setItem('clinix_patients', JSON.stringify(patients));
+        localStorage.setItem('clinix_appointments', JSON.stringify(appointments));
+        localStorage.setItem('clinix_records', JSON.stringify(records));
+        localStorage.setItem('clinix_logs', JSON.stringify(logs));
+      }, [isAuthenticated, currentUser, patients, appointments, records, logs]);
+
+      // Sistema centralizado de notificações em banner (sem alert nativo)
+      const showToast = (message, type = 'success') => {
+        setToast({ message, type, id: Date.now() });
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      // Auditoria contínua (RF28, RN13, RQ07)
+      const registerLog = (operacao, detalhes) => {
+        const newLog = {
+          id: 'l_' + Date.now(),
+          timestamp: new Date().toISOString(),
+          usuarioId: currentUser.id,
+          usuarioNome: currentUser.name,
+          operacao,
+          detalhes
+        };
+        setLogs(prev => [newLog, ...prev]);
+      };
+
+      // Regra de Usabilidade dos 3 Cliques (RQ10)
+      const handleOpenProntuarioDirect = (patientId) => {
+        const patient = patients.find(p => p.id === patientId);
+        if (patient) {
+          setSelectedPatientForRecord(patient);
+          setActiveTab('prontuario');
+          registerLog('Acesso ao Prontuário (RN13)', `Abertura direta do prontuário: ${patient.nome}`);
+        }
+      };
+
+      const handleLogout = () => {
+        registerLog('Encerramento de Sessão', `Usuário ${currentUser.name} realizou logout`);
+        setIsAuthenticated(false);
+      };
+
+      // Se não autenticado, renderiza a Tela 1: Login & Autenticação
+      if (!isAuthenticated) {
+        return (
+          <LoginScreen
+            users={INITIAL_USERS}
+            onLogin={(user) => {
+              setCurrentUser(user);
+              setIsAuthenticated(true);
+              registerLog('Autenticação no Sistema (RF26)', `Login realizado com sucesso como ${user.role} (${user.name})`);
+            }}
+          />
+        );
+      }
+
+      return (
+        <div className="flex h-screen overflow-hidden bg-slate-100 font-sans">
+          {/* TOAST SYSTEM (In-App Notification) */}
+          {toast && (
+            <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 animate-slide-in">
+              <span className={`w-3 h-3 rounded-full ${toast.type === 'error' ? 'bg-rose-500' : toast.type === 'warning' ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
+              <span className="text-xs font-semibold text-slate-100">{toast.message}</span>
+            </div>
+          )}
+
+          {/* MODAL GLOBAL: BUSCA RÁPIDA (RQ10 - REGRA DOS 3 CLIQUES) */}
+          <SearchModal
+            isOpen={showSearchModal}
+            onClose={() => setShowSearchModal(false)}
+            patients={patients}
+            onOpenProntuario={handleOpenProntuarioDirect}
+            onSelectPatient={(p) => {
+              setActiveTab('pacientes');
+            }}
+          />
+
+          {/* MODAL GLOBAL: MATRIZ DE REQUISITOS CEUB (ISO/IEC 25010) */}
+          <RequirementsModal
+            isOpen={showRequirementsModal}
+            onClose={() => setShowRequirementsModal(false)}
+          />
+
+          {/* CUSTOM CONFIRMATION MODAL DIALOG (Substitui confirm/alert) */}
+          {dialogConfig && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-scale-up">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold mb-4">
+                  ⚠️
+                </div>
+                <h3 className="text-base font-bold text-slate-800">{dialogConfig.title}</h3>
+                <p className="text-xs text-slate-600 mt-2 leading-relaxed whitespace-pre-line">{dialogConfig.message}</p>
+                <div className="flex justify-end gap-2.5 mt-6">
+                  <button
+                    onClick={() => setDialogConfig(null)}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                  >
+                    {dialogConfig.cancelLabel || 'Cancelar'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      dialogConfig.onConfirm();
+                      setDialogConfig(null);
+                    }}
+                    className={`px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-sm transition ${
+                      dialogConfig.danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'
+                    }`}
+                  >
+                    {dialogConfig.confirmLabel || 'Confirmar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SIDEBAR NAVIGATION DESKTOP */}
+          <aside className="no-print hidden lg:flex flex-col w-64 bg-white border-r border-slate-200">
+            {/* Logo */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-emerald-200">
+                  +
+                </div>
+                <div>
+                  <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">Clinix<span className="text-emerald-600">.</span></span>
+                  <p className="text-[10px] text-slate-500 font-medium">Clínicas & Consultórios</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Perfil & Alternador de Perfil (RF27, RN12) */}
+            <div className="m-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Perfil Ativo</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  currentUser.role === 'Profissional' ? 'bg-emerald-100 text-emerald-800' : 'bg-purple-100 text-purple-800'
+                }`}>
+                  {currentUser.role}
+                </span>
+              </div>
+              <p className="font-bold text-slate-800 truncate">{currentUser.name}</p>
+              <p className="text-[10px] text-slate-500 truncate">{currentUser.espec}</p>
+
+              <div className="mt-3 grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-200">
+                <button
+                  onClick={() => {
+                    const nextUser = currentUser.id === 'u1' ? INITIAL_USERS[1] : INITIAL_USERS[0];
+                    setCurrentUser(nextUser);
+                    showToast(`Perfil alterado: ${nextUser.role} (${nextUser.name})`, 'info');
+                    registerLog('Alternância de Perfil (RN12)', `Mudou sessão para ${nextUser.name} (${nextUser.role})`);
+                  }}
+                  className="py-1 px-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 font-semibold text-[10px] transition text-center shadow-2xs"
+                >
+                  Alternar Perfil ⇄
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="py-1 px-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-semibold text-[10px] transition text-center"
+                >
+                  Sair
+                </button>
+              </div>
+            </div>
+
+            {/* Menu Principal */}
+            <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto scrollbar-thin">
+              <SidebarItem icon="📊" label="Visão Geral" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} badge="RQ10" />
+              <SidebarItem icon="📅" label="Agenda Clínica" active={activeTab === 'agenda'} onClick={() => setActiveTab('agenda')} badge="RN01" />
+              <SidebarItem icon="👥" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} badge="LGPD" />
+              <SidebarItem icon="📋" label="Prontuário Eletrônico" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} badge="RN17" />
+              <SidebarItem icon="💰" label="Financeiro & Relatórios" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} badge="RF22" />
+              <SidebarItem icon="🔒" label="Auditoria & Logs" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} badge="RN13" />
+            </nav>
+
+            {/* Mini Guia dos Requisitos Acadêmicos (CEUB) */}
+            <div className="p-4 border-t border-slate-100">
+              <button
+                onClick={() => setShowReqGuide(!showReqGuide)}
+                className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-[11px] border border-slate-200 transition text-slate-600 flex items-center justify-between"
+              >
+                <span className="font-bold text-slate-700">📖 Requisitos Validados</span>
+                <span className="text-emerald-700 font-bold">{showReqGuide ? '▲' : '▼'}</span>
+              </button>
+              {showReqGuide && (
+                <div className="mt-2 text-[10px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
+                  <p><strong>F1 a F7:</strong> 28 Requisitos Funcionais</p>
+                  <p><strong>RN01 a RN17:</strong> 17 Regras de Negócio</p>
+                  <p><strong>ISO/IEC 25010:</strong> 16 RQs (Segurança, Usabilidade, Confiabilidade)</p>
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* MAIN WORKSPACE */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Header Superior */}
+            {/* Header Superior Modernizado com Indicadores de Engenharia */}
+            <header className="no-print bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="lg:hidden font-bold text-lg text-emerald-600">Clinix+</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-base md:text-lg font-bold text-slate-900 leading-tight">
+                      {activeTab === 'dashboard' && 'Painel de Controle & Visão Geral'}
+                      {activeTab === 'agenda' && 'Agenda Médica & Gestão de Conflitos (F2, F3)'}
+                      {activeTab === 'pacientes' && 'Base Cadastral de Pacientes (F1 - LGPD)'}
+                      {activeTab === 'prontuario' && 'Prontuário com Histórico de Versões (F4 - RN17)'}
+                      {activeTab === 'financeiro' && 'Gestão Financeira & Relatórios (F5, F6)'}
+                      {activeTab === 'logs' && 'Trilha de Auditoria & Conformidade (F7 - RN13)'}
+                    </h1>
+                    <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      99% Disp. (RN09)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 hidden sm:block">
+                    Engenharia de Requisitos • Avaliação Acadêmica CEUB (ISO/IEC 25010)
+                  </p>
+                </div>
+              </div>
+
+              {/* Botões do Header: Busca Rápida (Ctrl+K), Matriz CEUB e Ação Primária */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowSearchModal(true)}
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium border border-slate-200 transition"
+                  title="Busca Rápida de Pacientes (Atalho: Ctrl+K)"
+                >
+                  <span>🔍</span>
+                  <span className="text-[11px]">Busca Rápida...</span>
+                  <kbd className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-slate-300 font-mono text-slate-400">Ctrl K</kbd>
+                </button>
+
+                <button
+                  onClick={() => setShowRequirementsModal(true)}
+                  className="hidden sm:flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-indigo-200 transition active:scale-95 shadow-2xs"
+                  title="Consultar Matriz Completa de Requisitos e Regras de Negócio"
+                >
+                  <span>🎓</span>
+                  <span>Matriz CEUB</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('agenda')}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition active:scale-95"
+                >
+                  <span>+</span>
+                  <span className="hidden sm:inline">Nova Consulta</span>
+                </button>
+              </div>
+            </header>
+
+            {/* Conteúdo Dinâmico da Aba Selecionada */}
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-100 scrollbar-thin">
+              {activeTab === 'dashboard' && (
+                <DashboardView
+                  appointments={appointments}
+                  patients={patients}
+                  records={records}
+                  currentUser={currentUser}
+                  onNavigate={setActiveTab}
+                  onOpenProntuario={handleOpenProntuarioDirect}
+                />
+              )}
+
+              {activeTab === 'agenda' && (
+                <AgendaView
+                  appointments={appointments}
+                  patients={patients}
+                  currentUser={currentUser}
+                  setAppointments={setAppointments}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                  setDialogConfig={setDialogConfig}
+                />
+              )}
+
+              {activeTab === 'pacientes' && (
+                <PatientsView
+                  patients={patients}
+                  setPatients={setPatients}
+                  appointments={appointments}
+                  currentUser={currentUser}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                  onOpenProntuario={handleOpenProntuarioDirect}
+                  setDialogConfig={setDialogConfig}
+                />
+              )}
+
+              {activeTab === 'prontuario' && (
+                <ProntuarioView
+                  patients={patients}
+                  records={records}
+                  setRecords={setRecords}
+                  appointments={appointments}
+                  currentUser={currentUser}
+                  selectedPatient={selectedPatientForRecord}
+                  setSelectedPatient={setSelectedPatientForRecord}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                />
+              )}
+
+              {activeTab === 'financeiro' && (
+                <FinanceiroView
+                  appointments={appointments}
+                  patients={patients}
+                  setAppointments={setAppointments}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                />
+              )}
+
+              {activeTab === 'logs' && (
+                <LogsView logs={logs} currentUser={currentUser} />
+              )}
+            </main>
+
+            {/* Bottom Nav Bar Mobile */}
+            <nav className="no-print lg:hidden bg-white border-t border-slate-200 flex justify-around p-2 text-xs">
+              <MobileItem icon="📊" label="Painel" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+              <MobileItem icon="📅" label="Agenda" active={activeTab === 'agenda'} onClick={() => setActiveTab('agenda')} />
+              <MobileItem icon="👥" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} />
+              <MobileItem icon="📋" label="Prontuário" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
+              <MobileItem icon="💰" label="Finanças" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
+            </nav>
+          </div>
+        </div>
+      );
+    }
+
+    function SidebarItem({ icon, label, active, onClick, badge }) {
+      return (
+        <button
+          onClick={onClick}
+          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+            active
+              ? 'bg-emerald-50 text-emerald-800 shadow-xs border border-emerald-100'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-base">{icon}</span>
+            <span>{label}</span>
+          </div>
+          {badge && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">
+              {badge}
+            </span>
+          )}
+        </button>
+      );
+    }
+
+    function MobileItem({ icon, label, active, onClick }) {
+      return (
+        <button
+          onClick={onClick}
+          className={`flex flex-col items-center py-1 px-3 rounded-lg ${
+            active ? 'text-emerald-700 font-bold' : 'text-slate-500'
+          }`}
+        >
+          <span className="text-base">{icon}</span>
+          <span className="text-[10px] mt-0.5">{label}</span>
+        </button>
+      );
+    }
+
+    function LoginScreen({ users, onLogin }) {
+      const [selectedUserId, setSelectedUserId] = useState(users[0].id);
+      const [password, setPassword] = useState('123456');
+
+      const handleFormSubmit = (e) => {
+        e.preventDefault();
+        const user = users.find(u => u.id === selectedUserId);
+        if (user) {
+          onLogin(user);
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-slate-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-200">
+                +
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Clinix<span className="text-emerald-600">.</span></h2>
+                <p className="text-xs text-slate-500">Acesso Restrito ao Sistema Clínico (RF26)</p>
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 mb-6 text-xs text-emerald-900">
+              <p className="font-bold">🔐 Conformidade LGPD & Segurança (RQ06, RQ08):</p>
+              <p className="text-[11px] mt-0.5 text-emerald-800">
+                Selecione o perfil desejado para simular as permissões de acesso diferenciadas (Profissional vs Administrador - RN12).
+              </p>
+            </div>
+
+            <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Usuário / Perfil Clínico *</label>
+                <div className="space-y-2">
+                  {users.map(u => (
+                    <label
+                      key={u.id}
+                      className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition ${
+                        selectedUserId === u.id
+                          ? 'border-emerald-500 bg-emerald-50/50 text-emerald-950 font-bold'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="userProfile"
+                          checked={selectedUserId === u.id}
+                          onChange={() => setSelectedUserId(u.id)}
+                          className="text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <div>{u.name}</div>
+                          <div className="text-[10px] text-slate-500 font-normal">{u.email}</div>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        u.role === 'Profissional' ? 'bg-emerald-200 text-emerald-900' : 'bg-purple-200 text-purple-900'
+                      }`}>
+                        {u.role}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Senha Criptografada (RQ08)</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-mono"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">Protegida por hash com salt no banco de dados</span>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow-lg shadow-emerald-200 transition active:scale-98"
+              >
+                Entrar no Sistema Clínico →
+              </button>
+            </form>
+
+            <div className="mt-6 pt-4 border-t border-slate-100 text-center text-[10px] text-slate-400">
+              Projeto Integrador CEUB • Engenharia de Requisitos
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       MODAL DE BUSCA RÁPIDA (RQ10 - REGRA DOS 3 CLIQUES)
+       ========================================================================= */
+    function SearchModal({ isOpen, onClose, patients, onOpenProntuario, onSelectPatient }) {
+      const [query, setQuery] = useState('');
+      if (!isOpen) return null;
+
+      const filtered = patients.filter(p =>
+        p.nome.toLowerCase().includes(query.toLowerCase()) ||
+        p.cpf.includes(query) ||
+        p.telefone.includes(query)
+      );
+
+      return (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-start justify-center pt-20 p-4" onClick={onClose}>
+          <div className="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border border-slate-100 animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <span className="text-lg text-slate-400">🔍</span>
+              <input
+                autoFocus
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Buscar por nome, CPF ou telefone (Regra dos 3 Cliques - RQ10)..."
+                className="flex-1 text-sm outline-none text-slate-900 placeholder:text-slate-400 font-medium"
+              />
+              <button onClick={onClose} className="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-500 px-2 py-1 rounded-lg">ESC</button>
+            </div>
+
+            <div className="mt-3 max-h-80 overflow-y-auto space-y-2 scrollbar-thin">
+              {filtered.length === 0 ? (
+                <div className="text-center py-8 text-xs text-slate-400">
+                  Nenhum paciente localizado com o termo digitado.
+                </div>
+              ) : (
+                filtered.map(p => (
+                  <div key={p.id} className="p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-xs text-slate-800">{p.nome}</h4>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                        <span>CPF: {p.cpf}</span>
+                        <span>•</span>
+                        <span>{p.telefone}</span>
+                        <span>•</span>
+                        <span className={`font-bold ${p.status === 'ativo' ? 'text-emerald-700' : 'text-slate-400'}`}>
+                          {p.status === 'ativo' ? 'Ativo' : 'Inativo LGPD'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => { onOpenProntuario(p.id); onClose(); }}
+                        className="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1.5 rounded-xl border border-emerald-200 transition"
+                      >
+                        📋 Prontuário
+                      </button>
+                      <button
+                        onClick={() => { onSelectPatient(p); onClose(); }}
+                        className="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1.5 rounded-xl transition"
+                      >
+                        Ficha
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       MODAL DE MATRIZ DE REQUISITOS CEUB (ISO/IEC 25010)
+       ========================================================================= */
+    function RequirementsModal({ isOpen, onClose }) {
+      const [tab, setTab] = useState('modulos');
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-indigo-500/30">
+                  🎓
+                </div>
+                <div>
+                  <h3 className="text-base font-bold tracking-tight">Matriz de Requisitos CEUB (ISO/IEC 25010)</h3>
+                  <p className="text-xs text-slate-300">Sistema de Agendamento e Prontuário para Clínicas Pequenas • Engenharia de Requisitos</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg">✕</button>
+            </div>
+
+            <div className="flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold">
+              <button
+                onClick={() => setTab('modulos')}
+                className={`py-3 px-4 border-b-2 transition ${tab === 'modulos' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              >
+                📦 7 Módulos & 28 RFs
+              </button>
+              <button
+                onClick={() => setTab('regras')}
+                className={`py-3 px-4 border-b-2 transition ${tab === 'regras' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              >
+                ⚖️ 17 Regras de Negócio (RN)
+              </button>
+              <button
+                onClick={() => setTab('qualidade')}
+                className={`py-3 px-4 border-b-2 transition ${tab === 'qualidade' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              >
+                🛡️ 16 RQs & Qualidade ISO/IEC 25010
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-3 text-xs scrollbar-thin flex-1">
+              {tab === 'modulos' && (
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F1: Cadastro de Pacientes (RF01 - RF05)</span>
+                    <p className="text-slate-600 mt-1">Inclusão, alteração, consulta, validação de unicidade por CPF e inativação lógica com anonimização conforme LGPD (RN16, RQ03).</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F2: Agendamento de Consultas (RF06 - RF11)</span>
+                    <p className="text-slate-600 mt-1">Marcação com checagem antecipada de choques de horário (RN01, RN02), remarcação (RF07), cancelamento com política de antecedência e bloqueio de horários (RF11).</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F3: Notificações de Consultas (RF12 - RF15)</span>
+                    <p className="text-slate-600 mt-1">Confirmação automática de agendamento por WhatsApp, lembrete 24h antes e controle de 2ª tentativa de envio com alerta visual em caso de falha (RN03, RN14, RN15).</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F4: Prontuário Eletrônico (RF16 - RF20)</span>
+                    <p className="text-slate-600 mt-1">Registro de anotações clínicas com histórico versionado imutável (RN17), ficha clínica com destaque de alergias/condições preexistentes (RF18) e sigilo profissional.</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F5 & F6: Controle Financeiro e Relatórios (RF21 - RF25)</span>
+                    <p className="text-slate-600 mt-1">Registro de recebimentos (pago/pendente), cálculo de faturamento no período e relatórios com filtros por status de pagamento e período (RN08, RN10).</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                    <span className="font-bold text-slate-900 text-sm">F7: Autenticação & Auditoria (RF26 - RF28)</span>
+                    <p className="text-slate-600 mt-1">Acesso protegido por credenciais, perfis diferenciados (Profissional vs Administrador - RN12) e registro contínuo de trilha de auditoria para conformidade jurídica (RN13).</p>
+                  </div>
+                </div>
+              )}
+
+              {tab === 'regras' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
+                    <strong className="text-emerald-900">RN01 & RN02: Sem Conflito de Horário</strong>
+                    <p className="text-emerald-800 text-[11px] mt-0.5">O sistema rejeita agendamentos simultâneos para o mesmo profissional no mesmo horário.</p>
+                  </div>
+                  <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
+                    <strong className="text-emerald-900">RN03 & RN14: Notificação WhatsApp</strong>
+                    <p className="text-emerald-800 text-[11px] mt-0.5">Confirmação imediata ao marcar e lembrete preventivo 24 horas antes do horário marcado.</p>
+                  </div>
+                  <div className="p-3 rounded-2xl border border-amber-100 bg-amber-50/50">
+                    <strong className="text-amber-900">RN15: 2ª Tentativa de Notificação</strong>
+                    <p className="text-amber-800 text-[11px] mt-0.5">Se o WhatsApp falhar, o sistema reenvia em 15 minutos; persistindo a falha, exibe alerta visual na agenda.</p>
+                  </div>
+                  <div className="p-3 rounded-2xl border border-blue-100 bg-blue-50/50">
+                    <strong className="text-blue-900">RN17: Prontuário Imutável Versionado</strong>
+                    <p className="text-blue-800 text-[11px] mt-0.5">Nenhuma anotação médica é apagada. Toda edição cria nova versão preservando o histórico integral.</p>
+                  </div>
+                  <div className="p-3 rounded-2xl border border-purple-100 bg-purple-50/50">
+                    <strong className="text-purple-900">RN12 & RN13: Perfis & Auditoria</strong>
+                    <p className="text-purple-800 text-[11px] mt-0.5">Recepção/Admin agenda e visualiza dados cadastrais; prontuário restrito ao profissional. Acessos são auditados.</p>
+                  </div>
+                  <div className="p-3 rounded-2xl border border-rose-100 bg-rose-50/50">
+                    <strong className="text-rose-900">RN16: Inativação com Anonimização LGPD</strong>
+                    <p className="text-rose-800 text-[11px] mt-0.5">Exclusão lógica: dados de contato são anonimizados, mas prontuário é mantido para resguardo ético/legal.</p>
+                  </div>
+                </div>
+              )}
+
+              {tab === 'qualidade' && (
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <span className="text-xl">⚡</span>
+                    <div>
+                      <strong className="text-slate-800">RQ10: Usabilidade — Regra dos 3 Cliques</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Qualquer fluxo crítico (novo agendamento, consulta ao prontuário, registro de pagamento) é alcançável em no máximo 3 cliques a partir do painel principal.</p>
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <span className="text-xl">⏱️</span>
+                    <div>
+                      <strong className="text-slate-800">RQ09: Desempenho & Tempo de Resposta</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Consultas e atualizações de tela respondem em menos de 1 segundo através de reatividade em estado React local.</p>
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <span className="text-xl">🔒</span>
+                    <div>
+                      <strong className="text-slate-800">RQ01 a RQ05: LGPD e Segurança da Informação</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Consentimento explícito, portabilidade em JSON estruturado, anonimização seletiva e segregação de privilégios de acesso.</p>
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <span className="text-xl">📱</span>
+                    <div>
+                      <strong className="text-slate-800">RQ11: Responsividade & Acessibilidade</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Interface perfeitamente adaptada para uso em tablets, smartphones e computadores de consultório.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center text-[11px] text-slate-500">
+              <span>Universidade CEUB • Projeto Integrador</span>
+              <button onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">
+                Fechar Matriz
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       DASHBOARD VIEW (PAINEL DE CONTROLE)
+       ========================================================================= */
+    function DashboardView({ appointments, patients, records, currentUser, onNavigate, onOpenProntuario }) {
+      const todayStr = getTodayDateStr();
+      const todayAppointments = appointments.filter(a => a.data === todayStr && a.status !== 'cancelado');
+      const pendingPayments = appointments.filter(a => a.statusPagamento === 'pendente');
+      const failedNotifications = appointments.filter(a => a.notificacaoStatus === 'falha');
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Welcome Hero Banner */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-3xl p-6 shadow-xl border border-slate-700/50 relative overflow-hidden">
+            <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-[11px] font-semibold text-emerald-300 uppercase tracking-wider">
+                    Sistema Operacional • 99% Disp. (RN09)
+                  </span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-[11px] text-slate-300">Hoje, {todayStr}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Olá, {currentUser.name}! 👋
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                  Você tem <strong className="text-emerald-400">{todayAppointments.length} atendimento(s)</strong> programado(s) para hoje. Prontuários eletrônicos com histórico imutável ativo (RN17).
+                </p>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  onClick={() => onNavigate('agenda')}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-1.5"
+                >
+                  <span>+ Nova Consulta</span>
+                </button>
+                <button
+                  onClick={() => onNavigate('prontuario')}
+                  className="bg-white/10 hover:bg-white/15 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition border border-white/10"
+                >
+                  <span>Ver Prontuários</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* Alerta de Falha de Notificação WhatsApp (RN15) */}
+          {failedNotifications.length > 0 && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wide">
+                    Alerta de Envio WhatsApp (RN15 / RQ15)
+                  </h4>
+                  <p className="text-xs text-amber-800 mt-0.5">
+                    Existe(m) {failedNotifications.length} lembrete(s) com 2ª falha de entrega automática. Ação recomendada: contato manual via recepção.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onNavigate('agenda')}
+                className="text-xs font-bold bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-1.5 rounded-xl transition"
+              >
+                Checar na Agenda
+              </button>
+            </div>
+          )}
+
+          {/* Cards de Métricas Rápidas */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard
+              label="Consultas Hoje"
+              value={todayAppointments.length}
+              subtext="Agendadas para hoje"
+              icon="📅"
+            />
+            <MetricCard
+              label="Pacientes Ativos"
+              value={patients.filter(p => p.status === 'ativo').length}
+              subtext="Base cadastrada (F1)"
+              icon="👥"
+            />
+            <MetricCard
+              label="Recebimentos Pendentes"
+              value={`R$ ${pendingPayments.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0)}`}
+              subtext={`${pendingPayments.length} conta(s) a receber`}
+              icon="⏳"
+            />
+            <MetricCard
+              label="Sessões em Prontuário"
+              value={records.length}
+              subtext="Com histórico versionado"
+              icon="📋"
+            />
+          </div>
+
+          {/* Ações Principais em até 3 Cliques (RQ10) */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Atalhos Rápidos • Regra dos 3 Cliques (RQ10)
+              </h3>
+              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                Acesso Imediato
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => onNavigate('agenda')}
+                className="flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-50 text-left transition group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg group-hover:scale-105 transition shadow-sm shadow-emerald-200">
+                  📅
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 text-xs">1. Novo Agendamento</div>
+                  <div className="text-[11px] text-slate-500">Com validação de conflito (RN01)</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => onNavigate('prontuario')}
+                className="flex items-center gap-3 p-3.5 rounded-2xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 text-left transition group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg group-hover:scale-105 transition shadow-sm shadow-blue-200">
+                  ✍️
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 text-xs">2. Registrar Sessão</div>
+                  <div className="text-[11px] text-slate-500">Histórico de versões ativo (RN17)</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => onNavigate('pacientes')}
+                className="flex items-center gap-3 p-3.5 rounded-2xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 text-left transition group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg group-hover:scale-105 transition shadow-sm shadow-purple-200">
+                  👤
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 text-xs">3. Base de Pacientes</div>
+                  <div className="text-[11px] text-slate-500">Conformidade e dados LGPD</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Atendimentos do Dia */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm md:text-base">Atendimentos de Hoje ({todayStr})</h3>
+                <p className="text-xs text-slate-500">Ordem cronológica das sessões</p>
+              </div>
+              <button
+                onClick={() => onNavigate('agenda')}
+                className="text-xs text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1"
+              >
+                <span>Ver agenda completa</span>
+                <span>→</span>
+              </button>
+            </div>
+
+            {todayAppointments.length === 0 ? (
+              <div className="text-center py-8 text-slate-400 text-xs">
+                Nenhum atendimento agendado para o dia de hoje.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {todayAppointments.map(appt => {
+                  const patient = patients.find(p => p.id === appt.pacienteId);
+                  const isBlocked = appt.tipo === 'bloqueio';
+
+                  return (
+                    <div
+                      key={appt.id}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl border transition gap-3 ${
+                        isBlocked ? 'bg-slate-100 border-dashed border-slate-300' : 'bg-slate-50 hover:bg-slate-100/70 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`px-3 py-1.5 rounded-xl font-bold text-xs ${
+                          isBlocked ? 'bg-slate-200 text-slate-700' : 'bg-emerald-100 text-emerald-900'
+                        }`}>
+                          {appt.horario}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-xs md:text-sm">
+                            {isBlocked ? appt.observacoes : (patient ? patient.nome : 'Paciente Não Encontrado')}
+                          </h4>
+                          {!isBlocked && (
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                              <span>📞 {patient?.telefone || 'S/ Tel'}</span>
+                              <span>•</span>
+                              <span>{appt.observacoes}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {!isBlocked && (
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            appt.notificacaoStatus === 'enviado' ? 'bg-emerald-100 text-emerald-800' :
+                            appt.notificacaoStatus === 'falha' ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-700'
+                          }`}>
+                            WhatsApp: {appt.notificacaoStatus}
+                          </span>
+
+                          <button
+                            onClick={() => onOpenProntuario(appt.pacienteId)}
+                            className="text-xs bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-3 py-1.5 rounded-xl transition shadow-2xs"
+                          >
+                            Atender / Prontuário →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function MetricCard({ label, value, subtext, icon, badge }) {
+      return (
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 group-hover:text-slate-700 transition">{label}</span>
+            <div className="w-9 h-9 rounded-2xl bg-slate-50 group-hover:bg-emerald-50 text-slate-700 group-hover:text-emerald-700 flex items-center justify-center text-lg transition">
+              {icon}
+            </div>
+          </div>
+          <div className="my-2.5">
+            <div className="text-2xl font-black text-slate-900 tracking-tight">{value}</div>
+            <div className="text-[11px] text-slate-500 mt-0.5 flex items-center justify-between">
+              <span>{subtext}</span>
+              {badge && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  {badge}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AgendaView({ appointments, patients, currentUser, setAppointments, showToast, registerLog, setDialogConfig }) {
+      const [viewMode, setViewMode] = useState('dia'); // 'dia' | 'semana' (RF10)
+      const [selectedDate, setSelectedDate] = useState(getTodayDateStr());
+      const [showNewModal, setShowNewModal] = useState(false);
+      const [showBlockModal, setShowBlockModal] = useState(false);
+      const [showRescheduleModal, setShowRescheduleModal] = useState(null);
+      const [whatsappModalData, setWhatsappModalData] = useState(null);
+
+      // Form State: Nova Consulta
+      const [formPatientId, setFormPatientId] = useState('');
+      const [formDate, setFormDate] = useState(selectedDate);
+      const [formTime, setFormTime] = useState('09:00');
+      const [formObs, setFormObs] = useState('');
+      const [formValue, setFormValue] = useState(200);
+
+      // Form State: Bloqueio de Horário (RF11)
+      const [blockReason, setBlockReason] = useState('Intervalo para almoço');
+      const [blockTime, setBlockTime] = useState('12:00');
+
+      // Form State: Remarcação (RF07)
+      const [rescheduleDate, setRescheduleDate] = useState('');
+      const [rescheduleTime, setRescheduleTime] = useState('14:00');
+
+      // Filtro conforme perfil (RN12)
+      const filteredAppointments = useMemo(() => {
+        return appointments.filter(a => {
+          if (currentUser.role === 'Profissional' && a.profissionalId !== currentUser.id) {
+            return false;
+          }
+          if (viewMode === 'dia') {
+            return a.data === selectedDate;
+          }
+          return true;
+        });
+      }, [appointments, currentUser, viewMode, selectedDate]);
+
+      // Criação de Agendamento com Prevenção de Choque de Horários (RN01, RN02)
+      const handleCreateAppointment = (e) => {
+        e.preventDefault();
+
+        if (!formPatientId) {
+          showToast('Selecione um paciente cadastrado.', 'error');
+          return;
+        }
+
+        // RN01 / RN02: Checar conflito no mesmo dia, horário e profissional
+        const conflict = appointments.find(
+          a => a.data === formDate &&
+               a.horario === formTime &&
+               a.status !== 'cancelado' &&
+               a.profissionalId === currentUser.id
+        );
+
+        if (conflict) {
+          setDialogConfig({
+            title: 'Conflito de Horário Detectado (RN02)',
+            message: `O horário ${formTime} em ${formDate} já está ocupado por outro compromisso. Conforme a regra de negócio RN02, o sistema impede conflitos de horário. Por favor, escolha outro horário.`,
+            confirmLabel: 'Entendido',
+            cancelLabel: 'Fechar',
+            danger: true,
+            onConfirm: () => {}
+          });
+          return;
+        }
+
+        const newAppt = {
+          id: 'a_' + Date.now(),
+          pacienteId: formPatientId,
+          profissionalId: currentUser.id,
+          data: formDate,
+          horario: formTime,
+          duracaoMin: 60,
+          status: 'confirmado',
+          tipo: 'consulta',
+          observacoes: formObs || 'Consulta de rotina',
+          valor: Number(formValue) || 200,
+          statusPagamento: 'pendente',
+          formaPagamento: 'Em aberto',
+          notificacaoStatus: 'enviado', // RN03
+          notificacaoTentativas: 1,
+          cancelamentoTardio: false
+        };
+
+        setAppointments(prev => [...prev, newAppt]);
+        setShowNewModal(false);
+
+        const pat = patients.find(p => p.id === formPatientId);
+        showToast(`Consulta confirmada para ${pat?.nome} às ${formTime}!`);
+        registerLog('Agendamento de Consulta (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} às ${formTime}`);
+
+        // Exibição da confirmação automática enviada por WhatsApp (RF12, RN03)
+        setWhatsappModalData({
+          titulo: 'Confirmação Automática WhatsApp (RF12 / RN03)',
+          destinatario: `${pat?.nome} (${pat?.telefone})`,
+          mensagem: `Olá, ${pat?.nome}! Sua consulta na Clinix com ${currentUser.name} está confirmada para ${formDate} às ${formTime}. Enviaremos lembrete 24h antes!`
+        });
+      };
+
+      // Bloquear Horário na Agenda (RF11)
+      const handleBlockSlot = (e) => {
+        e.preventDefault();
+
+        // Checar conflito prévio
+        const conflict = appointments.find(
+          a => a.data === selectedDate &&
+               a.horario === blockTime &&
+               a.status !== 'cancelado' &&
+               a.profissionalId === currentUser.id
+        );
+
+        if (conflict) {
+          showToast('Horário já ocupado por consulta. Remarque-a antes de bloquear.', 'error');
+          return;
+        }
+
+        const blockAppt = {
+          id: 'b_' + Date.now(),
+          pacienteId: null,
+          profissionalId: currentUser.id,
+          data: selectedDate,
+          horario: blockTime,
+          duracaoMin: 60,
+          status: 'bloqueado',
+          tipo: 'bloqueio',
+          observacoes: blockReason,
+          valor: 0,
+          statusPagamento: 'isento',
+          formaPagamento: 'N/A',
+          notificacaoStatus: 'nao_aplicavel',
+          notificacaoTentativas: 0,
+          cancelamentoTardio: false
+        };
+
+        setAppointments(prev => [...prev, blockAppt]);
+        setShowBlockModal(false);
+        showToast(`Horário ${blockTime} bloqueado com sucesso (RF11).`);
+        registerLog('Bloqueio de Agenda (RF11)', `Bloqueado ${blockTime} em ${selectedDate}: ${blockReason}`);
+      };
+
+      // Remarcação de Consulta (RF07)
+      const handleRescheduleSubmit = (e) => {
+        e.preventDefault();
+        const appt = showRescheduleModal;
+
+        const conflict = appointments.find(
+          a => a.id !== appt.id &&
+               a.data === rescheduleDate &&
+               a.horario === rescheduleTime &&
+               a.status !== 'cancelado' &&
+               a.profissionalId === currentUser.id
+        );
+
+        if (conflict) {
+          showToast('Horário de remarcação já ocupado! Selecione outro.', 'error');
+          return;
+        }
+
+        setAppointments(prev => prev.map(a => {
+          if (a.id === appt.id) {
+            return {
+              ...a,
+              data: rescheduleDate,
+              horario: rescheduleTime,
+              status: 'remarcado',
+              notificacaoStatus: 'enviado',
+              notificacaoTentativas: 1
+            };
+          }
+          return a;
+        }));
+
+        setShowRescheduleModal(null);
+        showToast('Consulta remarcada com sucesso (RF07)!');
+        registerLog('Remarcação de Consulta (RF07)', `Consulta ${appt.id} transferida para ${rescheduleDate} às ${rescheduleTime}`);
+      };
+
+      // Cancelamento com Regra de Cancelamento Tardio (< 24h) (RN10)
+      const handleCancelAppointment = (appt) => {
+        const apptDate = new Date(`${appt.data}T${appt.horario}`);
+        const now = new Date();
+        const diffHours = (apptDate - now) / (1000 * 60 * 60);
+        const isTardio = diffHours > 0 && diffHours < 24;
+
+        setDialogConfig({
+          title: 'Confirmar Cancelamento (RF08)',
+          message: isTardio
+            ? `ATENÇÃO (Regra RN10):\nEsta consulta ocorrerá em menos de 24 horas. O cancelamento será registrado como "Cancelamento Tardio" no histórico do paciente.`
+            : 'Deseja confirmar o cancelamento deste agendamento?',
+          confirmLabel: 'Sim, Cancelar',
+          cancelLabel: 'Voltar',
+          danger: true,
+          onConfirm: () => {
+            setAppointments(prev => prev.map(a => {
+              if (a.id === appt.id) {
+                return { ...a, status: 'cancelado', cancelamentoTardio: isTardio };
+              }
+              return a;
+            }));
+            showToast('Agendamento cancelado.');
+            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${isTardio ? 'SIM' : 'NÃO'}`);
+          }
+        });
+      };
+
+      // Simulação do Reenvio de WhatsApp (RN14)
+      const handleRetryWhatsapp = (apptId) => {
+        setAppointments(prev => prev.map(a => {
+          if (a.id === apptId) {
+            return { ...a, notificacaoStatus: 'reenviado', notificacaoTentativas: a.notificacaoTentativas + 1 };
+          }
+          return a;
+        }));
+        showToast('Notificação reenviada com sucesso (Status: Reenviado - RN14).');
+        registerLog('Reenvio de WhatsApp (RN14)', `Notificação reenviada para consulta ${apptId}`);
+      };
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Barra de Controles e Filtros */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={e => setSelectedDate(e.target.value)}
+                className="bg-slate-50 border border-slate-300 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <button
+                  onClick={() => setViewMode('dia')}
+                  className={`px-3 py-1.5 rounded-lg transition ${viewMode === 'dia' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500'}`}
+                >
+                  Visão Diária (RF10)
+                </button>
+                <button
+                  onClick={() => setViewMode('semana')}
+                  className={`px-3 py-1.5 rounded-lg transition ${viewMode === 'semana' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500'}`}
+                >
+                  Visão Semanal / Geral
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowBlockModal(true)}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 border border-slate-200"
+              >
+                <span>🚫</span>
+                <span>Bloquear Horário (RF11)</span>
+              </button>
+
+              <button
+                onClick={() => { setFormDate(selectedDate); setShowNewModal(true); }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5"
+              >
+                <span>+</span>
+                <span>Novo Agendamento</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Listagem / Grade de Horários */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span>Horário & Status</span>
+              <span>Paciente / Procedimento</span>
+              <span>WhatsApp (RF12–RF14)</span>
+              <span className="text-right">Ações Rápidas</span>
+            </div>
+
+            {filteredAppointments.length === 0 ? (
+              <div className="text-center py-12 text-slate-400 text-xs">
+                Nenhum agendamento ou bloqueio encontrado para a data selecionada.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {filteredAppointments.map(appt => {
+                  const patient = patients.find(p => p.id === appt.pacienteId);
+                  const isBlocked = appt.tipo === 'bloqueio';
+                  const isCancelled = appt.status === 'cancelado';
+
+                  return (
+                    <div
+                      key={appt.id}
+                      className={`p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition ${
+                        isCancelled ? 'bg-rose-50/40 opacity-70' : isBlocked ? 'bg-slate-50/80' : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      {/* Horário e Status */}
+                      <div className="flex items-center gap-3 min-w-[170px]">
+                        <div className={`px-3 py-1.5 rounded-xl font-bold text-xs ${
+                          isCancelled ? 'bg-slate-200 text-slate-500 line-through' :
+                          isBlocked ? 'bg-slate-200 text-slate-700' : 'bg-emerald-100 text-emerald-950'
+                        }`}>
+                          {appt.horario}
+                        </div>
+                        <div>
+                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            appt.status === 'confirmado' ? 'bg-blue-100 text-blue-800' :
+                            appt.status === 'remarcado' ? 'bg-purple-100 text-purple-800' :
+                            appt.status === 'bloqueado' ? 'bg-slate-200 text-slate-800' : 'bg-rose-100 text-rose-800'
+                          }`}>
+                            {appt.status}
+                          </span>
+                          {appt.cancelamentoTardio && (
+                            <span className="block text-[10px] text-rose-600 font-bold mt-0.5">Cancelamento Tardio (&lt;24h)</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Informações da Consulta */}
+                      <div className="flex-1">
+                        <div className="font-bold text-slate-800 text-xs md:text-sm">
+                          {isBlocked ? appt.observacoes : (patient ? patient.nome : 'Paciente Não Encontrado')}
+                        </div>
+                        {!isBlocked && (
+                          <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
+                            <span>📞 {patient?.telefone}</span>
+                            <span>•</span>
+                            <span className="italic">{appt.observacoes}</span>
+                            <span>•</span>
+                            <span className="font-semibold text-slate-700">R$ {appt.valor}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Status de Notificação WhatsApp (RF12 a RF14, RN14, RN15) */}
+                      <div className="min-w-[180px]">
+                        {!isBlocked && (
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-2.5 h-2.5 rounded-full ${
+                                appt.notificacaoStatus === 'enviado' ? 'bg-emerald-500' :
+                                appt.notificacaoStatus === 'reenviado' ? 'bg-blue-500' :
+                                appt.notificacaoStatus === 'falha' ? 'bg-rose-500 animate-ping' : 'bg-slate-300'
+                              }`}></span>
+                              <span className="text-xs font-semibold text-slate-700 capitalize">
+                                Lembrete: <strong>{appt.notificacaoStatus}</strong>
+                              </span>
+                            </div>
+
+                            {/* Ação de Reenvio para Falhas (RN14) */}
+                            {appt.notificacaoStatus === 'falha' && (
+                              <button
+                                onClick={() => handleRetryWhatsapp(appt.id)}
+                                className="mt-1 text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-md transition"
+                              >
+                                Reenviar WhatsApp (RN14)
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex items-center gap-1.5 justify-end">
+                        {!isCancelled && !isBlocked && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setShowRescheduleModal(appt);
+                                setRescheduleDate(appt.data);
+                              }}
+                              className="text-xs text-slate-600 hover:bg-slate-100 border border-slate-200 font-semibold px-2.5 py-1.5 rounded-xl transition"
+                            >
+                              Remarcar
+                            </button>
+                            <button
+                              onClick={() => handleCancelAppointment(appt)}
+                              className="text-xs text-rose-600 hover:bg-rose-50 border border-rose-200 font-semibold px-2.5 py-1.5 rounded-xl transition"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* MODAL: NOVO AGENDAMENTO */}
+          {showNewModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm">Novo Agendamento (RF06, RF09)</h3>
+                  <button onClick={() => setShowNewModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleCreateAppointment} className="space-y-3.5 mt-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Paciente Cadastrado *</label>
+                    <select
+                      value={formPatientId}
+                      onChange={e => setFormPatientId(e.target.value)}
+                      required
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                    >
+                      <option value="">Selecione o paciente...</option>
+                      {patients.filter(p => p.status === 'ativo').map(p => (
+                        <option key={p.id} value={p.id}>{p.nome} ({p.cpf})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Data *</label>
+                      <input
+                        type="date"
+                        value={formDate}
+                        onChange={e => setFormDate(e.target.value)}
+                        required
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Horário *</label>
+                      <select
+                        value={formTime}
+                        onChange={e => setFormTime(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                      >
+                        {['08:00', '09:00', '10:00', '10:30', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Indicador de Conflito em Tempo Real (RN01 / RN02) */}
+                  {appointments.some(a => a.data === formDate && a.horario === formTime && a.status !== 'cancelado' && a.profissionalId === currentUser.id) && (
+                    <div className="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-semibold flex items-center gap-2">
+                      <span>⚠️</span>
+                      <span>Horário ocupado! Escolha outro horário para cumprir a regra de negócio RN01.</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Valor da Sessão (R$)</label>
+                      <input
+                        type="number"
+                        value={formValue}
+                        onChange={e => setFormValue(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Duração Padrão</label>
+                      <input
+                        type="text"
+                        disabled
+                        value="60 minutos"
+                        className="w-full bg-slate-100 border border-slate-200 text-slate-500 rounded-xl px-3 py-2 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Observações Clínicas</label>
+                    <textarea
+                      rows="2"
+                      value={formObs}
+                      onChange={e => setFormObs(e.target.value)}
+                      placeholder="Motivo da consulta ou recomendações iniciais..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                    ></textarea>
+                  </div>
+
+                  <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed">
+                    ⚡ <strong>Automação Ativa:</strong> Valida choque de horário (RN01) e agenda confirmação via WhatsApp (RN03/RF12).
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowNewModal(false)}
+                      className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-bold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm"
+                    >
+                      Confirmar Consulta
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL: BLOQUEIO DE HORÁRIO (RF11) */}
+          {showBlockModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm">Bloquear Horário (RF11)</h3>
+                  <button onClick={() => setShowBlockModal(false)} className="text-slate-400 font-bold">✕</button>
+                </div>
+                <form onSubmit={handleBlockSlot} className="space-y-3 mt-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Motivo do Bloqueio *</label>
+                    <input
+                      type="text"
+                      required
+                      value={blockReason}
+                      onChange={e => setBlockReason(e.target.value)}
+                      placeholder="Ex: Almoço, Reunião clínica, Folga..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Horário do Bloqueio</label>
+                    <select
+                      value={blockTime}
+                      onChange={e => setBlockTime(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none font-semibold"
+                    >
+                      {['08:00', '12:00', '13:00', '17:00', '18:00'].map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowBlockModal(false)}
+                      className="px-3.5 py-1.5 border border-slate-200 rounded-xl text-slate-600 font-semibold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold"
+                    >
+                      Bloquear Slot
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL: REMARCAÇÃO (RF07) */}
+          {showRescheduleModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm">Remarcar Consulta (RF07)</h3>
+                  <button onClick={() => setShowRescheduleModal(null)} className="text-slate-400 font-bold">✕</button>
+                </div>
+                <form onSubmit={handleRescheduleSubmit} className="space-y-3 mt-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Nova Data *</label>
+                    <input
+                      type="date"
+                      required
+                      value={rescheduleDate}
+                      onChange={e => setRescheduleDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Novo Horário *</label>
+                    <select
+                      value={rescheduleTime}
+                      onChange={e => setRescheduleTime(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none font-semibold"
+                    >
+                      {['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'].map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowRescheduleModal(null)}
+                      className="px-3.5 py-1.5 border border-slate-200 rounded-xl text-slate-600 font-semibold"
+                    >
+                      Voltar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold"
+                    >
+                      Salvar Remarcação
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* SIMULAÇÃO DE ENVIO AUTOMÁTICO WHATSAPP (RF12 / RN03) */}
+          {whatsappModalData && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-emerald-100">
+                <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800">{whatsappModalData.titulo}</h4>
+                    <p className="text-[10px] text-slate-400">Disparo concluído</p>
+                  </div>
+                </div>
+                <div className="my-3.5 bg-emerald-50/60 p-3 rounded-2xl border border-emerald-100 text-xs">
+                  <p className="font-bold text-emerald-950 mb-1">Para: {whatsappModalData.destinatario}</p>
+                  <p className="bg-white p-2.5 rounded-xl border border-emerald-100 text-slate-700">
+                    {whatsappModalData.mensagem}
+                  </p>
+                  <span className="block text-right text-[10px] text-slate-400 mt-1">Status: Enviado ✓✓</span>
+                </div>
+                <button
+                  onClick={() => setWhatsappModalData(null)}
+                  className="w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-xl"
+                >
+                  OK, Prosseguir
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function PatientsView({ patients, setPatients, appointments, currentUser, showToast, registerLog, onOpenProntuario, setDialogConfig }) {
+      const [search, setSearch] = useState('');
+      const [statusFilter, setStatusFilter] = useState('todos'); // 'todos' | 'ativo' | 'inativo'
+      const [showModal, setShowModal] = useState(false);
+      const [editingPatient, setEditingPatient] = useState(null);
+
+      // Form state
+      const [nome, setNome] = useState('');
+      const [cpf, setCpf] = useState('');
+      const [nascimento, setNascimento] = useState('');
+      const [telefone, setTelefone] = useState('');
+      const [email, setEmail] = useState('');
+      const [endereco, setEndereco] = useState('');
+      const [alergias, setAlergias] = useState('');
+      const [condicoes, setCondicoes] = useState('');
+
+      // Portabilidade de Dados LGPD (Art. 18, V - RQ02)
+      const handleExportLGPD = (patient) => {
+        const patientAppts = appointments.filter(a => a.pacienteId === patient.id);
+        const exportData = {
+          finalidade: "Portabilidade de Dados Pessoais (LGPD Art. 18, V)",
+          dataExportacao: new Date().toISOString(),
+          sistema: "Clinix Sistema de Agendamento e Prontuário para Clínicas Pequenas",
+          paciente: {
+            id: patient.id,
+            nome: patient.nome,
+            cpf: patient.cpf,
+            nascimento: patient.nascimento,
+            telefone: patient.telefone,
+            email: patient.email,
+            endereco: patient.endereco,
+            alergias: patient.alergias,
+            condicoesPreexistentes: patient.condicoesPreexistentes,
+            status: patient.status
+          },
+          historicoConsultas: patientAppts.map(a => ({
+            data: a.data,
+            horario: a.horario,
+            status: a.status,
+            valor: a.valor
+          }))
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `portabilidade_lgpd_${patient.cpf.replace(/\\D/g, '') || patient.id}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        showToast(`Arquivo JSON de Portabilidade LGPD gerado para ${patient.nome}!`);
+        registerLog('Portabilidade LGPD (RQ02)', `Download de dados de ${patient.nome}`);
+      };
+
+      const filtered = patients.filter(p => {
+        const matchesSearch = p.nome.toLowerCase().includes(search.toLowerCase()) || p.cpf.includes(search);
+        if (statusFilter === 'ativo') return matchesSearch && p.status === 'ativo';
+        if (statusFilter === 'inativo') return matchesSearch && p.status === 'inativo';
+        return matchesSearch;
+      });
+
+      const handleOpenCreate = () => {
+        setEditingPatient(null);
+        setNome(''); setCpf(''); setNascimento(''); setTelefone(''); setEmail(''); setEndereco(''); setAlergias(''); setCondicoes('');
+        setShowModal(true);
+      };
+
+      const handleOpenEdit = (patient) => {
+        setEditingPatient(patient);
+        setNome(patient.nome);
+        setCpf(patient.cpf);
+        setNascimento(patient.nascimento);
+        setTelefone(patient.telefone);
+        setEmail(patient.email);
+        setEndereco(patient.endereco);
+        setAlergias(patient.alergias);
+        setCondicoes(patient.condicoesPreexistentes);
+        setShowModal(true);
+      };
+
+      const handleSave = (e) => {
+        e.preventDefault();
+
+        if (editingPatient) {
+          // RF02 - Alterar dados
+          setPatients(prev => prev.map(p => {
+            if (p.id === editingPatient.id) {
+              return {
+                ...p,
+                nome, cpf, nascimento, telefone, email, endereco,
+                alergias, condicoesPreexistentes: condicoes
+              };
+            }
+            return p;
+          }));
+          showToast('Dados do paciente alterados com sucesso (RF02).');
+          registerLog('Alteração de Paciente (RF02)', `Cadastro atualizado: ${nome}`);
+        } else {
+          // RF01 - Incluir dados
+          const newPatient = {
+            id: 'p_' + Date.now(),
+            nome, cpf, nascimento, telefone, email, endereco,
+            alergias: alergias || 'Nenhuma informada',
+            condicoesPreexistentes: condicoes || 'Nenhuma informada',
+            status: 'ativo',
+            profissionalId: currentUser.id
+          };
+          setPatients(prev => [...prev, newPatient]);
+          showToast(`Paciente ${nome} cadastrado com sucesso (RF01)!`);
+          registerLog('Cadastro de Paciente (RF01)', `Novo paciente: ${nome} (${cpf})`);
+        }
+        setShowModal(false);
+      };
+
+      // Inativação lógica com anonimização LGPD (RN16, RQ03, RF03)
+      const handleInactivate = (patient) => {
+        setDialogConfig({
+          title: 'Inativação Lógica & Anonimização (LGPD - RQ03, RN16)',
+          message: `Deseja inativar o cadastro de "${patient.nome}"?\n\nConforme as normas LGPD e a regra RN16, dados de contato identificadores (telefone e e-mail) serão anonimizados, mas o prontuário e histórico médico serão integralmente preservados para segurança jurídica.`,
+          confirmLabel: 'Inativar e Anonimizar',
+          cancelLabel: 'Cancelar',
+          danger: true,
+          onConfirm: () => {
+            setPatients(prev => prev.map(item => {
+              if (item.id === patient.id) {
+                return {
+                  ...item,
+                  status: 'inativo',
+                  telefone: '[ANONIMIZADO - LGPD]',
+                  email: 'anonimizado@lgpd.local',
+                  endereco: '[ANONIMIZADO]'
+                };
+              }
+              return item;
+            }));
+            showToast(`Paciente ${patient.nome} inativado logicamente.`);
+            registerLog('Inativação Lógica com Anonimização LGPD (RQ03, RN16)', `Inativação de ${patient.nome} (ID: ${patient.id})`);
+          }
+        });
+      };
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Barra de Busca, Filtros e Cadastro */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <div className="relative w-full sm:w-72">
+                <input
+                  type="text"
+                  placeholder="Buscar por nome ou CPF (RF05)..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-2xl pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                />
+                <span className="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+              </div>
+
+              {/* Filtro por Status LGPD */}
+              <div className="flex items-center gap-1.5 self-start sm:self-auto text-xs font-bold">
+                <button
+                  onClick={() => setStatusFilter('todos')}
+                  className={`px-3 py-1.5 rounded-xl transition ${statusFilter === 'todos' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                >
+                  Todos ({patients.length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('ativo')}
+                  className={`px-3 py-1.5 rounded-xl transition ${statusFilter === 'ativo' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                >
+                  Ativos ({patients.filter(p => p.status === 'ativo').length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('inativo')}
+                  className={`px-3 py-1.5 rounded-xl transition ${statusFilter === 'inativo' ? 'bg-slate-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                >
+                  Inativos LGPD ({patients.filter(p => p.status === 'inativo').length})
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleOpenCreate}
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-1.5"
+            >
+              <span>+</span>
+              <span>Novo Paciente (RF01)</span>
+            </button>
+          </div>
+
+          {/* Cards dos Pacientes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(patient => {
+              const isInactive = patient.status === 'inativo';
+
+              return (
+                <div
+                  key={patient.id}
+                  className={`bg-white rounded-3xl p-5 border shadow-sm transition flex flex-col justify-between ${
+                    isInactive ? 'border-slate-200 bg-slate-50/70 opacity-75' : 'border-slate-200 hover:border-emerald-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-800 text-sm md:text-base">{patient.nome}</h3>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            isInactive ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {patient.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">CPF: {patient.cpf} • Nasc: {patient.nascimento}</p>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleExportLGPD(patient)}
+                          title="Portabilidade de Dados (LGPD Art. 18, V - RQ02)"
+                          className="p-1.5 rounded-lg text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 text-xs"
+                        >
+                          📥
+                        </button>
+                        <button
+                          onClick={() => handleOpenEdit(patient)}
+                          title="Alterar dados (RF02)"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-xs"
+                        >
+                          ✏️
+                        </button>
+                        {!isInactive && (
+                          <button
+                            onClick={() => handleInactivate(patient)}
+                            title="Inativação Lógica e Anonimização LGPD (RQ03)"
+                            className="p-1.5 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 text-xs"
+                          >
+                            🛡️
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-3.5 space-y-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">Telefone:</span>
+                        <span className="font-semibold text-slate-800">{patient.telefone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">E-mail:</span>
+                        <span className="font-semibold text-slate-800">{patient.email}</span>
+                      </div>
+                    </div>
+
+                    {/* Alertas Clínicos (RF18) */}
+                    <div className="mt-3 p-3 bg-rose-50/70 rounded-2xl border border-rose-100 text-[11px]">
+                      <span className="font-bold text-rose-900 block text-[10px] uppercase tracking-wide">
+                        ⚠️ Alertas Clínicos (RF18)
+                      </span>
+                      <p className="text-slate-800 mt-0.5"><strong>Alergias:</strong> {patient.alergias}</p>
+                      <p className="text-slate-800"><strong>Condições:</strong> {patient.condicoesPreexistentes}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400">Preservação integral (RN16)</span>
+                    <button
+                      onClick={() => onOpenProntuario(patient.id)}
+                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-200 transition"
+                    >
+                      Abrir Prontuário →
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* MODAL: FORMULÁRIO DE PACIENTE (RF01 / RF02 / RD01) */}
+          {showModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm">
+                    {editingPatient ? 'Editar Paciente (RF02)' : 'Novo Paciente (RF01 - RD01)'}
+                  </h3>
+                  <button onClick={() => setShowModal(false)} className="text-slate-400 font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleSave} className="space-y-3.5 mt-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Nome Completo *</label>
+                    <input
+                      type="text"
+                      required
+                      value={nome}
+                      onChange={e => setNome(e.target.value)}
+                      placeholder="Ex: Mariana Duarte Souza"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">CPF (Documento) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={cpf}
+                        onChange={e => setCpf(e.target.value)}
+                        placeholder="000.000.000-00"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Data de Nascimento *</label>
+                      <input
+                        type="date"
+                        required
+                        value={nascimento}
+                        onChange={e => setNascimento(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Telefone (WhatsApp) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={telefone}
+                        onChange={e => setTelefone(e.target.value)}
+                        placeholder="(61) 98765-4321"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">E-mail</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="email@exemplo.com"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Endereço Residencial</label>
+                    <input
+                      type="text"
+                      value={endereco}
+                      onChange={e => setEndereco(e.target.value)}
+                      placeholder="Logradouro, Bairro, Cidade/UF"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <span className="font-bold text-slate-800 text-[11px] block">Informações Clínicas Gerais (RF18)</span>
+                    <div>
+                      <label className="text-slate-600 block mb-0.5">Alergias Conhecidas</label>
+                      <input
+                        type="text"
+                        value={alergias}
+                        onChange={e => setAlergias(e.target.value)}
+                        placeholder="Ex: Penicilina, Látex, Dipirona..."
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-slate-600 block mb-0.5">Condições Preexistentes</label>
+                      <input
+                        type="text"
+                        value={condicoes}
+                        onChange={e => setCondicoes(e.target.value)}
+                        placeholder="Ex: Diabetes Tipo II, Ansiedade crônica..."
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm"
+                    >
+                      Salvar Paciente
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function ProntuarioView({ patients, records, setRecords, appointments, currentUser, selectedPatient, setSelectedPatient, showToast, registerLog }) {
+      const [newNote, setNewNote] = useState('');
+      const [editingRecordId, setEditingRecordId] = useState(null);
+      const [editNoteContent, setEditNoteContent] = useState('');
+      const [versionModalRecord, setVersionModalRecord] = useState(null);
+
+      // Paciente selecionado padrão
+      useEffect(() => {
+        if (!selectedPatient && patients.length > 0) {
+          setSelectedPatient(patients[0]);
+        }
+      }, [patients, selectedPatient]);
+
+      const patientRecords = useMemo(() => {
+        if (!selectedPatient) return [];
+        return records.filter(r => r.pacienteId === selectedPatient.id);
+      }, [records, selectedPatient]);
+
+      // Registro de Sessão (RF15, RN05, RN06)
+      const handleCreateRecord = (e) => {
+        e.preventDefault();
+        if (!newNote.trim()) return;
+
+        const newRec = {
+          id: 'rec_' + Date.now(),
+          pacienteId: selectedPatient.id,
+          agendamentoId: null,
+          data: new Date().toLocaleString('pt-BR'),
+          profissionalId: currentUser.id,
+          profissionalNome: currentUser.name,
+          anotacao: newNote,
+          versao: 1,
+          historicoVersoes: []
+        };
+
+        setRecords(prev => [newRec, ...prev]);
+        setNewNote('');
+        showToast('Evolução clínica registrada no prontuário (RN05, RN06)!');
+        registerLog('Registro de Sessão em Prontuário (RF15)', `Nota clínica adicionada para ${selectedPatient.nome}`);
+      };
+
+      // Alteração com Versionamento Imutável (RN17, RF16)
+      const handleSaveEdit = (recordId) => {
+        if (!editNoteContent.trim()) return;
+
+        setRecords(prev => prev.map(rec => {
+          if (rec.id === recordId) {
+            const snapshot = {
+              versao: rec.versao,
+              dataModificacao: new Date().toLocaleString('pt-BR'),
+              modificadoPor: currentUser.name,
+              conteudoAnterior: rec.anotacao
+            };
+
+            return {
+              ...rec,
+              anotacao: editNoteContent,
+              versao: rec.versao + 1,
+              historicoVersoes: [snapshot, ...rec.historicoVersoes]
+            };
+          }
+          return rec;
+        }));
+
+        setEditingRecordId(null);
+        showToast('Prontuário atualizado. Versão anterior preservada no histórico (RN17)!');
+        registerLog('Alteração de Prontuário com Versionamento (RN17)', `Edição da anotação ${recordId}`);
+      };
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Seletor Superior de Paciente */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Paciente:</span>
+              <select
+                value={selectedPatient?.id || ''}
+                onChange={e => {
+                  const p = patients.find(item => item.id === e.target.value);
+                  setSelectedPatient(p);
+                  registerLog('Troca de Prontuário (RN13)', `Visualizando prontuário de ${p?.nome}`);
+                }}
+                className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {patients.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} ({p.status === 'ativo' ? 'Ativo' : 'Inativo - LGPD'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedPatient && (
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>Nasc: <strong>{selectedPatient.nascimento}</strong></span>
+                <span>•</span>
+                <span>CPF: <strong>{selectedPatient.cpf}</strong></span>
+              </div>
+            )}
+          </div>
+
+          {selectedPatient && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Coluna Esquerda: Ficha Clínica Geral (RF18) */}
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                    Ficha Clínica Geral (RF18)
+                  </h4>
+                  <div className="space-y-3 text-xs">
+                    <div className="p-3 bg-rose-50/70 rounded-2xl border border-rose-100">
+                      <span className="font-bold text-rose-900 block text-[11px]">⚠️ Alergias Identificadas:</span>
+                      <p className="text-slate-800 mt-1">{selectedPatient.alergias || 'Nenhuma informada.'}</p>
+                    </div>
+
+                    <div className="p-3 bg-amber-50/70 rounded-2xl border border-amber-100">
+                      <span className="font-bold text-amber-900 block text-[11px]">🩺 Condições Preexistentes:</span>
+                      <p className="text-slate-800 mt-1">{selectedPatient.condicoesPreexistentes || 'Nenhuma informada.'}</p>
+                    </div>
+
+                    <div className="pt-2 text-slate-500 text-[11px] space-y-1">
+                      <p><strong>Contato:</strong> {selectedPatient.telefone}</p>
+                      <p><strong>Endereço:</strong> {selectedPatient.endereco}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-emerald-50 p-4 rounded-3xl border border-emerald-200 text-xs text-emerald-950">
+                  <h5 className="font-bold mb-1">Garantia RN17 & Auditoria:</h5>
+                  <p className="text-[11px] leading-relaxed text-emerald-900">
+                    Nenhuma evolução clínica é sobrescrita. Alterações geram versões subsequentes preservando autoria e texto original.
+                  </p>
+                </div>
+              </div>
+
+              {/* Coluna Direita: Registro de Sessão e Timeline de Evoluções */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Form de Nova Anotação (RN05) */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-slate-800 text-sm">
+                      Registrar Nova Sessão / Evolução (RN05)
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="no-print text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1"
+                    >
+                      <span>🖨️</span>
+                      <span>Imprimir Prontuário</span>
+                    </button>
+                  </div>
+
+                  {/* Chips de Modelos Clínicos Rápidos (SOAP) */}
+                  <div className="no-print flex flex-wrap items-center gap-1.5 mb-3">
+                    <span className="text-[11px] font-bold text-slate-400">Modelos Rápidos:</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewNote('Queixa Principal: \nHistórico do Sintoma: \nAvaliação Clínica: \nPlano Terapêutico e Próxima Sessão: ')}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    >
+                      + Anamnese Inicial
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewNote('Evolução Clínica: Paciente compareceu assíduo, relatando melhora dos sintomas e boa adesão às estratégias combinadas.\nConduta: Manter plano terapêutico com retorno em 15 dias.')}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition"
+                    >
+                      + Evolução de Retorno
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewNote('Orientações Clínicas Fornecidas: \nEncaminhamento Interdisciplinar: \nObservações Éticas e Sigilo (RN13): ')}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 transition"
+                    >
+                      + Orientações & Encaminhamento
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateRecord} className="space-y-3">
+                    <textarea
+                      rows="4"
+                      required
+                      value={newNote}
+                      onChange={e => setNewNote(e.target.value)}
+                      placeholder="Descreva as queixas, evolução clínica, intervenções realizadas e plano terapêutico..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-2xl p-3 text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                    ></textarea>
+
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition"
+                      >
+                        Gravar no Prontuário (RN06)
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Histórico Cronológico de Atendimentos (RF17, RF23) */}
+                <div className="space-y-4">
+                  <h4 className="font-bold text-slate-800 text-sm">Linha do Tempo de Atendimentos (RF17, RF23)</h4>
+
+                  {patientRecords.length === 0 ? (
+                    <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs">
+                      Nenhum registro clínico anterior localizado para este paciente.
+                    </div>
+                  ) : (
+                    patientRecords.map(rec => (
+                      <div key={rec.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                        <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-800">{rec.profissionalNome}</span>
+                            <span className="text-slate-400">•</span>
+                            <span className="text-slate-500">{rec.data}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-full text-[10px]">
+                              Versão {rec.versao}
+                            </span>
+
+                            {rec.historicoVersoes.length > 0 && (
+                              <button
+                                onClick={() => setVersionModalRecord(rec)}
+                                className="text-xs text-blue-600 hover:underline font-bold"
+                              >
+                                Ver Anteriores ({rec.historicoVersoes.length})
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => {
+                                setEditingRecordId(rec.id);
+                                setEditNoteContent(rec.anotacao);
+                              }}
+                              className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-2 py-1 rounded-lg hover:bg-slate-100"
+                            >
+                              Editar (RN17)
+                            </button>
+                          </div>
+                        </div>
+
+                        {editingRecordId === rec.id ? (
+                          <div className="space-y-2 mt-2">
+                            <textarea
+                              rows="3"
+                              value={editNoteContent}
+                              onChange={e => setEditNoteContent(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-300 rounded-2xl p-2.5 text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                            <div className="flex justify-end gap-2 text-xs">
+                              <button
+                                onClick={() => setEditingRecordId(null)}
+                                className="px-3 py-1 border border-slate-200 rounded-lg text-slate-600 font-bold"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                onClick={() => handleSaveEdit(rec.id)}
+                                className="px-3 py-1 bg-emerald-600 text-white rounded-lg font-bold"
+                              >
+                                Salvar Versão {rec.versao + 1}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">
+                            {rec.anotacao}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL: HISTÓRICO DE VERSÕES ANTERIORES (RN17) */}
+          {versionModalRecord && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">Histórico de Alterações (RN17)</h3>
+                    <p className="text-[11px] text-slate-400">Versão atual ativa: v{versionModalRecord.versao}</p>
+                  </div>
+                  <button onClick={() => setVersionModalRecord(null)} className="text-slate-400 font-bold">✕</button>
+                </div>
+
+                <div className="space-y-3 mt-4 text-xs">
+                  {versionModalRecord.historicoVersoes.map((v, idx) => (
+                    <div key={idx} className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                        <span className="font-bold text-slate-800">Versão {v.versao}</span>
+                        <span>{v.dataModificacao} por {v.modificadoPor}</span>
+                      </div>
+                      <p className="text-slate-700 bg-white p-2.5 rounded-xl border border-slate-100 italic">
+                        "{v.conteudoAnterior}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setVersionModalRecord(null)}
+                  className="w-full mt-4 bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl"
+                >
+                  Fechar Histórico
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function FinanceiroView({ appointments, patients, setAppointments, showToast, registerLog }) {
+      const [filterStatus, setFilterStatus] = useState('todos'); // 'todos', 'pago', 'pendente'
+      const [filterPatientId, setFilterPatientId] = useState('todos');
+
+      const filtered = appointments.filter(a => {
+        if (a.tipo === 'bloqueio') return false;
+        if (filterStatus !== 'todos' && a.statusPagamento !== filterStatus) return false;
+        if (filterPatientId !== 'todos' && a.pacienteId !== filterPatientId) return false;
+        return true;
+      });
+
+      // Cálculos do Resumo Mensal (RF22, RN09, RQ16)
+      const totalFaturado = appointments
+        .filter(a => a.statusPagamento === 'pago')
+        .reduce((sum, a) => sum + (Number(a.valor) || 0), 0);
+
+      const totalPendente = appointments
+        .filter(a => a.statusPagamento === 'pendente')
+        .reduce((sum, a) => sum + (Number(a.valor) || 0), 0);
+
+      const totalConsultas = appointments.filter(a => a.status !== 'cancelado' && a.tipo !== 'bloqueio').length;
+
+      // Alternar status de pagamento (RN07, RN08, RF20)
+      const handleTogglePayment = (apptId) => {
+        setAppointments(prev => prev.map(a => {
+          if (a.id === apptId) {
+            const nextStatus = a.statusPagamento === 'pago' ? 'pendente' : 'pago';
+            const nextForma = nextStatus === 'pago' ? 'Pix' : 'Em aberto';
+            return { ...a, statusPagamento: nextStatus, formaPagamento: nextForma };
+          }
+          return a;
+        }));
+        showToast('Status financeiro atualizado com sucesso (RF20)!');
+        registerLog('Atualização de Pagamento (RF20, RN08)', `Status modificado para consulta ${apptId}`);
+      };
+
+      // Exportação de Relatório CSV (RF25)
+      const handleExportCSV = () => {
+        let csv = 'Data,Horario,Paciente,Valor,StatusPagamento,FormaPagamento\n';
+        filtered.forEach(a => {
+          const pat = patients.find(p => p.id === a.pacienteId);
+          csv += `"${a.data}","${a.horario}","${pat?.nome || 'N/A'}","${a.valor}","${a.statusPagamento}","${a.formaPagamento}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `relatorio_financeiro_${getTodayDateStr()}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        showToast('Planilha CSV gerada com sucesso (RF25)!');
+        registerLog('Exportação CSV (RF25)', 'Relatório financeiro exportado em formato tabular');
+      };
+
+      // Exportação de Relatório (RF25)
+      const handlePrint = () => {
+        window.print();
+        registerLog('Exportação de Relatório (RF25)', 'Relatório financeiro exportado para PDF / Impressão');
+      };
+
+      const totalGeral = totalFaturado + totalPendente;
+      const taxaRecebimento = totalGeral > 0 ? Math.round((totalFaturado / totalGeral) * 100) : 0;
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Barra de Progresso da Arrecadação */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="font-bold text-slate-700">Taxa de Liquidação Financeira: {taxaRecebimento}% recebido</span>
+              <span className="text-slate-500 font-semibold">Total Geral: R$ {totalGeral.toFixed(2)}</span>
+            </div>
+            <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-emerald-500 h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${taxaRecebimento}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Cards do Resumo Mensal (RF22) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500">Total Faturado (Pago)</span>
+              <div className="text-2xl font-bold text-emerald-700 my-1">R$ {totalFaturado.toFixed(2)}</div>
+              <span className="text-[11px] text-slate-400">Receitas liquidadas no período</span>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500">Total Pendente (RN08)</span>
+              <div className="text-2xl font-bold text-amber-600 my-1">R$ {totalPendente.toFixed(2)}</div>
+              <span className="text-[11px] text-slate-400">Em cobrança até liquidação</span>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500">Total de Atendimentos</span>
+              <div className="text-2xl font-bold text-slate-900 my-1">{totalConsultas}</div>
+              <span className="text-[11px] text-slate-400">Sessões confirmadas no mês</span>
+            </div>
+          </div>
+
+          {/* Filtros e Ação de Exportação (RF24, RF25) */}
+          <div className="no-print bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase">Status:</span>
+                <select
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 outline-none"
+                >
+                  <option value="todos">Todos</option>
+                  <option value="pago">Somente Pagos</option>
+                  <option value="pendente">Somente Pendentes (RF21)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase">Paciente:</span>
+                <select
+                  value={filterPatientId}
+                  onChange={e => setFilterPatientId(e.target.value)}
+                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 outline-none"
+                >
+                  <option value="todos">Todos os Pacientes</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>{p.nome}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePrint}
+              className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-sm"
+            >
+              <span>🖨️</span>
+              <span>Exportar PDF / Imprimir (RF25)</span>
+            </button>
+          </div>
+
+          {/* Tabela de Lançamentos */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex justify-between">
+              <span>Extrato Consolidado de Atendimentos & Honorários (RF24)</span>
+              <span className="text-slate-400 font-normal">Exatidão garantida por RQ16</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-200">
+                  <tr>
+                    <th className="p-3.5">Data / Hora</th>
+                    <th className="p-3.5">Paciente</th>
+                    <th className="p-3.5">Valor (R$)</th>
+                    <th className="p-3.5">Forma</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 no-print text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filtered.map(appt => {
+                    const patient = patients.find(p => p.id === appt.pacienteId);
+                    const isPaid = appt.statusPagamento === 'pago';
+
+                    return (
+                      <tr key={appt.id} className="hover:bg-slate-50 transition">
+                        <td className="p-3.5 font-medium">{appt.data} às {appt.horario}</td>
+                        <td className="p-3.5 font-bold text-slate-800">{patient?.nome || '—'}</td>
+                        <td className="p-3.5 font-bold text-slate-900">R$ {Number(appt.valor).toFixed(2)}</td>
+                        <td className="p-3.5 text-slate-500">{appt.formaPagamento}</td>
+                        <td className="p-3.5">
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                            isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {appt.statusPagamento.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-3.5 no-print text-right">
+                          <button
+                            onClick={() => handleTogglePayment(appt.id)}
+                            className="text-xs text-blue-600 hover:underline font-bold"
+                          >
+                            Alternar para {isPaid ? 'Pendente' : 'Pago'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function LogsView({ logs, currentUser }) {
+      const [searchQuery, setSearchQuery] = useState('');
+      const [logCategory, setLogCategory] = useState('todos');
+
+      const filteredLogs = logs.filter(log => {
+        const matchesSearch = log.operacao.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              log.detalhes.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              log.usuarioNome.toLowerCase().includes(searchQuery.toLowerCase());
+        if (logCategory === 'auth') return matchesSearch && log.operacao.includes('Autenticação');
+        if (logCategory === 'prontuario') return matchesSearch && (log.operacao.includes('Prontuário') || log.operacao.includes('Sessão'));
+        if (logCategory === 'agenda') return matchesSearch && (log.operacao.includes('Agendamento') || log.operacao.includes('Agenda'));
+        if (logCategory === 'lgpd') return matchesSearch && log.operacao.includes('LGPD');
+        return matchesSearch;
+      });
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-800 text-sm md:text-base">Trilha de Auditoria & Segurança LGPD (RQ07, RF28)</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Ativa (RN13)</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Registros cronológicos automáticos e imutáveis de todos os acessos a prontuários e modificações no sistema.
+              </p>
+            </div>
+            <span className="text-xs font-mono bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 font-bold self-end sm:self-center">
+              Total de Logs: {logs.length}
+            </span>
+          </div>
+
+          {/* Filtros e Busca de Logs */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="relative w-full sm:w-72">
+              <input
+                type="text"
+                placeholder="Filtrar logs por texto ou usuário..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-2xl pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+              />
+              <span className="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+              <button
+                onClick={() => setLogCategory('todos')}
+                className={`px-3 py-1.5 rounded-xl transition ${logCategory === 'todos' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                Todos
+              </button>
+              <button
+                onClick={() => setLogCategory('prontuario')}
+                className={`px-3 py-1.5 rounded-xl transition ${logCategory === 'prontuario' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                Prontuário (RN13)
+              </button>
+              <button
+                onClick={() => setLogCategory('auth')}
+                className={`px-3 py-1.5 rounded-xl transition ${logCategory === 'auth' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                Acessos (RF26)
+              </button>
+              <button
+                onClick={() => setLogCategory('lgpd')}
+                className={`px-3 py-1.5 rounded-xl transition ${logCategory === 'lgpd' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                LGPD (RQ03)
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="divide-y divide-slate-100">
+              {filteredLogs.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-xs">
+                  Nenhum registro de log encontrado para os critérios selecionados.
+                </div>
+              ) : (
+                filteredLogs.map(log => (
+                  <div key={log.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50 text-xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{log.operacao}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-emerald-700 font-semibold">{log.usuarioNome}</span>
+                      </div>
+                      <p className="text-slate-600 mt-0.5">{log.detalhes}</p>
+                    </div>
+
+                    <div className="text-[11px] font-mono text-slate-400 self-end sm:self-center">
+                      {new Date(log.timestamp).toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

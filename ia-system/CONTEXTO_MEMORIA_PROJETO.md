@@ -147,7 +147,7 @@ src/
 - **Decisão (08/10/2026):** Davi quer apresentar um MVP funcional e visual ANTES de Banco de Dados II. Integração feita com repositórios `InMemory` (Singleton + seed de dados); a API servirá o `index.html` via `wwwroot` para apresentação local com um único `dotnet run` (sem CORS/hospedagem). MySQL entra depois trocando apenas o registro de DI.
 - **Padrão escolhido:** Controllers (classes com DI via construtor, coerente com POO).
 - Roadmap:
-  1. ✅ Criar `src/ClinicaApp.Api` (webapi --use-controllers, net8.0), referenciando `ClinicaApp`, incluído no `ClinicaApp.slnx`.
+  1. ⏳ Criar `src/ClinicaApp.Api` (webapi --use-controllers, net8.0), referenciando `ClinicaApp`.
   2. ⏳ `Program.cs` da API: registrar repositórios InMemory como `AddSingleton`, serviços, seed de dados, `UseStaticFiles`; remover boilerplate `WeatherForecast`.
   3. `PacientesController` (RF01-RF05).
   4. `AgendamentosController` (RN01, RN02, RN10) — exibir erro de conflito na tela.
@@ -191,3 +191,4 @@ src/
 | 08/10/2026 | Antigravity AI (usuário: Davi) | Memória dividida por membro: criada `ia-system/membros/` com `DAVI.md` e `MIGUEL.md`; tabela de equipe (Seção 0); protocolo de identificação em `AGENTS.md`, `CLAUDE.md`, `.cursorrules` e `copilot-instructions.md`. | Criar `ISAAC.md` e `LUCAS.md` quando o Davi pedir. Davi: etapa 2 do Bloco 5. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
+
