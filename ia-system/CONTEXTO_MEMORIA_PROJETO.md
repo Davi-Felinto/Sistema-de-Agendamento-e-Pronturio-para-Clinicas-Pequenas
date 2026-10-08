@@ -130,6 +130,20 @@ src/
 ### 🌐 Bloco 4: Web / Interface
 - `index.html` na raiz do projeto, implantado no GitHub Pages:
   `https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/`
+- Hoje o front (React via CDN + Tailwind, ~2870 linhas) persiste dados em `localStorage` (`clinix_*`).
+
+### 🚧 Bloco 5: MVP Visual Integrado (API + index.html) — EM ANDAMENTO
+- **Decisão (08/10/2026):** Davi quer apresentar um MVP funcional e visual ANTES de Banco de Dados II. Integração feita com repositórios `InMemory` (Singleton + seed de dados); a API servirá o `index.html` via `wwwroot` para apresentação local com um único `dotnet run` (sem CORS/hospedagem). MySQL entra depois trocando apenas o registro de DI.
+- **Padrão escolhido:** Controllers (classes com DI via construtor, coerente com POO).
+- Roadmap:
+  1. ✅ Criar `src/ClinicaApp.Api` (webapi --use-controllers, net8.0), referenciando `ClinicaApp`, incluído no `ClinicaApp.slnx`.
+  2. ⏳ `Program.cs` da API: registrar repositórios InMemory como `AddSingleton`, serviços, seed de dados, `UseStaticFiles`; remover boilerplate `WeatherForecast`.
+  3. `PacientesController` (RF01-RF05).
+  4. `AgendamentosController` (RN01, RN02, RN10) — exibir erro de conflito na tela.
+  5. Trocar `localStorage` por `fetch()` no `index.html` (Pacientes e Agenda).
+  6. (Opcional) Prontuário e Financeiro.
+  7. Testes de integração dos endpoints.
+- Atenção: `AgendaService.AgendarConsulta` e `ProntuarioService.RegistrarSessao` recebem `id` do chamador — a API precisará gerar IDs.
 
 ---
 
@@ -162,5 +176,6 @@ src/
 | 07/10/2026 | Antigravity AI | Corrigiu e finalizou `AgendaService.cs`, criou suíte completa `AgendaServiceTests.cs` (8 testes). Total de 38 testes passando. Organizou arquivos e atualizou documentação. | Implementar `ProntuarioService.cs` com auditoria LGPD (`ILogAcessoRepository`) e histórico de versões (`VersaoAnotacao`). |
 | 07/10/2026 | Antigravity AI | Implementou `ProntuarioService.cs` e suíte completa `ProntuarioServiceTests.cs` (6 testes). Total de 44 testes passando. Ensinou execução de testes no Visual Studio. | Implementar `FinanceiroService.cs` (RF19-RF22, RN07-RN09) e seus testes unitários. |
 | 07/10/2026 | Antigravity AI | Concluiu `FinanceiroService.cs` e testes (8 testes). Implementou simulação interativa ponta a ponta no `Program.cs`. 52 testes unitários passando (100% de cobertura de POO). | Avançar para a disciplina de Banco de Dados II (MySQL - Modelagem DDL e repositórios relacionais). |
+| 08/10/2026 | Antigravity AI | Davi optou por MVP visual antes do MySQL. Verificado projeto `ClinicaApp.Api` (build OK, 52 testes passando). Commits: `027baa0` (Prontuario/Financeiro) e `0492e68` (scaffold da API). Não foi feito push. | Etapa 2 do Bloco 5: configurar DI Singleton + seed + static files no `Program.cs` da API. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão).*
