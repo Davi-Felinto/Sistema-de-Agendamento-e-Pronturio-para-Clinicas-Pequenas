@@ -115,15 +115,17 @@ src/
 - Repositórios `InMemory*` implementados com listas `thread-safe` e simulação idêntica à de banco de dados relacional.
 - `NotificadorWhatsApp` implementado como canal de saída externo.
 
-### 🔄 Bloco 3: Serviços de Aplicação (Application Services)
+### ✅ Bloco 3: Serviços de Aplicação (Application Services) — 100% Concluído
 - `AuthService.cs`: ✅ 100% Concluído. Possui hash criptográfico com salt (RQ08), validação de e-mail duplicado e 7 testes unitários cobrindo todos os cenários.
 - `AgendaService.cs`: ✅ 100% Concluído.
   - Regras atendidas: agendamento com validação de paciente ativo (RN16), colisão/conflito de horários (RN01, RN02), notificação imediata via WhatsApp (RF12, RN03) e cancelamento tardio com menos de 24 horas (RF08, RN10).
   - Testes: 8 testes unitários passando em `ClinicaApp.Tests/Services/AgendaServiceTests.cs`.
-- `ProntuarioService.cs`: ⏳ **Próximo da fila**.
-  - Registrar sessão (RF15, RN05), editar anotação com histórico (RF16, RN17) e gravar log de acesso para auditoria LGPD via `ILogAcessoRepository` (RN13, RQ07).
-- `FinanceiroService.cs`: ⏳ Pendente.
-  - Registrar pagamento (RF19, RF20, RN07), consultar pendências (RF21, RN08) e gerar resumo financeiro mensal (RF22, RN09).
+- `ProntuarioService.cs`: ✅ 100% Concluído.
+  - Regras atendidas: registro de sessão clínica com paciente ativo (RF15, RN05, RN16), edição com versionamento imutável (RF16, RN17) e trilha de auditoria LGPD em todas as operações de leitura e escrita (RF28, RN13, RQ07).
+  - Testes: 6 testes unitários passando em `ClinicaApp.Tests/Services/ProntuarioServiceTests.cs`.
+- `FinanceiroService.cs`: ✅ 100% Concluído.
+  - Regras atendidas: geração de cobrança vinculada a agendamento sem duplicidade (RF19, RN07), quitação com registro de timestamp e forma de pagamento (RF20, RN07, RN08), consulta de pendências gerais e filtradas por paciente (RF21, RN08) e resumo financeiro mensal consolidado (RF22, RN09).
+  - Testes: 8 testes unitários passando em `ClinicaApp.Tests/Services/FinanceiroServiceTests.cs`.
 
 ### 🌐 Bloco 4: Web / Interface
 - `index.html` na raiz do projeto, implantado no GitHub Pages:
@@ -158,5 +160,7 @@ src/
 |---|---|---|---|
 | 07/10/2026 | Antigravity AI | Concluiu Bloco 1, 2 e `AuthService` com testes. Criou ecossistema de memória universal (`AGENTS.md`, `.cursorrules`, `.github/copilot-instructions.md`, `CLAUDE.md`, `CONTEXTO_MEMORIA_PROJETO.md`). | Davi terminar `AgendaService.cs`. |
 | 07/10/2026 | Antigravity AI | Corrigiu e finalizou `AgendaService.cs`, criou suíte completa `AgendaServiceTests.cs` (8 testes). Total de 38 testes passando. Organizou arquivos e atualizou documentação. | Implementar `ProntuarioService.cs` com auditoria LGPD (`ILogAcessoRepository`) e histórico de versões (`VersaoAnotacao`). |
+| 07/10/2026 | Antigravity AI | Implementou `ProntuarioService.cs` e suíte completa `ProntuarioServiceTests.cs` (6 testes). Total de 44 testes passando. Ensinou execução de testes no Visual Studio. | Implementar `FinanceiroService.cs` (RF19-RF22, RN07-RN09) e seus testes unitários. |
+| 07/10/2026 | Antigravity AI | Concluiu `FinanceiroService.cs` e testes (8 testes). Implementou simulação interativa ponta a ponta no `Program.cs`. 52 testes unitários passando (100% de cobertura de POO). | Avançar para a disciplina de Banco de Dados II (MySQL - Modelagem DDL e repositórios relacionais). |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão).*
