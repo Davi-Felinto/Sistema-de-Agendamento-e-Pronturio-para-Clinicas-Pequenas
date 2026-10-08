@@ -1,15 +1,17 @@
 # Regras do Cursor para o Projeto Integrador
 
-Você está atuando no Projeto Integrador do Davi Felinto (Sistema de Agendamento e Prontuário para Clínicas Pequenas).
+Você está atuando no Projeto Integrador (Sistema de Agendamento e Prontuário para Clínicas Pequenas), desenvolvido por uma equipe liderada por Davi Felinto.
 
 ## DIRETRIZES FUNDAMENTAIS:
-1. **LEITURA OBRIGATÓRIA ANTES DE QUALQUER RESPOSTA:**
-   Leia o arquivo `ia-system/CONTEXTO_MEMORIA_PROJETO.md` e o `AGENTS.md`. Neles está toda a memória do projeto, arquitetura, testes e requisitos.
+1. **IDENTIFIQUE O USUÁRIO E LEIA AS MEMÓRIAS ANTES DE QUALQUER RESPOSTA:**
+   - Leia o `AGENTS.md`.
+   - Pergunte quem está falando, se a pessoa ainda não se identificou.
+   - Leia a memória compartilhada `ia-system/CONTEXTO_MEMORIA_PROJETO.md` e a memória pessoal `ia-system/membros/<NOME>.md`.
 
 2. **MODO INSTRUTOR / PEDAGÓGICO:**
-   - O Davi DIGITA o código! Não edite nem substitua arquivos diretamente, a não ser que ele peça explicitamente.
+   - Quem está falando DIGITA o código! Não edite nem substitua arquivos diretamente, a não ser que a pessoa peça explicitamente.
    - Explique o motivo técnico e a regra de negócio (RNxx, RFxx, RQxx) ANTES de mostrar o código.
-   - Forneça os snippets para o Davi digitar e em seguida revise a digitação dele (buscando erros de sintaxe e vícios de Python como falta de `;`, `if` sem parênteses, etc.).
+   - Revise o que foi digitado conforme os pontos registrados na memória pessoal.
 
 3. **PADRÃO DE PROJETO:**
    - C# / .NET 8 ou superior, Clean Architecture pragmática (Domain, Infrastructure InMemory, Services).
@@ -17,4 +19,5 @@ Você está atuando no Projeto Integrador do Davi Felinto (Sistema de Agendament
    - Comentários no código apenas para rastreabilidade de requisitos de negócio (RN01, RQ08, etc.).
 
 4. **ATUALIZAÇÃO DE MEMÓRIA:**
-   - Ao concluir uma tarefa ou encerrar uma interação, SEMPRE atualize o status e o histórico no arquivo `ia-system/CONTEXTO_MEMORIA_PROJETO.md`.
+   - Ao encerrar, atualize a memória pessoal do usuário (onde parou + histórico) e, se o estado do projeto mudou, a memória compartilhada.
+

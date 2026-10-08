@@ -1,25 +1,39 @@
 # 🧠 MEMÓRIA VIVA DO PROJETO INTEGRADOR
 > **Sistema de Agendamento e Prontuário para Clínicas Pequenas**  
 > *Arquivo de Sincronização e Memória Universal entre Agentes de IA e IDEs*  
-> **Última Atualização:** 07/10/2026 | **Responsável pelo Projeto:** Davi Felinto
+> **Última Atualização:** 08/10/2026 | **Responsável pelo Projeto:** Davi Felinto
+> 📌 **Este arquivo é a memória COMPARTILHADA (estado do projeto).** Perfis, preferências e "onde parou" de cada pessoa ficam em `ia-system/membros/<NOME>.md`.
 
 ---
 
 ## ⚠️ PROTOCOLO OBRIGATÓRIO PARA QUALQUER AGENTE DE IA
 > **SE VOCÊ É UMA INTELIGÊNCIA ARTIFICIAL (Cursor, Claude, ChatGPT/Codex, Copilot, Windsurf, Antigravity, Aider, etc.):**
-> 1. **LEIA ESTE ARQUIVO ANTES DE RESPONDER:** Todo o contexto do projeto, regras pedagógicas e estado atual estão aqui.
-> 2. **O DAVI DIGITA O CÓDIGO:** NUNCA modifique ou crie arquivos de código do projeto por conta própria, a não ser que ele peça expressamente ("faça você", "crie para mim", "arrume"). Apresente a lógica e o snippet para o Davi digitar.
-> 3. **EXPLIQUE ANTES DE APRESENTAR CÓDIGO:** Sempre explique a regra de negócio (`RNxx`, `RFxx`, `RQxx`) e a decisão técnica antes do trecho de código.
-> 4. **REVISE SINTAXE E VÍCIOS DE PYTHON:** O Davi vem de Python e está aprendendo C#. Verifique sempre: ponto e vírgula `;`, parênteses em `if (...)`, propriedades em PascalCase, operador de coalescência nula `??`, tipos explícitos.
-> 5. **ATUALIZE ESTE ARQUIVO AO FINAL DA SUA SESSÃO:** Ao concluir qualquer funcionalidade, decisão ou bloco, atualize a seção **"4. Status de Execução e Roadmap"** e adicione um registro no **"Histórico de Atualizações dos Agentes"** no final deste arquivo.
+> 1. **IDENTIFIQUE QUEM ESTÁ FALANDO:** Se a pessoa ainda não se identificou na conversa, pergunte o nome antes de agir. (Dica: `git config user.name` pode sugerir, mas confirme.)
+> 2. **CARREGUE DUAS MEMÓRIAS:** este arquivo (compartilhado) + a memória pessoal em `ia-system/membros/` (ver tabela da Seção 0).
+> 3. **SIGA AS REGRAS DA PESSOA:** regras pedagógicas (quem digita o código, vícios a revisar etc.) estão na memória pessoal de cada um.
+> 4. **EXPLIQUE ANTES DE APRESENTAR CÓDIGO:** Sempre explique a regra de negócio (`RNxx`, `RFxx`, `RQxx`) e a decisão técnica antes do trecho de código.
+> 5. **ATUALIZE AO FINAL DA SESSÃO:**
+>    - Memória **pessoal**: "Onde parou" + linha no histórico pessoal.
+>    - Este arquivo: somente se o **estado do projeto** mudou (Seção 4) + linha no "Histórico de Atualizações dos Agentes" indicando **quem** era o usuário.
 
 ---
 
-## 1. Perfil do Desenvolvedor e Contexto Acadêmico
-- **Desenvolvedor:** Davi Felinto (CEUB - Centro Universitário de Brasília, 2º semestre de Engenharia de Software).
-- **Atuação:** OROS Soluções Educacionais (gestão de dados e plataformas educacionais).
-- **Background técnico:** Forte em Python, aprendendo C# e POO especificamente para este projeto.
-- **Portfólio:** `github.com/Davi-Felinto`
+## 0. Equipe e Memórias Pessoais
+
+| Membro | Papel / Disciplina principal | Memória pessoal |
+|---|---|---|
+| **Davi Felinto** | Dev principal, POO C#/.NET, API, arquitetura e integração front ↔ API | [`membros/DAVI.md`](membros/DAVI.md) |
+| **Miguel** | Desenvolvimento de Interface Web — apenas as telas (melhorias visuais/UX do `index.html`) | [`membros/MIGUEL.md`](membros/MIGUEL.md) |
+| **Isaac** | Apoio em Banco de Dados II (MySQL) | *(a criar — `membros/ISAAC.md`)* |
+| **Lucas** | Engenharia de Requisitos | *(a criar — `membros/LUCAS.md`)* |
+
+> Se a pessoa não tiver memória pessoal ainda, avise e use só a memória compartilhada (sem criar o arquivo sem o Davi pedir).
+
+---
+
+## 1. Contexto Acadêmico
+- **Instituição:** CEUB - Centro Universitário de Brasília, Engenharia de Software (2º semestre).
+- **Responsável pelo projeto:** Davi Felinto (`github.com/Davi-Felinto`).
 
 ### Disciplinas Integradas no Projeto:
 1. **Engenharia de Requisitos:** Concluída formalmente. Especificação com 28 RFs, 17 RNs, 16 RQs (ISO/IEC 25010), BPMN e LGPD.
@@ -29,7 +43,7 @@
 
 ---
 
-## 2. Diretrizes de Código e Regras Pedagógicas
+## 2. Diretrizes de Código (valem para toda a equipe)
 
 1. **Método de Trabalho:**
    - **TDD (Test-Driven Development):** Testes unitários com xUnit (`ClinicaApp.Tests`).
@@ -37,11 +51,7 @@
    - **Comentários nos códigos:** Apenas para rastreabilidade de requisitos (`// RN01`, `// RQ08`, `// RF12`). NUNCA comente variáveis óbvias.
    - **Validações defensivas:** Lançar exceções específicas (`ArgumentException`, `InvalidOperationException`) com mensagens amigáveis (RQ11).
 
-2. **Diferenças Críticas Python ➔ C# para revisar:**
-   - Terminar todas as declarações com ponto e vírgula `;`.
-   - Condicionais exigem parênteses: `if (condicao)` e não `if condicao:`.
-   - Propriedades e métodos públicos sempre em `PascalCase` (ex: `DataHoraInicio`, e não `dataHoraInicio`).
-   - Coalescência nula: `variavel ?? throw new ArgumentNullException(nameof(variavel))`.
+2. **Regras pedagógicas individuais** (quem digita o código, vícios a revisar etc.): ver a memória pessoal de cada membro em `ia-system/membros/`.
 
 ---
 
@@ -131,6 +141,7 @@ src/
 - `index.html` na raiz do projeto, implantado no GitHub Pages:
   `https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/`
 - Hoje o front (React via CDN + Tailwind, ~2870 linhas) persiste dados em `localStorage` (`clinix_*`).
+- **Responsável pelas telas:** Miguel — revisar o `index.html` atual e implementar melhorias visuais/UX (sem mexer na lógica de dados).
 
 ### 🚧 Bloco 5: MVP Visual Integrado (API + index.html) — EM ANDAMENTO
 - **Decisão (08/10/2026):** Davi quer apresentar um MVP funcional e visual ANTES de Banco de Dados II. Integração feita com repositórios `InMemory` (Singleton + seed de dados); a API servirá o `index.html` via `wwwroot` para apresentação local com um único `dotnet run` (sem CORS/hospedagem). MySQL entra depois trocando apenas o registro de DI.
@@ -140,7 +151,7 @@ src/
   2. ⏳ `Program.cs` da API: registrar repositórios InMemory como `AddSingleton`, serviços, seed de dados, `UseStaticFiles`; remover boilerplate `WeatherForecast`.
   3. `PacientesController` (RF01-RF05).
   4. `AgendamentosController` (RN01, RN02, RN10) — exibir erro de conflito na tela.
-  5. Trocar `localStorage` por `fetch()` no `index.html` (Pacientes e Agenda).
+  5. Trocar `localStorage` por `fetch()` no `index.html` (Pacientes e Agenda) — **responsável: Davi**.
   6. (Opcional) Prontuário e Financeiro.
   7. Testes de integração dos endpoints.
 - Atenção: `AgendaService.AgendarConsulta` e `ProntuarioService.RegistrarSessao` recebem `id` do chamador — a API precisará gerar IDs.
@@ -177,5 +188,6 @@ src/
 | 07/10/2026 | Antigravity AI | Implementou `ProntuarioService.cs` e suíte completa `ProntuarioServiceTests.cs` (6 testes). Total de 44 testes passando. Ensinou execução de testes no Visual Studio. | Implementar `FinanceiroService.cs` (RF19-RF22, RN07-RN09) e seus testes unitários. |
 | 07/10/2026 | Antigravity AI | Concluiu `FinanceiroService.cs` e testes (8 testes). Implementou simulação interativa ponta a ponta no `Program.cs`. 52 testes unitários passando (100% de cobertura de POO). | Avançar para a disciplina de Banco de Dados II (MySQL - Modelagem DDL e repositórios relacionais). |
 | 08/10/2026 | Antigravity AI | Davi optou por MVP visual antes do MySQL. Verificado projeto `ClinicaApp.Api` (build OK, 52 testes passando). Commits: `027baa0` (Prontuario/Financeiro) e `0492e68` (scaffold da API). Não foi feito push. | Etapa 2 do Bloco 5: configurar DI Singleton + seed + static files no `Program.cs` da API. |
+| 08/10/2026 | Antigravity AI (usuário: Davi) | Memória dividida por membro: criada `ia-system/membros/` com `DAVI.md` e `MIGUEL.md`; tabela de equipe (Seção 0); protocolo de identificação em `AGENTS.md`, `CLAUDE.md`, `.cursorrules` e `copilot-instructions.md`. | Criar `ISAAC.md` e `LUCAS.md` quando o Davi pedir. Davi: etapa 2 do Bloco 5. |
 
-*(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão).*
+*(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
