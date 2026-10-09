@@ -19,6 +19,16 @@ builder.Services.AddScoped<AgendaService>();
 builder.Services.AddScoped<ProntuarioService>();
 builder.Services.AddScoped<FinanceiroService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,6 +46,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();

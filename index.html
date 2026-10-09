@@ -120,7 +120,14 @@
       }
     ];
 
-    const getTodayDateStr = () => new Date().toISOString().split('T')[0];
+    // Bug corrigido (Miguel/Davi): calcula data no fuso local em vez de UTC para evitar avanço após as 21h em Brasília
+    const getTodayDateStr = () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     const INITIAL_APPOINTMENTS = [
       {
@@ -209,6 +216,257 @@
       }
     ];
 
+    /* =========================================================================
+       CAMADA DE INTEGRAÇÃO COM A API BACKEND (.NET C# / Bloco 5)
+       Comunica com os Controllers em /api (ASP.NET Core) e possui fallback
+       gracioso para localStorage quando executado offline ou no GitHub Pages.
+       ========================================================================= */
+    const api = {
+      isConnected: false,
+
+      async checkHealth() {
+        try {
+          const res = await fetch('/api/pacientes', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          this.isConnected = res.ok;
+          return res.ok;
+        } catch {
+          this.isConnected = false;
+          return false;
+        }
+      },
+
+      // --- PACIENTES (RF01-RF05, RN16) ---
+      async listarPacientes() {
+        try {
+          const res = await fetch('/api/pacientes');
+          if (!res.ok) throw new Error('Falha ao listar pacientes');
+          const data = await res.json();
+          this.isConnected = true;
+          return {
+            sucesso: true,
+            dados: data.map(p => ({
+              id: p.id,
+              nome: p.nome,
+              cpf: p.documentoIdentificacao || p.cpf || '',
+              nascimento: p.dataNascimento ? p.dataNascimento.split('T')[0] : (p.nascimento || ''),
+              telefone: p.telefone || '',
+              email: p.email || '',
+              endereco: p.endereco || '',
+              alergias: p.alergias || '',
+              condicoesPreexistentes: p.condicoesPreexistentes || '',
+              status: p.ativo !== undefined ? (p.ativo ? 'ativo' : 'inativo') : (p.status || 'ativo'),
+              profissionalId: 'u1'
+            }))
+          };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async criarPaciente(dados) {
+        try {
+          const res = await fetch('/api/pacientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: dados.nome,
+              documentoIdentificacao: dados.cpf,
+              dataNascimento: dados.nascimento ? new Date(dados.nascimento).toISOString() : new Date().toISOString(),
+              telefone: dados.telefone,
+              email: dados.email,
+              endereco: dados.endereco,
+              alergias: dados.alergias,
+              condicoesPreexistentes: dados.condicoesPreexistentes
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cadastrar paciente' };
+          }
+          const p = await res.json();
+          return {
+            sucesso: true,
+            dados: {
+              id: p.id,
+              nome: p.nome,
+              cpf: p.documentoIdentificacao || dados.cpf,
+              nascimento: p.dataNascimento ? p.dataNascimento.split('T')[0] : dados.nascimento,
+              telefone: p.telefone,
+              email: p.email,
+              endereco: p.endereco,
+              alergias: p.alergias,
+              condicoesPreexistentes: p.condicoesPreexistentes,
+              status: p.ativo ? 'ativo' : 'inativo',
+              profissionalId: dados.profissionalId || 'u1'
+            }
+          };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async inativarPaciente(id) {
+        try {
+          const numId = Number(id);
+          if (!isNaN(numId)) {
+            const res = await fetch(`/api/pacientes/${numId}/inativar`, { method: 'PUT' });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao inativar paciente' };
+            }
+          }
+          return { sucesso: true };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
+      async listarAgendamentos() {
+        try {
+          const res = await fetch('/api/agendamentos');
+          if (!res.ok) throw new Error('Falha ao listar agendamentos');
+          const data = await res.json();
+          this.isConnected = true;
+          return {
+            sucesso: true,
+            dados: data.map(a => {
+              const inicioStr = a.dataHoraInicio || '';
+              const fimStr = a.dataHoraFim || '';
+              const dataStr = inicioStr ? inicioStr.split('T')[0] : getTodayDateStr();
+              const horaStr = inicioStr ? inicioStr.split('T')[1].slice(0, 5) : '09:00';
+              const duracaoMin = (inicioStr && fimStr)
+                ? Math.round((new Date(fimStr) - new Date(inicioStr)) / 60000)
+                : 60;
+              let statusStr = 'confirmado';
+              if (a.status === 2 || a.status === 'Cancelado') statusStr = 'cancelado';
+              else if (a.status === 0 || a.status === 'Pendente') statusStr = 'pendente';
+
+              return {
+                id: a.id,
+                pacienteId: a.pacienteId,
+                profissionalId: a.profissionalId === 1 ? 'u1' : `u${a.profissionalId}`,
+                data: dataStr,
+                horario: horaStr,
+                duracaoMin,
+                status: statusStr,
+                tipo: 'consulta',
+                observacoes: a.observacoes || 'Consulta de rotina',
+                valor: 200,
+                statusPagamento: 'pendente',
+                formaPagamento: 'Em aberto',
+                notificacaoStatus: 'enviado',
+                notificacaoTentativas: 1,
+                cancelamentoTardio: Boolean(a.cancelamentoTardio)
+              };
+            })
+          };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async agendarConsulta(dados) {
+        try {
+          const inicioDate = `${dados.data}T${dados.horario}:00`;
+          const inicio = new Date(inicioDate);
+          const duracaoMin = dados.duracaoMin || 60;
+          const fim = new Date(inicio.getTime() + duracaoMin * 60000);
+          const fimIso = `${dados.data}T${String(fim.getHours()).padStart(2, '0')}:${String(fim.getMinutes()).padStart(2, '0')}:00`;
+
+          const pacienteIdNum = typeof dados.pacienteId === 'number'
+            ? dados.pacienteId
+            : (parseInt(String(dados.pacienteId).replace(/\D/g, ''), 10) || 1);
+
+          const profissionalIdNum = typeof dados.profissionalId === 'number'
+            ? dados.profissionalId
+            : (parseInt(String(dados.profissionalId).replace(/\D/g, ''), 10) || 1);
+
+          const res = await fetch('/api/agendamentos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacienteId: pacienteIdNum,
+              profissionalId: profissionalIdNum,
+              dataHoraInicio: inicioDate,
+              dataHoraFim: fimIso,
+              observacoes: dados.observacoes || 'Consulta de rotina'
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            // Mensagem de bloqueio por RN01/RN02 devolvida pelo AgendaService C#
+            return {
+              sucesso: false,
+              erro: err.erro || err.mensagem || 'Horário indisponível: conflito de horário identificado (RN01, RN02).'
+            };
+          }
+
+          const criado = await res.json();
+          return {
+            sucesso: true,
+            dados: {
+              id: criado.id,
+              pacienteId: dados.pacienteId,
+              profissionalId: dados.profissionalId,
+              data: dados.data,
+              horario: dados.horario,
+              duracaoMin,
+              status: 'confirmado',
+              tipo: 'consulta',
+              observacoes: criado.observacoes || dados.observacoes,
+              valor: dados.valor || 200,
+              statusPagamento: 'pendente',
+              formaPagamento: 'Em aberto',
+              notificacaoStatus: 'enviado',
+              notificacaoTentativas: 1,
+              cancelamentoTardio: false
+            }
+          };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async cancelarAgendamento(id) {
+        try {
+          const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
+          if (!isNaN(numId)) {
+            const res = await fetch(`/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
+            }
+            const data = await res.json();
+            return { sucesso: true, cancelamentoTardio: data.cancelamentoTardio };
+          }
+          return { sucesso: true };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      // --- AUTENTICAÇÃO (RF26, RQ08) ---
+      async login(login, senha) {
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login, senha })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || 'Login ou senha inválidos.' };
+          }
+          const user = await res.json();
+          return { sucesso: true, dados: user };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      }
+    };
+
     function App() {
       const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return localStorage.getItem('clinix_auth') === 'true';
@@ -238,6 +496,27 @@
         const saved = localStorage.getItem('clinix_logs');
         return saved ? JSON.parse(saved) : INITIAL_LOGS;
       });
+
+      // Conexão em tempo real com a Web API ASP.NET Core
+      const [isApiConnected, setIsApiConnected] = useState(false);
+
+      useEffect(() => {
+        async function conectarBackend() {
+          const saudavel = await api.checkHealth();
+          if (saudavel) {
+            setIsApiConnected(true);
+            const resPac = await api.listarPacientes();
+            if (resPac.sucesso && resPac.dados.length > 0) {
+              setPatients(resPac.dados);
+            }
+            const resAppt = await api.listarAgendamentos();
+            if (resAppt.sucesso && resAppt.dados.length > 0) {
+              setAppointments(resAppt.dados);
+            }
+          }
+        }
+        conectarBackend();
+      }, []);
 
       // Navegação entre Telas: 'dashboard' | 'agenda' | 'pacientes' | 'prontuario' | 'financeiro' | 'logs'
       const [activeTab, setActiveTab] = useState('dashboard');
@@ -469,6 +748,17 @@
 
               {/* Botões do Header: Matriz de Requisitos e Ação Primária */}
               <div className="flex items-center gap-2">
+                {/* Indicador de Conexão com o Backend C# */}
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  isApiConnected
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${isApiConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`}></span>
+                  <span className="hidden sm:inline">{isApiConnected ? 'API .NET C# Conectada' : 'Modo Standalone (Offline)'}</span>
+                  <span className="sm:hidden">{isApiConnected ? '.NET' : 'Offline'}</span>
+                </span>
+
                 <button
                   onClick={() => setShowRequirementsModal(true)}
                   className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 outline-none focus-visible:ring-4 focus-visible:ring-slate-400/40"
@@ -611,6 +901,7 @@
       const [selectedUserId, setSelectedUserId] = useState(users[0].id);
       const [password, setPassword] = useState('123456');
       const [showPassword, setShowPassword] = useState(false);
+      const [loginError, setLoginError] = useState(erro || null);
 
       const selectedUser = users.find(u => u.id === selectedUserId);
 
@@ -619,11 +910,25 @@
         return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
       };
 
-      const handleFormSubmit = (e) => {
+      const handleFormSubmit = async (e) => {
         e.preventDefault();
-        if (selectedUser) {
-          onLogin(selectedUser);
+        setLoginError(null);
+        if (!selectedUser) return;
+
+        // Se a API estiver ativa, valida com o AuthService C# (RQ08 - Hash com Salt)
+        if (api.isConnected) {
+          const res = await api.login(selectedUser.email, password);
+          if (res.sucesso) {
+            onLogin(selectedUser);
+            return;
+          } else {
+            setLoginError(res.erro || 'Login ou senha inválidos.');
+            return;
+          }
         }
+
+        // Fallback para modo offline
+        onLogin(selectedUser);
       };
 
       return (
@@ -675,11 +980,18 @@
                 <span className="text-xl font-extrabold tracking-tight text-slate-900">Clinix<span className="text-emerald-600">.</span></span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h2>
-              <p className="mt-1.5 text-sm text-slate-600">Escolha o perfil e informe a senha para entrar.</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h2>
+                  <p className="mt-1.5 text-sm text-slate-600">Escolha o perfil e informe a senha para entrar.</p>
+                </div>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${api.isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                  {api.isConnected ? '● API .NET Ativa' : '● Standalone'}
+                </span>
+              </div>
 
               {/* RQ11 - Mensagem amigável devolvida pela API */}
-              {erro && (
+              {(loginError || erro) && (
                 <div
                   id="login-erro"
                   role="alert"
@@ -688,9 +1000,10 @@
                   <span aria-hidden="true" className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold">
                     !
                   </span>
-                  <p><span className="font-bold">Não foi possível entrar.</span> {erro}</p>
+                  <p><span className="font-bold">Não foi possível entrar.</span> {loginError || erro}</p>
                 </div>
               )}
+
 
               <form onSubmit={handleFormSubmit} className="mt-6 space-y-6">
                 <fieldset>
@@ -1645,7 +1958,7 @@
       }, [appointments, currentUser, viewMode, selectedDate]);
 
       // Criação de Agendamento com Prevenção de Choque de Horários (RN01, RN02)
-      const handleCreateAppointment = (e) => {
+      const handleCreateAppointment = async (e) => {
         e.preventDefault();
 
         if (!formPatientId) {
@@ -1653,7 +1966,49 @@
           return;
         }
 
-        // RN01 / RN02: Checar conflito no mesmo dia, horário e profissional
+        // Validação integrada com o backend C# (AgendaService - RN01, RN02)
+        if (api.isConnected) {
+          const apiRes = await api.agendarConsulta({
+            pacienteId: formPatientId,
+            profissionalId: currentUser.id,
+            data: formDate,
+            horario: formTime,
+            duracaoMin: 60,
+            observacoes: formObs,
+            valor: Number(formValue) || 200
+          });
+
+          if (!apiRes.sucesso) {
+            // Regra de Negócio barrada pelo backend C#
+            setDialogConfig({
+              title: 'Bloqueio de Regra de Negócio (RN01, RN02)',
+              message: apiRes.erro,
+              confirmLabel: 'Entendido',
+              cancelLabel: 'Fechar',
+              danger: true,
+              onConfirm: () => {}
+            });
+            showToast(apiRes.erro, 'error');
+            return;
+          }
+
+          setAppointments(prev => [...prev, apiRes.dados]);
+          setShowNewModal(false);
+
+          const pat = patients.find(p => p.id === formPatientId);
+          showToast(`Consulta confirmada via API C# para ${pat?.nome} às ${formTime}!`);
+          registerLog('Agendamento via API (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} às ${formTime}`);
+
+          // Disparo de confirmação WhatsApp (RF12, RN03)
+          setWhatsappModalData({
+            titulo: 'Confirmação enviada por WhatsApp (RN03)',
+            destinatario: `${pat?.nome} (${pat?.telefone})`,
+            mensagem: `Olá, ${pat?.nome}! Sua consulta na Clinix com ${currentUser.name} está confirmada para ${formDate} às ${formTime}. Enviaremos lembrete 24h antes!`
+          });
+          return;
+        }
+
+        // RN01 / RN02: Fallback local para checagem de conflito
         const conflict = appointments.find(
           a => a.data === formDate &&
                a.horario === formTime &&
@@ -1799,15 +2154,22 @@
           confirmLabel: 'Sim, Cancelar',
           cancelLabel: 'Voltar',
           danger: true,
-          onConfirm: () => {
+          onConfirm: async () => {
+            let tardioFinal = isTardio;
+            if (api.isConnected) {
+              const res = await api.cancelarAgendamento(appt.id);
+              if (res.sucesso && res.cancelamentoTardio !== undefined) {
+                tardioFinal = res.cancelamentoTardio;
+              }
+            }
             setAppointments(prev => prev.map(a => {
               if (a.id === appt.id) {
-                return { ...a, status: 'cancelado', cancelamentoTardio: isTardio };
+                return { ...a, status: 'cancelado', cancelamentoTardio: tardioFinal };
               }
               return a;
             }));
             showToast('Agendamento cancelado.');
-            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${isTardio ? 'SIM' : 'NÃO'}`);
+            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${tardioFinal ? 'SIM' : 'NÃO'}`);
           }
         });
       };
@@ -2354,7 +2716,8 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `portabilidade_lgpd_${patient.cpf.replace(/\\D/g, '') || patient.id}.json`;
+        // Bug corrigido (Miguel/Davi): regex /\D/g para remover pontuação do CPF no nome do arquivo
+        link.download = `portabilidade_lgpd_${(patient.cpf || '').replace(/\D/g, '') || patient.id}.json`;
         link.click();
         URL.revokeObjectURL(url);
         showToast(`Arquivo JSON de Portabilidade LGPD gerado para ${patient.nome}!`);
@@ -2387,7 +2750,7 @@
         setShowModal(true);
       };
 
-      const handleSave = (e) => {
+      const handleSave = async (e) => {
         e.preventDefault();
 
         if (editingPatient) {
@@ -2404,8 +2767,29 @@
           }));
           showToast('Cadastro do paciente atualizado.');
           registerLog('Alteração de Paciente (RF02)', `Cadastro atualizado: ${nome}`);
+          setShowModal(false);
         } else {
-          // RF01 - Incluir dados
+          // RF01 - Incluir dados via API Backend se conectada
+          if (api.isConnected) {
+            const apiRes = await api.criarPaciente({
+              nome, cpf, nascimento, telefone, email, endereco,
+              alergias: alergias || 'Nenhuma informada',
+              condicoesPreexistentes: condicoes || 'Nenhuma informada',
+              profissionalId: currentUser.id
+            });
+            if (apiRes.sucesso) {
+              setPatients(prev => [...prev, apiRes.dados]);
+              showToast(`Paciente ${nome} cadastrado via API.`);
+              registerLog('Cadastro de Paciente via API (RF01)', `Novo paciente: ${nome} (${cpf})`);
+              setShowModal(false);
+              return;
+            } else {
+              showToast(apiRes.erro || 'Falha ao cadastrar na API.', 'error');
+              return;
+            }
+          }
+
+          // Fallback para modo local
           const newPatient = {
             id: 'p_' + Date.now(),
             nome, cpf, nascimento, telefone, email, endereco,
@@ -2417,8 +2801,8 @@
           setPatients(prev => [...prev, newPatient]);
           showToast(`Paciente ${nome} cadastrado.`);
           registerLog('Cadastro de Paciente (RF01)', `Novo paciente: ${nome} (${cpf})`);
+          setShowModal(false);
         }
-        setShowModal(false);
       };
 
       // Inativação lógica com anonimização LGPD (RN16, RQ03, RF03)
@@ -2429,7 +2813,10 @@
           confirmLabel: 'Inativar e Anonimizar',
           cancelLabel: 'Cancelar',
           danger: true,
-          onConfirm: () => {
+          onConfirm: async () => {
+            if (api.isConnected) {
+              await api.inativarPaciente(patient.id);
+            }
             setPatients(prev => prev.map(item => {
               if (item.id === patient.id) {
                 return {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ClinicaApp.Services;
@@ -46,8 +46,10 @@ public class AgendamentosController : ControllerBase
         try
         {
             // Como nossos repositórios InMemory não tem "Auto Increment" de ID nativo do MySQL, 
-            // simulamos um novo ID contando quantos já existem.
-            int novoId = _agendamentoRepository.ListarTodos().Count() +100;
+            // calculamos o próximo ID baseado no maior existente.
+            int novoId = _agendamentoRepository.ListarTodos().Any()
+                ? _agendamentoRepository.ListarTodos().Max(a => a.Id) + 1
+                : 1;
 
             // 2. Chamamos o Service, que é o Guardião das Regras de Negócio (RN01, RN02)
             var consulta = _agendaService.AgendarConsulta(
@@ -67,12 +69,32 @@ public class AgendamentosController : ControllerBase
         {
             // Se cair aqui, é porque o Service barrou o agendamento (Ex: Conflito de Horário ou Paciente inativo)
             // Retornamos HTTP 400 (Bad Request) com a mensagem exata do problema
-            return BadRequest(new { errro = ex.Message });
+            return BadRequest(new { erro = ex.Message });
         }
         catch (ArgumentException ex)
         {
             // Ex: Se passou uma data no passado (O AgendaService barra isso)
-            return BadRequest(new { erro  = ex.Message });
+            return BadRequest(new { erro = ex.Message });
+        }
+    }
+
+    // PUT: api/agendamentos/{id}/cancelar
+    [HttpPut("{id}/cancelar")]
+    public IActionResult Cancelar(int id)
+    {
+        try
+        {
+            // RN10: O service avalia se o cancelamento foi feito com menos de 24h
+            _agendaService.CancelarConsulta(id, DateTime.Now);
+            var agendamento = _agendamentoRepository.ObterPorId(id);
+            return Ok(new { 
+                mensagem = "Consulta cancelada com sucesso.",
+                cancelamentoTardio = agendamento?.CancelamentoTardio ?? false
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { erro = ex.Message });
         }
     }
 }
