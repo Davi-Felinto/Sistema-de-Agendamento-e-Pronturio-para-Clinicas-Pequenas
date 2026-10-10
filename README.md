@@ -1,158 +1,185 @@
-# Sistema de Agendamento e Prontuário para Clínicas Pequenas
+# 🏥 Clinix — Sistema de Agendamento e Prontuário para Clínicas Pequenas
 
 > **Projeto Integrador Multidisciplinar** — Engenharia de Software (CEUB)  
-> Sistema simplificado de agendamento e prontuário eletrônico voltado para profissionais autônomos de saúde (psicólogos, nutricionistas, fisioterapeutas, etc.).
+> Sistema de gestão clínica, agendamento sem conflitos e prontuário eletrônico em conformidade com a LGPD, voltado para profissionais autônomos de saúde e clínicas médicas/terapêuticas.
+
+![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-Web_API-512BD4?logo=dotnet)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![xUnit](https://img.shields.io/badge/Testes-52%2F52_Passando-success?logo=xunit)
+![LGPD](https://img.shields.io/badge/LGPD-Conforme-blue)
+![Status](https://img.shields.io/badge/Status-Em_Evolução-brightgreen)
+
+🌐 **Demonstração Web (GitHub Pages):**  
+👉 [https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/](https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/)
 
 ---
 
-## 🎯 Divisão do Projeto (4 Fases)
+## 🎯 Divisão Multidisciplinar do Projeto Integrador
 
-O projeto é estruturado de forma integrada através de 4 disciplinas de Engenharia de Software:
+O projeto conecta os conteúdos práticos de 4 disciplinas do curso de Engenharia de Software do CEUB:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                            PROJETO INTEGRADOR                                │
-├──────────────────┬──────────────────┬───────────────────┬────────────────────┤
-│ 1. Eng. Requisitos│ 2. POO (C#)      │ 3. Banco Dados II │ 4. Desenv. Interf. │
-│   [✅ CONCLUÍDO]  │  [🚀 FOCO ATUAL]  │   [⏳ PLANEJADO]  │   [⏳ FUTURO]      │
-└──────────────────┴──────────────────┴───────────────────┴────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 PROJETO INTEGRADOR                                     │
+├──────────────────┬──────────────────┬─────────────────────────┬────────────────────────┤
+│ 1. Eng. Requisitos│ 2. POO (C# / .NET)│ 3. Banco de Dados II    │ 4. Interface Web (MVP) │
+│   [✅ CONCLUÍDO]  │   [✅ CONCLUÍDO]  │   [🚀 EM ANDAMENTO]     │     [✅ CONCLUÍDO]     │
+└──────────────────┴──────────────────┴─────────────────────────┴────────────────────────┘
 ```
 
-| Fase | Disciplina | Foco & Entregáveis | Status |
-| :--- | :--- | :--- | :---: |
-| **Parte 1** | **Engenharia de Requisitos** | Mapeamento BPMN, Levantamento com cliente, 28 RFs, 7 RDs, 17 RNs e 16 RQs (ISO/IEC 25010). | ✅ Concluído |
-| **Parte 2** | **Programação Orientada a Objetos** | Modelagem de classes de domínio, encapsulamento de regras de negócio em C# e aplicação Console CLI iterativa. | 🚀 Em andamento |
-| **Parte 3** | **Banco de Dados II** | Modelo relacional (DER/MER), tabelas normalizadas, integridade referencial, transações ACID e consultas analíticas. | ⏳ Próxima fase |
-| **Parte 4** | **Desenvolvimento de Interface** | Interface acessível e responsiva focada no fluxo rápido de atendimento (agendamento em até 3 cliques). | ⏳ Futuro |
+| Fase | Disciplina | Foco & Entregáveis | Responsável | Status |
+| :--- | :--- | :--- | :---: | :---: |
+| **Parte 1** | **Engenharia de Requisitos** | Mapeamento BPMN, Levantamento com cliente, 28 RFs, 17 RNs e 16 RQs (ISO/IEC 25010 e LGPD). | Lucas | ✅ Concluído |
+| **Parte 2** | **Programação Orientada a Objetos** | Clean Architecture, DDD pragmático, 52 testes unitários (TDD com xUnit), Serviços de Domínio e API REST. | Davi Felinto | ✅ Concluído |
+| **Parte 3** | **Banco de Dados II (MySQL)** | Modelo Lógico (15 tabelas no Workbench), normalização (3FN), DDL, triggers e dados de seed. | Isaac / Davi | 🚀 Em andamento |
+| **Parte 4** | **Desenvolvimento de Interface Web** | Interface responsiva, usabilidade em até 3 cliques (RQ10), modo híbrido (API C# + fallback offline). | Miguel / Davi | ✅ Concluído |
 
 ---
 
-## 📐 Modelagem Orientada a Objetos (Diagrama de Classes)
+## 👥 Equipe do Projeto
 
-O diagrama abaixo representa as entidades, métodos, enumerações e relações do domínio, cobrindo integralmente as regras de negócio de **RF01 a RF28** e **RN01 a RN17**:
-
-<p align="center">
-  <img src="docs/diagramas/diagrama_classes.svg" alt="Diagrama de Classes do Domínio" width="100%">
-</p>
-
-* 📄 **Documentação detalhada das classes:** [`docs/diagramas/README.md`](docs/diagramas/README.md)
-* 🎨 **Arquivo editável no Excalidraw:** [`docs/diagramas/diagrama_classes.excalidraw`](docs/diagramas/diagrama_classes.excalidraw) *(abra em [excalidraw.com](https://excalidraw.com) ou na extensão Excalidraw do VS Code)*
+- **Davi Felinto:** Dev Principal — POO C#/.NET, Arquitetura de Software, Web API e Integração Full-Stack.
+- **Miguel:** Desenvolvimento de Interface Web — Telas, Componentes, Design System e Experiência do Usuário (UX).
+- **Isaac:** Apoio em Banco de Dados II — Modelagem Relacional e Scripts SQL MySQL.
+- **Lucas:** Engenharia de Requisitos — Levantamento de Requisitos, BPMN e Regras de Negócio.
 
 ---
 
-## 📋 Status Atual de Entregas
+## 📐 Arquitetura da Solução
 
-- [x] **Parte 1 — Engenharia de Requisitos**
-  - [x] Levantamento e elicitação de necessidades do cliente
-  - [x] Mapeamento de processo "TO-BE" em BPMN
-  - [x] Especificação formal de Requisitos Funcionais (RF01–RF28) e Requisitos de Dados (RD01–RD07)
-  - [x] Definição de Regras de Negócio (RN01–RN17) e Requisitos de Qualidade (RQ01–RQ16)
-  - [x] Validação com cliente simulado e consolidação de decisões (LGPD, exclusão lógica, WhatsApp)
-- [ ] **Parte 2 — Programação Orientada a Objetos (C#)**
-  - [x] Modelagem do Diagrama de Classes UML (SVG e Excalidraw)
-  - [x] Documento de Arquitetura e Design de Software (SDD)
-  - [x] Implementação de 100% das entidades de domínio e enumerações em C# (.NET 8):
-    - `Paciente` (RD01, RN16, RQ03 — exclusão lógica com anonimização LGPD)
-    - `Agendamento` (RD02, RN01, RN02, RN10 — colisão de horários e cancelamento tardio <24h)
-    - `SessaoProntuario` e `VersaoAnotacao` (RD04, RN05, RN06, RN17 — histórico imutável de edições)
-    - `Pagamento` (RD05, RN07, RN08 — quitação financeira e controle de status)
-    - `Notificacao` (RF12–RF14, RN14, RN15 — resiliência com 1 retentativa após 15 min)
-    - `LogAcesso` (RF28, RN13, RQ07 — auditoria imutável de acessos sensíveis)
-    - `Usuario`, `ProfissionalSaude`, `Administrador` (RF26, RF27, RN12, RQ08 — herança, hash SHA256 e polimorfismo)
-  - [x] Suíte de Testes Automatizados (TDD com xUnit — 38 testes unitários aprovados)
-  - [x] Implementação de 100% das Interfaces de Domínio (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `ILogAcessoRepository`, `INotificador`)
-  - [x] Implementação de 100% dos Repositórios em Memória (`List<T>`) na Infraestrutura:
-    - `InMemoryPacienteRepository`
-    - `InMemoryAgendamentoRepository`
-    - `InMemoryProntuarioRepository`
-    - `InMemoryPagamentoRepository`
-    - `InMemoryUsuarioRepository`
-    - `InMemoryLogAcessoRepository`
-  - [x] Implementação de Notificador concreto (`NotificadorWhatsApp`)
-  - [x] Implementação dos Serviços de Aplicação (Application Services com regras de negócio e TDD):
-    - [x] `AuthService` (RF26, RQ08 — autenticação com hash SHA-256 e Salt)
-    - [x] `AgendaService` (RF06, RF08, RN01, RN02, RN03, RN10 — colisão de horários, WhatsApp e cancelamento tardio)
-    - [ ] `ProntuarioService` (RF15–RF18, RN05, RN06, RN13, RN17)
-    - [ ] `FinanceiroService` (RF19–RF22, RN07–RN09)
-  - [ ] Interface Console interativa para testes e demonstração do MVP
-- [ ] **Parte 3 — Banco de Dados II**
-  - [ ] Modelo Conceitual e Lógico/Físico (DER)
-  - [ ] Scripts DDL/DML, integridade e transações de concorrência
-- [ ] **Parte 4 — Desenvolvimento de Interface**
-  - [x] Protótipo web responsivo e landing page publicada via GitHub Pages (`index.html`)
+A aplicação adota uma versão pragmática de **Clean Architecture** e **Repository Pattern**, permitindo que o núcleo de domínio permaneça 100% isolado de detalhes de infraestrutura ou do mecanismo de persistência:
+
+```
+src/
+├── ClinicaApp.slnx                     # Solução .NET 8
+├── ClinicaApp/                         # Camada de Domínio e Aplicação
+│   ├── Domain/
+│   │   ├── Entities/                   # Paciente, Agendamento, SessaoProntuario, Pagamento, etc.
+│   │   ├── Enums/                      # StatusAgendamento, PerfilUsuario, FormaPagamento, etc.
+│   │   └── Interfaces/                 # IPacienteRepository, IAgendamentoRepository, INotificador, etc.
+│   ├── Infrastructure/
+│   │   ├── InMemory/                   # Repositórios de persistência em memória thread-safe
+│   │   └── External/                   # NotificadorWhatsApp (simulação de mensageria externa)
+│   └── Services/                       # Application Services com guardiões das Regras de Negócio
+│       ├── AuthService.cs              # RF26, RQ08: Autenticação PBKDF2/SHA-256 + Salt
+│       ├── AgendaService.cs            # RN01/RN02: Conflitos; RN10: Cancelamento tardio; RF12: WhatsApp
+│       ├── ProntuarioService.cs        # RN05, RN17: Histórico imutável; RN13, RQ07: Auditoria LGPD
+│       └── FinanceiroService.cs        # RN07: Cobrança sem duplicidade; RN08/RN09: Quitação e fechamento
+├── ClinicaApp.Api/                     # Web API ASP.NET Core (.NET 8)
+│   ├── Controllers/                    # Endpoints REST (Pacientes, Agendamentos, Auth, Prontuários, Financeiro)
+│   ├── Data/DadosIniciais.cs           # Carga de dados demonstrativos (Seed em memória)
+│   └── wwwroot/                        # Interface Web distribuída diretamente com a API
+└── ClinicaApp.Tests/                   # Test-Driven Development (TDD) com xUnit
+    ├── Domain/                         # 23 testes unitários de regras nas entidades
+    └── Services/                       # 29 testes unitários dos fluxos de aplicação e integração
+```
 
 ---
 
-## 🧪 Como Executar os Testes Automatizados
+## 🗄️ Módulo de Banco de Dados Relacional (`bancodedadosclinica/`)
 
-O projeto utiliza a metodologia **TDD (Test-Driven Development)** com o framework **xUnit** no **.NET 8**.
+A modelagem lógica desenvolvida no **MySQL Workbench 8.0** conta com **15 tabelas relacionais** estruturadas em 3ª Forma Normal (3FN), com especialização de usuários (Table-per-Type) e integridade referencial:
 
-### Pré-requisitos
-* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) instalado.
+```
+bancodedadosclinica/
+├── clínica.mwb            # Modelo lógico oficial no MySQL Workbench (com as 4 melhorias técnicas)
+├── clínica_original.mwb   # Backup de segurança da modelagem inicial
+├── 01_schema_ddl.sql      # Script DDL com CREATE DATABASE, 15 tabelas, chaves e índices
+├── 02_dados_iniciais.sql  # Script DML com carga de dados de demonstração (seed)
+└── README.md              # Documentação completa, DER (Mermaid) e dicionário de dados
+```
 
-### Executar a suíte de testes
-No terminal, a partir da raiz do repositório:
+---
 
+## 🧪 Testes Automatizados (TDD com xUnit)
+
+O projeto possui **100% de cobertura de regras de negócio** com suíte automatizada de testes xUnit.
+
+### Executar os Testes Unitários:
 ```bash
 dotnet test src/
 ```
 
-**Resultado esperado:**
+**Resultado:**
 ```text
-Aprovado!  – Com falha: 0, Aprovado: 38, Ignorado: 0, Total: 38
+Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52, Duração: 80 ms
 ```
 
-### Regras de Negócio Validadas nos Testes
-| Regra / Requisito | Cenário de Teste Validado | Arquivo de Teste |
+### Matriz de Requisitos Validados nos Testes:
+| Código | Requisito / Regra de Negócio Validada | Localização no Código |
 | :--- | :--- | :--- |
-| **RN01 / RN02** | Detecção de conflito e colisão de horários entre consultas | `AgendamentoTests.cs`, `AgendaServiceTests.cs` |
-| **RN03 / RF12** | Disparo de notificação de confirmação via WhatsApp ao agendar | `AgendaServiceTests.cs` |
-| **RN10** | Identificação automática de cancelamento tardio (< 24h) | `AgendamentoTests.cs`, `AgendaServiceTests.cs` |
-| **RN16 / RQ03** | Inativação com anonimização de dados pessoais (LGPD) | `PacienteTests.cs`, `AgendaServiceTests.cs` |
-| **RN17** | Histórico imutável de anotações do prontuário ao editar | `SessaoProntuarioTests.cs` |
-| **RN07 / RN08** | Ciclo de quitação e transição de status de pagamento | `PagamentoTests.cs` |
-| **RN14 / RN15** | Resiliência: permite apenas 1 retentativa 15 min pós-falha | `NotificacaoTests.cs` |
-| **RF28 / RQ07** | Registro de auditoria imutável de acessos sensíveis | `LogAcessoTests.cs` |
-| **RQ08 / RF26** | Autenticação via hash com salt e proteção de credenciais | `UsuarioTests.cs`, `AuthServiceTests.cs` |
+| **RN01, RN02** | Bloqueio rigoroso de conflito/colisão de horário entre consultas | `Agendamento.cs`, `AgendaService.cs` |
+| **RN03, RF12** | Notificação imediata via WhatsApp na confirmação da consulta | `AgendaService.cs`, `NotificadorWhatsApp.cs` |
+| **RN10** | Identificação automática de cancelamento tardio (< 24 horas antes) | `Agendamento.cs`, `AgendaService.cs` |
+| **RN16, RQ03** | Inativação lógica com anonimização de dados pessoais (LGPD) | `Paciente.cs`, `PacientesController.cs` |
+| **RN17** | Histórico imutável de anotações médicas com justificativa clínica | `SessaoProntuario.cs`, `ProntuarioService.cs` |
+| **RN07, RN08** | Cobrança vinculada a agendamento sem duplicidade e controle de quitação | `Pagamento.cs`, `FinanceiroService.cs` |
+| **RN13, RQ07** | Trilha imutável de auditoria de acessos sensíveis ao prontuário | `LogAcesso.cs`, `ProntuarioService.cs` |
+| **RQ08, RF26** | Autenticação segura com hash de senha e Salt criptográfico | `AuthService.cs`, `AuthController.cs` |
 
 ---
 
-## 📂 Estrutura do Repositório
+## 🚀 Como Executar o Projeto Localmente
 
+### Pré-requisitos:
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [MySQL Server 8.0+](https://dev.mysql.com/downloads/mysql/) (opcional, para a etapa de banco de dados)
+
+### 1. Rodar a API Integrada com o Front-End:
+```bash
+# Executa a API e serve a interface gráfica em uma única porta
+dotnet run --project src/ClinicaApp.Api --urls "http://localhost:5055"
 ```
-├── docs/
-│   ├── design/
-│   │   └── SDD_Software_Design_Document.md     # Documento de Arquitetura e Design de Software
-│   ├── diagramas/
-│   │   ├── README.md                           # Catálogo central de todos os diagramas
-│   │   ├── diagrama_classes.svg                # Diagrama de Classes UML (vetorial estilizado)
-│   │   ├── diagrama_classes.excalidraw         # Diagrama de Classes UML (editável no Excalidraw)
-│   │   ├── diagrama_sequencia.md               # Diagramas de Sequência UML (Fluxos Críticos)
-│   │   ├── diagrama_arquitetura.md             # Diagrama de Arquitetura em Camadas
-│   │   └── diagrama_bpmn_processo.md           # Diagrama de Processo de Negócio TO-BE (BPMN / Raias)
-│   ├── requisitos/
-│   │   └── Documento_Especificacao_Requisitos_Final.docx # Especificação formal completa
-│   └── Projeto_Integrador_Contexto_Completo.md # Memória e histórico unificado do projeto
-├── src/
-│   ├── ClinicaApp.slnx                         # Solução .NET 8
-│   ├── ClinicaApp/                             # Core de Domínio e Regras da Clínica
-│   │   ├── Domain/
-│   │   │   ├── Entities/                       # Paciente, Agendamento, SessaoProntuario, etc.
-│   │   │   ├── Enums/                          # StatusAgendamento, PerfilUsuario, etc.
-│   │   │   └── Interfaces/                     # Contratos de repositório e notificação
-│   │   ├── Infrastructure/
-│   │   │   └── InMemory/                       # Implementações de persistência em memória (List<T>)
-│   │   └── ClinicaApp.csproj
-│   └── ClinicaApp.Tests/                       # Suíte de Testes Automatizados (xUnit)
-│       ├── Domain/                             # Testes unitários das regras de negócio
-│       └── ClinicaApp.Tests.csproj
-└── README.md
+Acesse no navegador:
+👉 **Aplicação:** `http://localhost:5055/`  
+👉 **Documentação Swagger:** `http://localhost:5055/swagger`
+
+**Credenciais de Acesso de Demonstração:**
+- **Profissional (Dr. Davi Felinto):** `davi.profissional@clinix.com` | Senha: `123456`
+- **Administrador (Juliana Costa):** `admin@clinix.com` | Senha: `123456`
+
+### 2. Rodar o Banco de Dados (MySQL):
+```bash
+mysql -u root -p < bancodedadosclinica/01_schema_ddl.sql
+mysql -u root -p < bancodedadosclinica/02_dados_iniciais.sql
 ```
 
 ---
 
-## 👨‍💻 Autor
+## 📂 Estrutura Geral do Repositório
 
-**Davi Felinto**  
-Estudante de Engenharia de Software — CEUB (Brasília/DF)  
-GitHub: [@Davi-Felinto](https://github.com/Davi-Felinto)
+```
+├── .github/                               # Workflows de CI/CD (GitHub Pages)
+├── bancodedadosclinica/                   # Módulo de Banco de Dados II (MySQL)
+│   ├── clínica.mwb                        # Modelo Workbench atualizado
+│   ├── 01_schema_ddl.sql                  # Script DDL de criação
+│   ├── 02_dados_iniciais.sql              # Carga de dados (seed)
+│   └── README.md                          # Documentação técnica do banco
+├── docs/                                  # Central de Documentação do Projeto
+│   ├── apresentacao/                      # Roteiros e apresentações executivas
+│   ├── comercial/                         # Proposta de precificação e viabilidade
+│   ├── design/                            # SDD (Software Design Document)
+│   ├── diagramas/                         # Diagramas UML, BPMN e Arquitetura
+│   ├── requisitos/                        # Documento formal de requisitos
+│   └── README.md                          # Índice central da documentação
+├── ia-system/                             # Memória Viva e Contexto da Equipe
+│   ├── CONTEXTO_MEMORIA_PROJETO.md        # Memória compartilhada do projeto
+│   └── membros/                           # Memórias pessoais por integrante (Davi, Miguel)
+├── src/                                   # Código-fonte da aplicação
+│   ├── ClinicaApp/                        # Domínio, Serviços e Infraestrutura
+│   ├── ClinicaApp.Api/                    # ASP.NET Core Web API
+│   └── ClinicaApp.Tests/                  # Suíte de Testes xUnit (TDD)
+├── api.js                                 # Camada cliente de serviços front-end
+├── index.html                             # Aplicação web estática / GitHub Pages
+├── Dockerfile                             # Build e deploy conteinerizado
+├── ClinicaApp.sln                         # Arquivo de Solução Visual Studio
+└── README.md                              # Documentação mestre do projeto
+```
+
+---
+
+## 📜 Licença
+
+Projeto desenvolvido para fins estritamente acadêmicos no âmbito do curso de **Engenharia de Software** do **CEUB - Centro Universitário de Brasília**.

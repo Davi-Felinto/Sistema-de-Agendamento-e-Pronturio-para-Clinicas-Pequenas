@@ -1,7 +1,7 @@
 # 🧠 MEMÓRIA VIVA DO PROJETO INTEGRADOR
 > **Sistema de Agendamento e Prontuário para Clínicas Pequenas**  
 > *Arquivo de Sincronização e Memória Universal entre Agentes de IA e IDEs*  
-> **Última Atualização:** 08/10/2026 | **Responsável pelo Projeto:** Davi Felinto
+> **Última Atualização:** 10/10/2026 | **Responsável pelo Projeto:** Davi Felinto
 > 📌 **Este arquivo é a memória COMPARTILHADA (estado do projeto).** Perfis, preferências e "onde parou" de cada pessoa ficam em `ia-system/membros/<NOME>.md`.
 
 ---
@@ -37,9 +37,9 @@
 
 ### Disciplinas Integradas no Projeto:
 1. **Engenharia de Requisitos:** Concluída formalmente. Especificação com 28 RFs, 17 RNs, 16 RQs (ISO/IEC 25010), BPMN e LGPD.
-2. **Programação Orientada a Objetos (C# / .NET 8 / .NET 10):** **FASE ATIVA ATUAL**. Foco em Clean Architecture simplificada, Domain-Driven Design pragmático, TDD com xUnit.
-3. **Banco de Dados II (MySQL):** Fase seguinte. Graças ao Repository Pattern adotado no C#, os repositórios em memória serão substituídos por implementações em MySQL com Dapper ou Entity Framework Core sem alterar 1 linha de regra de negócio do Domínio.
-4. **Desenvolvimento de Interface Web:** Interface protótipo/MVP em HTML/CSS/JS publicada no GitHub Pages (`index.html`).
+2. **Programação Orientada a Objetos (C# / .NET 8 / .NET 10):** **100% CONCLUÍDO**. Foco em Clean Architecture simplificada, Domain-Driven Design pragmático, TDD com xUnit (52 testes).
+3. **Banco de Dados II (MySQL):** **FASE ATIVA ATUAL**. Modelo lógico relacional com 15 tabelas no MySQL Workbench (`clínica.mwb`), DDL (`01_schema_ddl.sql`) e DML (`02_dados_iniciais.sql`).
+4. **Desenvolvimento de Interface Web:** Interface MVP em HTML/CSS/JS com Tailwind, React e suporte híbrido integrada à API e no GitHub Pages (`index.html`).
 
 ---
 
@@ -75,7 +75,7 @@ src/
 │   │   │   └── Administrador.cs (Herda de Usuario)
 │   │   ├── Enums/
 │   │   │   ├── PerfilUsuario.cs (Profissional, Administrador)
-│   │   │   ├── StatusAgendamento.cs (Agendado, Concluido, Cancelado, CanceladoTardio)
+│   │   │   ├── StatusAgendamento.cs (Pendente, Confirmado, Remarcado, Cancelado, Concluido)
 │   │   │   ├── StatusPagamento.cs (Pendente, Pago)
 │   │   │   ├── FormaPagamento.cs (Pix, Dinheiro, CartaoCredito, CartaoDebito)
 │   │   │   ├── TipoNotificacao.cs (Confirmacao, Lembrete)
@@ -101,13 +101,23 @@ src/
 │   │       └── NotificadorWhatsApp.cs (implementa INotificador)
 │   └── Services/
 │       ├── AuthService.cs (RF26, RQ08 - SHA-256 + Salt)
-│       ├── AgendaService.cs (RF06, RF08, RN01, RN02, RN03, RN10) - EM ANDAMENTO
-│       ├── ProntuarioService.cs (RF15, RF16, RN05, RN06, RN13, RN17) - PENDENTE
-│       └── FinanceiroService.cs (RF19-RF22, RN07-RN09) - PENDENTE
+│       ├── AgendaService.cs (RF06, RF08, RN01, RN02, RN03, RN10)
+│       ├── ProntuarioService.cs (RF15, RF16, RN05, RN06, RN13, RN17)
+│       └── FinanceiroService.cs (RF19-RF22, RN07-RN09)
+├── ClinicaApp.Api/
+│   ├── Controllers/
+│   │   ├── AgendamentosController.cs
+│   │   ├── AuthController.cs
+│   │   ├── FinanceiroController.cs
+│   │   ├── LogsController.cs
+│   │   ├── PacientesController.cs
+│   │   └── ProntuariosController.cs
+│   ├── Data/DadosIniciais.cs
+│   ├── Program.cs
+│   └── wwwroot/
 └── ClinicaApp.Tests/
     ├── Domain/ (7 arquivos de teste cobrindo todas as entidades)
-    └── Services/
-        └── AuthServiceTests.cs (7 testes unitários passando)
+    └── Services/ (AuthServiceTests, AgendaServiceTests, ProntuarioServiceTests, FinanceiroServiceTests)
 ```
 
 ---
@@ -137,25 +147,20 @@ src/
   - Regras atendidas: geração de cobrança vinculada a agendamento sem duplicidade (RF19, RN07), quitação com registro de timestamp e forma de pagamento (RF20, RN07, RN08), consulta de pendências gerais e filtradas por paciente (RF21, RN08) e resumo financeiro mensal consolidado (RF22, RN09).
   - Testes: 8 testes unitários passando em `ClinicaApp.Tests/Services/FinanceiroServiceTests.cs`.
 
-### 🌐 Bloco 4: Web / Interface
+### ✅ Bloco 4: Web / Interface
 - `index.html` na raiz do projeto, implantado no GitHub Pages:
   `https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/`
-- Hoje o front (React via CDN + Tailwind, ~2870 linhas) persiste dados em `localStorage` (`clinix_*`).
-- **Responsável pelas telas:** Miguel — revisar o `index.html` atual e implementar melhorias visuais/UX (sem mexer na lógica de dados).
+- Servido também pela API C# com sincronização direta em `src/ClinicaApp.Api/wwwroot/index.html`.
+- Suporte a conexão assíncrona com `api.js` e fallback transparente para `localStorage`.
 
 ### ✅ Bloco 5: MVP Visual Integrado (API + index.html) — 100% CONCLUÍDO
-- **Concluído em 09/10/2026:** Apresentação funcional integrada servida pela API ASP.NET Core (`ClinicaApp.Api`) via `wwwroot` com um único `dotnet run` e fallback transparente para localStorage quando hospedado no GitHub Pages.
-- **Padrão implementado:** Controllers em ASP.NET Core com DI via construtor, DTOs explícitos e CORS ativado.
-- Roadmap executado:
-  1. ✅ Projeto `src/ClinicaApp.Api` configurado referenciando `ClinicaApp`.
-  2. ✅ `Program.cs`: repositórios InMemory como `AddSingleton`, serviços scoped, seed de dados demonstrativos em `DadosIniciais.cs`, CORS e `UseStaticFiles`.
-  3. ✅ `PacientesController`: listagem geral/ativos, cadastro com DTO e geração de IDs, inativação com anonimização LGPD (`RN16, RQ03`).
-  4. ✅ `AgendamentosController`: criação validada pelo `AgendaService` com bloqueio de conflito (`RN01, RN02`) e cancelamento com cálculo tardio (`RN10`).
-  5. ✅ `AuthController`: autenticação segura com PBKDF2 + Salt (`RQ08`).
-  6. ✅ Integração front ↔ API no `index.html` (nova tela definitiva do Miguel) e módulo modular `api.js`, com indicador visual de status de conexão no cabeçalho.
-  7. ✅ Correção dos bugs de lógica: regex `/\D/g` para desformatar CPF no arquivo de portabilidade LGPD e cálculo de data local em `getTodayDateStr` (evitando avanço indevido às 21h em Brasília).
-  8. ✅ Sincronização automática entre o `index.html` raiz e `src/ClinicaApp.Api/wwwroot/index.html`.
-  9. ✅ 52 testes unitários de xUnit passando (100% de sucesso).
+- Apresentação funcional integrada servida pela API ASP.NET Core (`ClinicaApp.Api`) via `wwwroot` com um único `dotnet run` e fallback transparente para localStorage quando hospedado no GitHub Pages.
+- Controllers em ASP.NET Core com DI via construtor, DTOs explícitos e CORS ativado.
+
+### 🚀 Bloco 6: Banco de Dados II (MySQL) — FASE ATIVA
+- Modelo lógico relacional entregue pelo Isaac em `bancodedadosclinica/clínica.mwb` (15 tabelas).
+- Modelo auditado e atualizado diretamente no Workbench com 4 otimizações técnicas.
+- Criados `01_schema_ddl.sql` e `02_dados_iniciais.sql` para deploy no MySQL 8+.
 
 ---
 
@@ -191,6 +196,6 @@ src/
 | 08/10/2026 | Antigravity AI | Davi optou por MVP visual antes do MySQL. Verificado projeto `ClinicaApp.Api` (build OK, 52 testes passando). Commits: `027baa0` (Prontuario/Financeiro) e `0492e68` (scaffold da API). Não foi feito push. | Etapa 2 do Bloco 5: configurar DI Singleton + seed + static files no `Program.cs` da API. |
 | 08/10/2026 | Antigravity AI (usuário: Davi) | Memória dividida por membro: criada `ia-system/membros/` com `DAVI.md` e `MIGUEL.md`; tabela de equipe (Seção 0); protocolo de identificação em `AGENTS.md`, `CLAUDE.md`, `.cursorrules` e `copilot-instructions.md`. | Criar `ISAAC.md` e `LUCAS.md` quando o Davi pedir. Davi: etapa 2 do Bloco 5. |
 | 09/10/2026 | Antigravity AI (usuário: Davi) | Bloco 5 Concluído: integração front ↔ backend C# na branch `feature/novas-telas`, criação de `api.js`, sincronização em `wwwroot/index.html`, correção de bugs de lógica (LGPD e data UTC) e testes de endpoints. | Revisão da branch para merge em `main` e avanço para Banco de Dados II (MySQL) com o Isaac. |
+| 10/10/2026 | Antigravity AI (usuário: Davi) | Auditoria do modelo lógico do Isaac; bateria de testes ponta a ponta (52 xUnit 100% OK); aplicação das 4 melhorias no `.mwb`; geração de `01_schema_ddl.sql`, `02_dados_iniciais.sql` e reorganização completa do repositório (`README.md`, `docs/README.md`). | Implementar repositórios MySQL concretos no backend C# (Dapper / EF Core). |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
-
