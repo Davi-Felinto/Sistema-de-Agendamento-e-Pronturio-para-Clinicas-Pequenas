@@ -38,6 +38,26 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__ClinixDb=Server=mysql;Port=3306;Database=clinix_db;Uid=root;Pwd=root;
+    volumes:
+      - ./src/ClinicaApp.Api/wwwroot:/app/wwwroot:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==============================================================================
+  # INTERFACE VISUAL DO BANCO (phpMyAdmin)
+  # Permite ao Miguel e à equipe inspecionar tabelas e dados via navegador
+  # ==============================================================================
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: clinix-pma
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
     depends_on:
       mysql:
         condition: service_healthy
@@ -45,3 +65,4 @@ services:
 volumes:
   clinix_mysql_data:
     name: clinix_mysql_data
+

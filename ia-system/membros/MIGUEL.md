@@ -1,7 +1,7 @@
 # 🧠 Memória Pessoal — Miguel (Desenvolvimento de Interface Web)
 > **Carregue este arquivo quando o usuário se identificar como Miguel.**
 > Leia também a memória compartilhada: [`../CONTEXTO_MEMORIA_PROJETO.md`](../CONTEXTO_MEMORIA_PROJETO.md).
-> **Última Atualização:** 08/10/2026
+> **Última Atualização:** 10/10/2026
 
 ---
 
@@ -93,7 +93,24 @@ Sempre que uma ação falhar, a API retornará um erro padrão. O Miguel deve de
 3. Comentários no código apenas para rastreabilidade de requisitos.
 
 ## 6. Onde o Miguel parou
-- Ainda não iniciou sessões com agentes de IA. Primeira tarefa: conhecer o `index.html`, mapear as telas existentes e listar o que pode melhorar (visual, usabilidade, responsividade, acessibilidade).
+- Ainda não iniciou sessões com agentes de IA. O Davi preparou todo o ambiente backend e banco de dados via Docker para permitir testes fáceis das telas com dados reais.
+
+### 📋 Fila de Tarefas Pendentes do Miguel
+
+1. **[PRIORIDADE] Subir o Ambiente Docker e Testar o Sistema Povoado:**
+   - 📖 **Guia Passo a Passo:** [`docs/guias/GUIA_DOCKER_MIGUEL.md`](../../docs/guias/GUIA_DOCKER_MIGUEL.md)
+   - Instalar o Docker Desktop para Windows (marcando a opção WSL 2).
+   - Rodar `git pull origin main` e executar `docker compose up -d` na raiz do projeto.
+   - Acessar a aplicação em [http://localhost:5055](http://localhost:5055) e testar os logins:
+     - **Dr. Davi Felinto:** `Davi` / `Davi123!` (médico/admin)
+     - **Juliana Lima:** `Juliana` / `Juliana123!` (recepcionista)
+   - Inspecionar os dados do banco no navegador via phpMyAdmin em [http://localhost:8085](http://localhost:8085) (`clinix_db`).
+   - Navegar pelos módulos com os dados de outubro de 2026: 12 pacientes, 37 consultas na agenda, 12 prontuários e 37 lançamentos financeiros.
+
+2. **Mapeamento de Telas e Melhorias de UI/UX:**
+   - Conhecer o `index.html`, mapear o fluxo das telas existentes e listar pontos de melhoria de usabilidade, responsividade mobile e acessibilidade.
+   - Desenhar tratamento visual amigável para regras de negócio (modais e avisos para `RN01/RN02` conflito de horário, `RN10` cancelamento tardio, validação de CPF e campos obrigatórios).
+   - Manter as chamadas desacopladas via contrato `api.js`.
 
 ### Pedidos pendentes ao Davi
 - *(nenhum ainda)*
@@ -103,4 +120,5 @@ Sempre que uma ação falhar, a API retornará um erro padrão. O Miguel deve de
 | Data | Agente / Ferramenta | O que foi feito | Próximo passo |
 |---|---|---|---|
 | 08/10/2026 | Antigravity AI (a pedido do Davi) | Criada a memória pessoal do Miguel. Escopo definido: apenas telas; integração com API fica com o Davi. | Primeira sessão: preencher perfil e levantar melhorias das telas do `index.html`. |
+| 10/10/2026 | Antigravity AI (a pedido do Davi) | Preparado ambiente Docker (MySQL 8.0 com seed completo de outubro/2026, API C# e phpMyAdmin) e criado guia detalhado em `docs/guias/GUIA_DOCKER_MIGUEL.md`. | Subir ambiente com `docker compose up -d`, testar sistema com dados reais e listar melhorias de UI/UX. |
 

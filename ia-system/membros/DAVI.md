@@ -46,7 +46,12 @@
     - `GET /api/agendamentos`: listagem tipada com status enum deserializado pelo Dapper.
     - `GET /api/financeiro/resumo`: cálculo agregado de pendências diretamente do banco.
   - Todos os 52 testes xUnit passando (100% de sucesso).
-- **Próximo passo:** Apresentação acadêmica e demonstração prática do Projeto Integrador.
+- **Preparação do Ambiente de Testes Docker para o Miguel:**
+  - Seed do banco expandido para cobrir todo o mês de outubro de 2026: 12 pacientes, 37 consultas, 12 prontuários com versionamento (RN17), 37 pagamentos (15 pagos / 22 pendentes), 10 notificações WhatsApp, 4 bloqueios de agenda e logs de auditoria (RN13/RQ07).
+  - Criado arquivo `.dockerignore` e configurado `docker-compose.yml` com MySQL 8.0, API ASP.NET Core, volume de hot-reload para o frontend e phpMyAdmin na porta 8085 para visualização das tabelas via navegador.
+  - Criado guia completo passo a passo: [`docs/guias/GUIA_DOCKER_MIGUEL.md`](../../docs/guias/GUIA_DOCKER_MIGUEL.md).
+  - Registrada a tarefa como prioridade na fila de trabalho do Miguel ([`MIGUEL.md`](MIGUEL.md)).
+- **Próximo passo:** Implementar a **Opção 2 de Banco de Dados II** (`bancodedadosclinica/03_procedures_views_triggers.sql`: Views analíticas, Stored Procedures e Triggers automáticas de auditoria na tabela `logs_acesso`).
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -59,4 +64,5 @@
 | 10/10/2026 | Antigravity AI | Auditoria do modelo do Isaac; bateria de testes ponta a ponta (52 xUnit 100% OK); aplicação das 4 melhorias no `.mwb`; geração de `01_schema_ddl.sql`, `02_dados_iniciais.sql` e reorganização completa do repositório (`README.md`, `docs/README.md`). | Implementar repositórios MySQL concretos no backend C#. |
 | 10/10/2026 | Antigravity AI | Concluídos os 6 repositórios MySQL com Dapper; configurado `dotnet user-secrets`; corrigido mismatch de índices no ENUM do MySQL; integração ponta a ponta da API com o MySQL local 100% testada e aprovada. 52 testes xUnit OK. | Commit e envio para o GitHub. |
 | 10/10/2026 | Antigravity AI | Criado endpoint `GET /api/status`, sistema duplo de badges no frontend (`API .NET C# Conectada` + `MySQL 8.0 Ativo`/`Memória`), flag `--in-memory` e povoamento completo de dados de demonstração (seed) em todas as 15 tabelas do MySQL. | Apresentação acadêmica. |
+| 10/10/2026 | Antigravity AI | Expansão massiva do seed de outubro/2026 (37 consultas, 12 pacientes); estruturação do Docker Compose com phpMyAdmin e hot-reload; criação do guia `GUIA_DOCKER_MIGUEL.md` e inclusão na fila do Miguel. | Implementar Opção 2 (Views, Procedures e Triggers em `03_procedures_views_triggers.sql`). |
 
