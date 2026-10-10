@@ -46,7 +46,7 @@
     - `GET /api/agendamentos`: listagem tipada com status enum deserializado pelo Dapper.
     - `GET /api/financeiro/resumo`: cálculo agregado de pendências diretamente do banco.
   - Todos os 52 testes xUnit passando (100% de sucesso).
-- **Próximo passo:** Commit das alterações e revisão final para apresentação acadêmica.
+- **Próximo passo:** Apresentação acadêmica e demonstração prática do Projeto Integrador.
 
 ## 5. Histórico Pessoal de Sessões
 
