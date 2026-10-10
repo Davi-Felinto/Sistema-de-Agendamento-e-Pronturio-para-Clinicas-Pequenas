@@ -200,8 +200,10 @@ src/
 | 10/10/2026 | Antigravity AI (usuário: Davi) | Implementados 6 repositórios MySQL concretos com Dapper em `src/ClinicaApp/Infrastructure/MySQL/`; ajustada hidratação de entidades (`Paciente`, `Agendamento`); configurada injeção de dependência híbrida (MySQL / InMemory) no `Program.cs` e `appsettings.Development.json`. 52 testes xUnit passando (100% OK). | Testar conexão ponta a ponta com MySQL local / Docker e commit no Git. |
 | 10/10/2026 | Antigravity AI (usuário: Davi) | Adicionado endpoint `GET /api/status` e sistema duplo de badges visuais no cabeçalho do frontend (`API .NET C# Conectada` + `MySQL 8.0 Ativo` / `Memória Mock`); implementada resolução dinâmica de URL (`API_BASE`) para suporte simultâneo a Live Server (porta 5500) e servidor ASP.NET (porta 5055). Sincronizados `index.html`, `wwwroot/index.html`, `api.js` e `wwwroot/api.js`. 52 testes xUnit OK. | Commit e envio ao repositório remoto (`git push origin main`). |
 | 10/10/2026 | Antigravity AI (usuário: Davi) | Expansão massiva do seed (`02_dados_iniciais.sql`) para o mês todo de outubro/2026 (12 pacientes, 37 consultas, 12 prontuários, 37 pagamentos); configuração do Docker Compose com phpMyAdmin (porta 8085) e bind mount de `wwwroot`; criação do guia didático `docs/guias/GUIA_DOCKER_MIGUEL.md` e adição na fila de tarefas do Miguel em `MIGUEL.md`. | Implementar Opção 2 de Banco de Dados II (`03_procedures_views_triggers.sql`: Views, Procedures e Triggers de auditoria). |
+| 10/10/2026 | Antigravity AI (usuário: Davi) | Concluída a Opção 2 de Banco de Dados II: criado `03_procedures_views_triggers.sql` (3 views analíticas, 3 triggers automáticas LGPD e 2 stored procedures); provisionado cluster MySQL 8.4 gerenciado na nuvem Aiven (`clinix_db`); executados os 3 scripts SQL na nuvem com 100% de sucesso (12 pacientes, 37 agendamentos, views e triggers ativos). 52 testes xUnit OK. | Hospedar a API C# no Render.com conectada ao Aiven Cloud. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
+
 
 
 

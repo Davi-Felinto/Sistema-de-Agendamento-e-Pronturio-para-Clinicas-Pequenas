@@ -18,11 +18,12 @@ Os artefatos foram projetados para permitir que o backend C# substitua os reposi
 
 ```
 bancodedadosclinica/
-├── clínica.mwb            # Modelo lógico oficial no MySQL Workbench 8.0 (atualizado com as 4 melhorias)
-├── clínica_original.mwb   # Backup da modelagem inicial criada pelo Isaac
-├── 01_schema_ddl.sql      # Script DDL completo de criação do banco e das 15 tabelas (chaves, índices e constraints)
-├── 02_dados_iniciais.sql  # Script DML com carga de dados (seed) de demonstração e testes
-└── README.md              # Este documento técnico explicativo
+├── clínica.mwb                       # Modelo lógico oficial no MySQL Workbench 8.0 (atualizado com as 4 melhorias)
+├── clínica_original.mwb              # Backup da modelagem inicial criada pelo Isaac
+├── 01_schema_ddl.sql                 # Script DDL completo de criação do banco e das 15 tabelas (chaves, índices e constraints)
+├── 02_dados_iniciais.sql             # Script DML com carga de dados (seed) de demonstração cobrindo outubro de 2026
+├── 03_procedures_views_triggers.sql  # Views analíticas, Triggers de auditoria LGPD e Stored Procedures com regras de negócio
+└── README.md                         # Este documento técnico explicativo
 ```
 
 ---
@@ -89,20 +90,51 @@ Após auditoria técnica em conjunto com a arquitetura de software, foram implem
 
 ---
 
+---
+
+## ⚡ Recursos Avançados de Banco de Dados (`03_procedures_views_triggers.sql`)
+
+### 1. Views Analíticas
+- **`vw_agenda_detalhada` (RF06, RF09, RN01, RN10):** Junção da agenda médica com paciente, profissional e financeiro com status amigável.
+- **`vw_resumo_financeiro_mensal` (RF22, RN09):** Agrupamento analítico em tempo real por profissional/mês/ano calculando faturado vs. pendente.
+- **`vw_prontuario_historico_completo` (RF15, RF16, RN17):** Linha do tempo clínica com auditoria completa de quem alterou o registro.
+
+### 2. Triggers Automáticas de Auditoria LGPD
+- **`trg_auditoria_prontuario_insert` (RN13, RQ07):** Registra evento `CRIAR_PRONTUARIO` em `logs_acesso` automaticamente ao criar sessão clínica.
+- **`trg_auditoria_prontuario_update` (RN13, RN17, RQ07):** Registra evento `ATUALIZAR_PRONTUARIO` com justificativa e número de versão.
+- **`trg_auditoria_paciente_inativacao` (RN16, RQ03):** Registra evento `INATIVACAO_LGPD` quando um paciente é inativado logicamente.
+
+### 3. Stored Procedures com Regras de Negócio
+- **`sp_cancelar_consulta(id, motivo)` (RF08, RN10):** Cancela agendamento calculando a flag de **cancelamento tardio (< 24h)** no SGBD.
+- **`sp_fechamento_mensal(id_prof, ano, mes)` (RF22, RN09):** Calcula e consolida receita bruta e pendências na tabela `resumos_financeiros_mensais`.
+
+---
+
 ## 🚀 Como Executar no MySQL
 
 ### Opção 1: Via MySQL Workbench
 1. Abra o **MySQL Workbench**.
-2. Conecte-se à sua instância local do MySQL Server.
-3. Acesse `File -> Open SQL Script...` e selecione `01_schema_ddl.sql`.
-4. Execute o script (`Ctrl + Shift + Enter`) para criar o banco de dados `clinix_db` e as 15 tabelas.
-5. Em seguida, abra e execute `02_dados_iniciais.sql` para popular a base de teste.
+2. Conecte-se à sua instância local ou à nuvem Aiven.
+3. Acesse `File -> Open SQL Script...` e execute em ordem:
+   - `01_schema_ddl.sql` (cria o banco `clinix_db` e 15 tabelas).
+   - `02_dados_iniciais.sql` (insere os dados de outubro de 2026).
+   - `03_procedures_views_triggers.sql` (cria views, triggers e procedures).
 
-### Opção 2: Via Terminal (Linux / Windows PowerShell)
+### Opção 2: Via Terminal ou Docker
 ```bash
-# Criar o banco e a estrutura
-mysql -u root -p < bancodedadosclinica/01_schema_ddl.sql
-
-# Inserir os dados demonstrativos
-mysql -u root -p < bancodedadosclinica/02_dados_iniciais.sql
+# Executa os 3 scripts em sequência:
+mysql -u root -p clinix_db < bancodedadosclinica/01_schema_ddl.sql
+mysql -u root -p clinix_db < bancodedadosclinica/02_dados_iniciais.sql
+mysql -u root -p clinix_db < bancodedadosclinica/03_procedures_views_triggers.sql
 ```
+
+---
+
+## ☁️ Instância de Produção na Nuvem (Aiven Cloud)
+
+O projeto possui um cluster gerenciado ativo na nuvem **Aiven (MySQL 8.4)** com alta disponibilidade e SSL:
+- **Host:** `clinix-davifd0978-afc9.b.aivencloud.com`
+- **Database:** `clinix_db`
+- **Região:** AWS / US East
+- **Segurança:** Conexão criptografada obrigatória (`SslMode=Required`).
+

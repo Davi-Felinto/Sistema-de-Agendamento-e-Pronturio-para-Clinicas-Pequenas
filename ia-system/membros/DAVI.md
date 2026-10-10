@@ -51,7 +51,12 @@
   - Criado arquivo `.dockerignore` e configurado `docker-compose.yml` com MySQL 8.0, API ASP.NET Core, volume de hot-reload para o frontend e phpMyAdmin na porta 8085 para visualização das tabelas via navegador.
   - Criado guia completo passo a passo: [`docs/guias/GUIA_DOCKER_MIGUEL.md`](../../docs/guias/GUIA_DOCKER_MIGUEL.md).
   - Registrada a tarefa como prioridade na fila de trabalho do Miguel ([`MIGUEL.md`](MIGUEL.md)).
-- **Próximo passo:** Implementar a **Opção 2 de Banco de Dados II** (`bancodedadosclinica/03_procedures_views_triggers.sql`: Views analíticas, Stored Procedures e Triggers automáticas de auditoria na tabela `logs_acesso`).
+- **Banco de Dados II na Nuvem (Aiven Cloud) e Script 03 Concluídos:**
+  - Criado [`bancodedadosclinica/03_procedures_views_triggers.sql`](../../bancodedadosclinica/03_procedures_views_triggers.sql) com 3 Views analíticas (`vw_agenda_detalhada`, `vw_resumo_financeiro_mensal`, `vw_prontuario_historico_completo`), 3 Triggers de auditoria LGPD (`trg_auditoria_prontuario_insert`, `trg_auditoria_prontuario_update`, `trg_auditoria_paciente_inativacao`) e 2 Stored Procedures (`sp_cancelar_consulta` RN10 e `sp_fechamento_mensal` RF22).
+  - Provisionado cluster gerenciado MySQL 8.4 na nuvem Aiven (`clinix-davifd0978-afc9.b.aivencloud.com:10178`).
+  - Executados com sucesso na nuvem os 3 scripts (`01_schema_ddl.sql`, `02_dados_iniciais.sql` e `03_procedures_views_triggers.sql`), deixando o banco na nuvem 100% povoado com 12 pacientes, 37 consultas e fechamentos consolidados.
+  - 52 testes xUnit passando com 100% de sucesso.
+- **Próximo passo:** Hospedar a API C# no Render.com conectada ao Aiven Cloud e apontar o front-end do GitHub Pages para a URL pública da API.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -65,4 +70,6 @@
 | 10/10/2026 | Antigravity AI | Concluídos os 6 repositórios MySQL com Dapper; configurado `dotnet user-secrets`; corrigido mismatch de índices no ENUM do MySQL; integração ponta a ponta da API com o MySQL local 100% testada e aprovada. 52 testes xUnit OK. | Commit e envio para o GitHub. |
 | 10/10/2026 | Antigravity AI | Criado endpoint `GET /api/status`, sistema duplo de badges no frontend (`API .NET C# Conectada` + `MySQL 8.0 Ativo`/`Memória`), flag `--in-memory` e povoamento completo de dados de demonstração (seed) em todas as 15 tabelas do MySQL. | Apresentação acadêmica. |
 | 10/10/2026 | Antigravity AI | Expansão massiva do seed de outubro/2026 (37 consultas, 12 pacientes); estruturação do Docker Compose com phpMyAdmin e hot-reload; criação do guia `GUIA_DOCKER_MIGUEL.md` e inclusão na fila do Miguel. | Implementar Opção 2 (Views, Procedures e Triggers em `03_procedures_views_triggers.sql`). |
+| 10/10/2026 | Antigravity AI | Criado `03_procedures_views_triggers.sql` (3 views, 3 triggers LGPD, 2 procedures); provisionado cluster MySQL 8.4 na nuvem Aiven e carregados todos os 3 scripts com 100% de sucesso. 52 testes xUnit OK. | Hospedar API C# no Render.com conectada ao Aiven Cloud. |
+
 

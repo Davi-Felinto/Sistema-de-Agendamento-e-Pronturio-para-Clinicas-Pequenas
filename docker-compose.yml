@@ -17,6 +17,7 @@ services:
     volumes:
       - ./bancodedadosclinica/01_schema_ddl.sql:/docker-entrypoint-initdb.d/01_schema_ddl.sql:ro
       - ./bancodedadosclinica/02_dados_iniciais.sql:/docker-entrypoint-initdb.d/02_dados_iniciais.sql:ro
+      - ./bancodedadosclinica/03_procedures_views_triggers.sql:/docker-entrypoint-initdb.d/03_procedures_views_triggers.sql:ro
       - clinix_mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
