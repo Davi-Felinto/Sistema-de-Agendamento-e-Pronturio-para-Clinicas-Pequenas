@@ -42,7 +42,7 @@ public abstract class Usuario
     public bool Autenticar(string senhaDigitada){
         if (string.IsNullOrWhiteSpace(senhaDigitada)) return false;
         var hashDigitado = GerarHashSenha(senhaDigitada);
-        return hashDigitado == SenhaHash;
+        return string.Equals(hashDigitado, SenhaHash, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -50,6 +50,17 @@ public abstract class Usuario
     /// Classes filhas autorizadas podem sobrescrever (override).
     /// </summary>
     public virtual bool PodeAuditarLogs() => false;
+
+    public void DefinirHashPersistido(string hash)
+    {
+        if (!string.IsNullOrWhiteSpace(hash))
+            SenhaHash = hash;
+    }
+
+    public void DefinirAtivo(bool ativo)
+    {
+        Ativo = ativo;
+    }
 
     private static string GerarHashSenha(string senha){
         using var sha256 = SHA256.Create();

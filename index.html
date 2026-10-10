@@ -221,24 +221,51 @@
        Comunica com os Controllers em /api (ASP.NET Core) e possui fallback
        gracioso para localStorage quando executado offline ou no GitHub Pages.
        ========================================================================= */
+    const getApiBase = () => {
+      if (typeof window !== 'undefined' && window.location) {
+        if (window.location.port === '5055' || (window.location.href && window.location.href.includes(':5055/'))) {
+          return '';
+        }
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+          return 'http://localhost:5055';
+        }
+      }
+      return '';
+    };
+    const API_BASE = getApiBase();
+
     const api = {
       isConnected: false,
+      storage: 'offline', // 'mysql' | 'memoria' | 'offline'
+      storageLabel: 'Modo Standalone (Offline)',
 
       async checkHealth() {
         try {
-          const res = await fetch('/api/pacientes', { method: 'GET', headers: { 'Accept': 'application/json' } });
-          this.isConnected = res.ok;
-          return res.ok;
+          const res = await fetch(`${API_BASE}/api/status`, { method: 'GET', headers: { 'Accept': 'application/json' } });
+          if (res.ok) {
+            const data = await res.json();
+            this.isConnected = true;
+            this.storage = data.storage || 'memoria';
+            this.storageLabel = data.storageLabel || 'Banco: Memória (Mock)';
+            return { ok: true, storage: this.storage, storageLabel: this.storageLabel };
+          }
+          const resPac = await fetch(`${API_BASE}/api/pacientes`, { method: 'GET', headers: { 'Accept': 'application/json' } });
+          this.isConnected = resPac.ok;
+          this.storage = resPac.ok ? 'memoria' : 'offline';
+          this.storageLabel = resPac.ok ? 'Banco: Memória (Mock)' : 'Modo Standalone (Offline)';
+          return { ok: resPac.ok, storage: this.storage, storageLabel: this.storageLabel };
         } catch {
           this.isConnected = false;
-          return false;
+          this.storage = 'offline';
+          this.storageLabel = 'Modo Standalone (Offline)';
+          return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
         }
       },
 
       // --- PACIENTES (RF01-RF05, RN16) ---
       async listarPacientes() {
         try {
-          const res = await fetch('/api/pacientes');
+          const res = await fetch(`${API_BASE}/api/pacientes`);
           if (!res.ok) throw new Error('Falha ao listar pacientes');
           const data = await res.json();
           this.isConnected = true;
@@ -265,7 +292,7 @@
 
       async criarPaciente(dados) {
         try {
-          const res = await fetch('/api/pacientes', {
+          const res = await fetch(`${API_BASE}/api/pacientes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -309,7 +336,7 @@
         try {
           const numId = Number(id);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/pacientes/${numId}/inativar`, { method: 'PUT' });
+            const res = await fetch(`${API_BASE}/api/pacientes/${numId}/inativar`, { method: 'PUT' });
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
               return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao inativar paciente' };
@@ -324,7 +351,7 @@
       // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
       async listarAgendamentos() {
         try {
-          const res = await fetch('/api/agendamentos');
+          const res = await fetch(`${API_BASE}/api/agendamentos`);
           if (!res.ok) throw new Error('Falha ao listar agendamentos');
           const data = await res.json();
           this.isConnected = true;
@@ -382,7 +409,7 @@
             ? dados.profissionalId
             : (parseInt(String(dados.profissionalId).replace(/\D/g, ''), 10) || 1);
 
-          const res = await fetch('/api/agendamentos', {
+          const res = await fetch(`${API_BASE}/api/agendamentos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -433,7 +460,7 @@
         try {
           const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
+            const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
               return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
@@ -450,7 +477,7 @@
       // --- AUTENTICAÇÃO (RF26, RQ08) ---
       async login(login, senha) {
         try {
-          const res = await fetch('/api/auth/login', {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ login, senha })
@@ -499,12 +526,15 @@
 
       // Conexão em tempo real com a Web API ASP.NET Core
       const [isApiConnected, setIsApiConnected] = useState(false);
+      const [storageProvider, setStorageProvider] = useState('offline'); // 'mysql' | 'memoria' | 'offline'
 
       useEffect(() => {
         async function conectarBackend() {
-          const saudavel = await api.checkHealth();
-          if (saudavel) {
+          const health = await api.checkHealth();
+          const conectado = typeof health === 'boolean' ? health : (health && health.ok);
+          if (conectado) {
             setIsApiConnected(true);
+            setStorageProvider((health && health.storage) || 'memoria');
             const resPac = await api.listarPacientes();
             if (resPac.sucesso && resPac.dados.length > 0) {
               setPatients(resPac.dados);
@@ -513,6 +543,9 @@
             if (resAppt.sucesso && resAppt.dados.length > 0) {
               setAppointments(resAppt.dados);
             }
+          } else {
+            setIsApiConnected(false);
+            setStorageProvider('offline');
           }
         }
         conectarBackend();
@@ -751,13 +784,26 @@
                 {/* Indicador de Conexão com o Backend C# */}
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
                   isApiConnected
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-sm'
                     : 'bg-amber-50 text-amber-800 border-amber-200'
                 }`}>
                   <span className={`w-2 h-2 rounded-full ${isApiConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`}></span>
                   <span className="hidden sm:inline">{isApiConnected ? 'API .NET C# Conectada' : 'Modo Standalone (Offline)'}</span>
                   <span className="sm:hidden">{isApiConnected ? '.NET' : 'Offline'}</span>
                 </span>
+
+                {/* Indicador de Provedor de Persistência: MySQL vs Memória */}
+                {isApiConnected && (
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    storageProvider === 'mysql'
+                      ? 'bg-blue-50 text-blue-800 border-blue-200 shadow-sm'
+                      : 'bg-purple-50 text-purple-800 border-purple-200 shadow-sm'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${storageProvider === 'mysql' ? 'bg-blue-600 animate-pulse' : 'bg-purple-500'}`}></span>
+                    <span className="hidden sm:inline">{storageProvider === 'mysql' ? 'MySQL 8.0 Ativo' : 'Memória (Mock)'}</span>
+                    <span className="sm:hidden">{storageProvider === 'mysql' ? 'MySQL' : 'Memória'}</span>
+                  </span>
+                )}
 
                 <button
                   onClick={() => setShowRequirementsModal(true)}

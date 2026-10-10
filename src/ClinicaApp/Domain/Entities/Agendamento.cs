@@ -19,7 +19,9 @@ public class Agendamento{
         int profissionalId,
         DateTime dataHoraInicio,
         DateTime dataHoraFim,
-        string? observacoes = null)
+        string? observacoes = null,
+        StatusAgendamento status = StatusAgendamento.Pendente,
+        bool cancelamentoTardio = false)
     {    
         if (dataHoraFim <= dataHoraInicio)
             throw new ArgumentException("A data/hora de fim deve ser posterior ao início.");
@@ -30,8 +32,8 @@ public class Agendamento{
         DataHoraInicio = dataHoraInicio;
         DataHoraFim = dataHoraFim;
         Observacoes = observacoes;
-        Status = StatusAgendamento.Pendente;
-        CancelamentoTardio =false;
+        Status = status;
+        CancelamentoTardio = cancelamentoTardio;
     }
 
     /// <summary>

@@ -36,16 +36,17 @@
   - Sincronização entre `index.html` e `src/ClinicaApp.Api/wwwroot/index.html` validada.
   - Endpoints validados de ponta a ponta: `PacientesController` (CRUD e anonimização LGPD RN16/RQ03), `AgendamentosController` (bloqueio RN01/RN02 e cancelamento tardio RN10), `AuthController` (PBKDF2 + Salt RQ08), `ProntuariosController` (versionamento RN17 e auditoria RN13/RQ07) e `FinanceiroController` (cobrança RN07/RN08 e resumo).
   - 52 testes unitários de backend xUnit passando com 100% de sucesso.
-- **Bloco Banco de Dados II (MySQL com o Isaac) — Modelagem Concluída:**
-  - Modelo lógico relacional em `bancodedadosclinica/clínica.mwb` atualizado diretamente no XML com as 4 correções de engenharia.
-  - Criado backup de segurança `bancodedadosclinica/clínica_original.mwb`.
-  - Criado script DDL executável `bancodedadosclinica/01_schema_ddl.sql` (15 tabelas, chaves, índices, integridade e rastreabilidade RF/RN/RQ).
-  - Criado script DML de seed `bancodedadosclinica/02_dados_iniciais.sql` compatível com a API C#.
-  - Criada documentação técnica em `bancodedadosclinica/README.md` com DER em Mermaid e dicionário de dados.
-- **Reorganização e Apresentação do Projeto:**
-  - Criado índice centralizador em `docs/README.md` conectando requisitos, design SDD, diagramas, propostas comerciais e banco de dados.
-  - Atualizado `README.md` raiz com badges, status das 4 fases, arquitetura, DER, instruções de execução e credenciais de teste.
-- Próximo passo: Iniciar implementação dos repositórios MySQL em `ClinicaApp.Infrastructure.MySQL` (Dapper / EF Core).
+- **Bloco Banco de Dados II (MySQL com o Isaac) — 100% Concluído e Integrado:**
+  - Persistência relacional em MySQL com Dapper e MySqlConnector totalmente implementada em `src/ClinicaApp/Infrastructure/MySQL/`.
+  - Configurado `dotnet user-secrets` para a string de conexão local do Davi (`ClinixDb`), mantendo `appsettings.Development.json` limpo e seguro contra vazamento de credenciais no Git.
+  - Injeção de dependência híbrida testada e validada: conecta no MySQL em ambiente com segredos e faz fallback automático para `InMemory` caso o banco não esteja rodando.
+  - **Bateria de testes de integração ponta a ponta na API validada com sucesso contra o MySQL local**:
+    - `POST /api/auth/login`: autenticação com hash SHA-256 e RBAC para Dr. Davi e Juliana.
+    - `GET /api/pacientes`: busca dos pacientes iniciais (Beatriz, Carlos, Mariana).
+    - `GET /api/agendamentos`: listagem tipada com status enum deserializado pelo Dapper.
+    - `GET /api/financeiro/resumo`: cálculo agregado de pendências diretamente do banco.
+  - Todos os 52 testes xUnit passando (100% de sucesso).
+- **Próximo passo:** Commit das alterações e revisão final para apresentação acadêmica.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -56,3 +57,6 @@
 | 08/10/2026 | Antigravity AI | Divisão da memória por membro da equipe (Davi e Miguel). | Continuar etapa 2 do Bloco 5. |
 | 09/10/2026 | Antigravity AI | Integração completa front ↔ API na branch `feature/novas-telas`, correção de bugs de lógica (LGPD e data UTC), sincronização com wwwroot e criação do `api.js`. | Revisão da branch para merge em `main` e disciplina de Banco de Dados II (MySQL). |
 | 10/10/2026 | Antigravity AI | Auditoria do modelo do Isaac; bateria de testes ponta a ponta (52 xUnit 100% OK); aplicação das 4 melhorias no `.mwb`; geração de `01_schema_ddl.sql`, `02_dados_iniciais.sql` e reorganização completa do repositório (`README.md`, `docs/README.md`). | Implementar repositórios MySQL concretos no backend C#. |
+| 10/10/2026 | Antigravity AI | Concluídos os 6 repositórios MySQL com Dapper; configurado `dotnet user-secrets`; corrigido mismatch de índices no ENUM do MySQL; integração ponta a ponta da API com o MySQL local 100% testada e aprovada. 52 testes xUnit OK. | Commit e envio para o GitHub. |
+| 10/10/2026 | Antigravity AI | Criado endpoint `GET /api/status`, sistema duplo de badges no frontend (`API .NET C# Conectada` + `MySQL 8.0 Ativo`/`Memória`), flag de inicialização `--in-memory` com log visual no console e suporte a Live Server (porta 5500). | Commit e push final. |
+

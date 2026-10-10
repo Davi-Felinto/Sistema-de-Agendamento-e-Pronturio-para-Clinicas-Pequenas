@@ -52,4 +52,10 @@ public class SessaoProntuario{
 
         AnotacoesClinicas = novoTexto;
     }
+
+    public void AdicionarVersaoExistente(VersaoAnotacao versao)
+    {
+        if (versao != null)
+            _historicoVersoes.Add(versao);
+    }
 }

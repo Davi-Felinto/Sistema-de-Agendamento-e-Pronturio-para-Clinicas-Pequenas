@@ -26,7 +26,8 @@ public class Paciente
         string email,
         string endereco,
         string? alergias = null,
-        string? condicoesPreexistentes = null)
+        string? condicoesPreexistentes = null,
+        bool ativo = true)
     {
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome não pode ser nulo ou vazio.", nameof(nome));
@@ -43,7 +44,7 @@ public class Paciente
         Endereco = endereco;
         Alergias = alergias;
         CondicoesPreexistentes = condicoesPreexistentes;
-        Ativo = true; // Todo paciente nasce ativo
+        Ativo = ativo;
     }
     
     /// <summary>

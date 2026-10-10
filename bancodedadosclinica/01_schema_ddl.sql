@@ -55,7 +55,7 @@ CREATE TABLE usuarios (
 -- Especialização: Profissionais de Saúde (Médicos, Psicólogos, Nutricionistas)
 CREATE TABLE profissionais_saude (
     id_usuario INT PRIMARY KEY,
-    perfil ENUM('Profissional') NOT NULL DEFAULT 'Profissional',
+    perfil ENUM('Profissional', 'Administrador') NOT NULL DEFAULT 'Profissional',
     registro_profissional VARCHAR(30) NOT NULL COMMENT 'Ex: CRM-DF 12345, CRP-DF 67890',
     especialidade VARCHAR(80) NOT NULL,
     CONSTRAINT uq_prof_registro UNIQUE (registro_profissional),
@@ -67,7 +67,7 @@ CREATE TABLE profissionais_saude (
 -- Especialização: Administradores e Recepcionistas
 CREATE TABLE administradores (
     id_usuario INT PRIMARY KEY,
-    perfil ENUM('Administrador') NOT NULL DEFAULT 'Administrador',
+    perfil ENUM('Profissional', 'Administrador') NOT NULL DEFAULT 'Administrador',
     cargo VARCHAR(80) NOT NULL COMMENT 'Ex: Gestão & Recepção Clínica',
     CONSTRAINT fk_adm_usuario FOREIGN KEY (id_usuario, perfil)
         REFERENCES usuarios (id_usuario, perfil)

@@ -12,24 +12,51 @@ const getTodayDateStr = () => {
   return `${year}-${month}-${day}`;
 };
 
+const getApiBase = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    if (window.location.port === '5055' || (window.location.href && window.location.href.includes(':5055/'))) {
+      return '';
+    }
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+      return 'http://localhost:5055';
+    }
+  }
+  return '';
+};
+const API_BASE = getApiBase();
+
 export const api = {
   isConnected: false,
+  storage: 'offline', // 'mysql' | 'memoria' | 'offline'
+  storageLabel: 'Modo Standalone (Offline)',
 
   async checkHealth() {
     try {
-      const res = await fetch('/api/pacientes', { method: 'GET', headers: { 'Accept': 'application/json' } });
-      this.isConnected = res.ok;
-      return res.ok;
+      const res = await fetch(`${API_BASE}/api/status`, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        this.isConnected = true;
+        this.storage = data.storage || 'memoria';
+        this.storageLabel = data.storageLabel || 'Banco: Memória (Mock)';
+        return { ok: true, storage: this.storage, storageLabel: this.storageLabel };
+      }
+      const resPac = await fetch(`${API_BASE}/api/pacientes`, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      this.isConnected = resPac.ok;
+      this.storage = resPac.ok ? 'memoria' : 'offline';
+      this.storageLabel = resPac.ok ? 'Banco: Memória (Mock)' : 'Modo Standalone (Offline)';
+      return { ok: resPac.ok, storage: this.storage, storageLabel: this.storageLabel };
     } catch {
       this.isConnected = false;
-      return false;
+      this.storage = 'offline';
+      this.storageLabel = 'Modo Standalone (Offline)';
+      return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
     }
   },
 
   // --- PACIENTES (RF01-RF05, RN16) ---
   async listarPacientes() {
     try {
-      const res = await fetch('/api/pacientes');
+      const res = await fetch(`${API_BASE}/api/pacientes`);
       if (!res.ok) throw new Error('Falha ao listar pacientes');
       const data = await res.json();
       this.isConnected = true;
@@ -56,7 +83,7 @@ export const api = {
 
   async criarPaciente(dados) {
     try {
-      const res = await fetch('/api/pacientes', {
+      const res = await fetch(`${API_BASE}/api/pacientes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -100,7 +127,7 @@ export const api = {
     try {
       const numId = Number(id);
       if (!isNaN(numId)) {
-        const res = await fetch(`/api/pacientes/${numId}/inativar`, { method: 'PUT' });
+        const res = await fetch(`${API_BASE}/api/pacientes/${numId}/inativar`, { method: 'PUT' });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao inativar paciente' };
@@ -115,7 +142,7 @@ export const api = {
   // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
   async listarAgendamentos() {
     try {
-      const res = await fetch('/api/agendamentos');
+      const res = await fetch(`${API_BASE}/api/agendamentos`);
       if (!res.ok) throw new Error('Falha ao listar agendamentos');
       const data = await res.json();
       this.isConnected = true;
@@ -173,7 +200,7 @@ export const api = {
         ? dados.profissionalId
         : (parseInt(String(dados.profissionalId).replace(/\D/g, ''), 10) || 1);
 
-      const res = await fetch('/api/agendamentos', {
+      const res = await fetch(`${API_BASE}/api/agendamentos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -224,7 +251,7 @@ export const api = {
     try {
       const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
       if (!isNaN(numId)) {
-        const res = await fetch(`/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
+        const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
@@ -241,7 +268,7 @@ export const api = {
   // --- AUTENTICAÇÃO (RF26, RQ08) ---
   async login(login, senha) {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, senha })

@@ -1,48 +1,53 @@
 # Software Design Document (SDD)
-## Sistema de Agendamento e Prontuário para Clínicas Pequenas
+## Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)
 
-> **Documento de Arquitetura e Design de Software (Fase POO e Integração)**  
+> **Documento de Arquitetura e Design de Software (Versão 2.0 — Integração Full-Stack)**  
 > **Autor:** Davi Felinto — Engenharia de Software (CEUB)  
-> **Referência de Requisitos:** [`Documento_Especificacao_Requisitos_Final.docx`](../requisitos/Documento_Especificacao_Requisitos_Final.docx)  
+> **Referência de Requisitos:** [`docs/requisitos/README.md`](../requisitos/README.md)  
 > **Modelagem Visual:** [`diagrama_classes.svg`](../diagramas/diagrama_classes.svg)  
-> **Data:** Outubro / 2026 — Versão: 1.0
+> **Data:** Outubro / 2026 — Versão: 2.0 (POO C# + Banco de Dados II MySQL + API REST + Web MVP)
 
 ---
 
 ## 1. Introdução e Visão Geral
 
 ### 1.1 Propósito
-Este **Software Design Document (SDD)** especifica a arquitetura técnica, o design orientado a objetos e os padrões de projeto que guiam a implementação do **Sistema de Agendamento e Prontuário para Clínicas Pequenas**.
+Este **Software Design Document (SDD)** especifica a arquitetura técnica, o design orientado a objetos, a modelagem relacional e os padrões de projeto que regem a implementação do **Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)**.
 
-O documento traduz os requisitos levantados e validados na fase de Engenharia de Requisitos (`RF01–RF28`, `RN01–RN17`, `RQ01–RQ16`) em uma solução de software robusta, escalável e de fácil manutenção.
+O documento formaliza como os requisitos levantados (`RF01–RF28`, `RN01–RN17`, `RQ01–RQ16`) foram consolidados em uma solução de software robusta, desacoplada, segura e em estrita conformidade com a LGPD.
 
 ### 1.2 O Papel no Projeto Integrador Multidisciplinar
-O projeto atua como o elo central entre quatro disciplinas da graduação em Engenharia de Software:
+O projeto integra harmonicamente as competências de quatro disciplinas da graduação em Engenharia de Software do CEUB:
 
 ```
   ┌─────────────────────────────────────────────────────────────┐
   │                 1. Engenharia de Requisitos                │
-  │     (Documento de Especificação de Requisitos - Concluído)  │
+  │     (Documento de Requisitos: 28 RFs, 17 RNs, 16 RQs)       │
+  │                       [✅ CONCLUÍDO]                        │
   └──────────────────────────────┬──────────────────────────────┘
                                  │
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
-  │         2. Programação Orientada a Objetos (C# / .NET)      │
-  │  (Fase Atual: Domínio, Regras de Negócio, 4 Pilares e SDD)   │
+  │         2. Programação Orientada a Objetos (C# / .NET 8)    │
+  │       (Domínio Rico, 4 Pilares, TDD xUnit - 52 testes)      │
+  │                       [✅ CONCLUÍDO]                        │
   └──────────────────────────────┬──────────────────────────────┘
                                  │
                  ┌───────────────┴───────────────┐
                  ▼                               ▼
   ┌──────────────────────────────┐ ┌────────────────────────────┐
   │    3. Banco de Dados II      │ │ 4. Desenv. de Interface    │
-  │  (Modelagem & MySQL Relac.)  │ │   (Web: HTML5, CSS3, JS)   │
+  │ (MySQL 8.0, 15 tabelas, 3FN, │ │ (Web Responsivo, HTML5,    │
+  │   Repositórios Dapper C#)    │ │  TailwindCSS, React, PWA)  │
+  │        [✅ CONCLUÍDO]         │ │        [✅ CONCLUÍDO]       │
   └──────────────┬───────────────┘ └─────────────┬──────────────┘
                  │                               │
                  └───────────────┬───────────────┘
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
-  │                   5. Integração Completa                    │
-  │        (API C# consumida por Front Web e persistida em MySQL│
+  │              5. Solução Integrada e Entregue                │
+  │ (ASP.NET Core Web API com DI Híbrida, Dapper, Docker e Web) │
+  │                       [✅ CONCLUÍDO]                        │
   └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -87,8 +92,9 @@ flowchart TD
     end
 
     subgraph INFRA ["Camada de Infraestrutura / Persistência"]
-        MEM["Fase POO: Repositórios em Memória (List<T>)"]
-        MYSQL["Fase BD II: Repositórios MySQL (Dapper / EF Core)"]
+        MEM["Repositórios em Memória (Concurrent Collections - Thread-Safe)"]
+        MYSQL["Repositórios Relacionais MySQL 8.0 (Dapper & MySqlConnector)"]
+        DI_HYBRID["Injeção Híbrida & Secret Manager (dotnet user-secrets)"]
         WHATS["NotificadorWhatsApp (Simulação de Canal)"]
     end
 
@@ -104,12 +110,13 @@ flowchart TD
 
 ### 2.1 Descrição das Camadas
 
-1. **`Domain` (Domínio):** O núcleo da POO. Contém as classes de negócio puras, sem referências externas. Aplica regras intrínsecas e protege as invariantes dos dados.
-2. **`Services` (Aplicação / Negócio):** Orquestra fluxos que envolvem múltiplas entidades, persistência e validações cruzadas (ex: verificar se já existe agendamento no mesmo horário antes de salvar).
+1. **`Domain` (Domínio):** O núcleo da POO. Contém as classes de negócio puras, sem referências externas. Aplica regras intrínsecas e protege as invariantes dos dados com encapsulamento estrito (`private set`).
+2. **`Services` (Aplicação / Negócio):** Orquestra fluxos que envolvem múltiplas entidades, persistência e validações cruzadas (ex: verificar conflito de horário `RN01/RN02` e aplicar cancelamento tardio `RN10`).
 3. **`Infrastructure` (Persistência e Conectores):**
-   - **Na fase de POO:** Implementações em memória usando coleções genéricas `List<T>` com LINQ.
-   - **Na fase de BD II:** Troca-se a implementação para repositórios que executam comandos SQL no MySQL, sem tocar no Domínio nem nos Serviços.
-4. **`Presentation / API`:** Endpoints REST que recebem requisições HTTP do front-end Web, chamam os serviços e retornam JSON.
+   - **`ClinicaApp.Infrastructure.InMemory`:** Coleções thread-safe para testes automatizados rápidos e desenvolvimento ágil de front-end.
+   - **`ClinicaApp.Infrastructure.MySQL`:** Implementação relacional de alta performance via **Dapper**, mapeando as 15 tabelas em 3ª Forma Normal.
+   - **Injeção Híbrida (`Program.cs`):** Alternância automática em tempo de execução via connection string protegida com `dotnet user-secrets`.
+4. **`Presentation / API` (`ClinicaApp.Api`):** Endpoints REST em ASP.NET Core (.NET 8) que expõem recursos JSON e servem a interface Web integrada (`wwwroot/index.html`).
 
 ---
 
@@ -397,164 +404,133 @@ A tabela a seguir comprova como cada Requisito Funcional (RF), Regra de Negócio
 
 ---
 
-## 6. Estratégia de Transição para Banco de Dados II (MySQL)
+## 6. Persistência Relacional com MySQL 8.0 & Dapper (Implementado)
 
-A modelagem de entidades do domínio POO mapeia de forma direta (1:1) para o modelo relacional SQL que será elaborado na disciplina de BD II:
+A persistência do sistema evoluiu com sucesso da simulação em memória para um banco de dados relacional **MySQL 8.0** de nível de produção, modelado em estrita **3ª Forma Normal (3FN)**:
 
-| Entidade C# (POO) | Tabela Relacional (MySQL) | Chave Primária (PK) | Chaves Estrangeiras (FK) |
+### 6.1 Mapeamento Objeto-Relacional (DDD ↔ SQL)
+A modelagem de entidades do domínio POO mapeia diretamente para o esquema relacional oficial ([`01_schema_ddl.sql`](../../bancodedadosclinica/01_schema_ddl.sql)):
+
+| Entidade C# (POO) | Tabela Relacional (MySQL) | Chave Primária (PK) | Chaves Estrangeiras (FK) & Índices |
 | :--- | :--- | :--- | :--- |
-| `Usuario` / Subclasses | `usuarios` | `id_usuario` | — |
-| `Paciente` | `pacientes` | `id_paciente` | — |
-| `Agendamento` | `agendamentos` | `id_agendamento` | `id_paciente`, `id_profissional` |
-| `SessaoProntuario` | `sessoes_prontuario` | `id_sessao` | `id_paciente`, `id_agendamento` |
-| `VersaoAnotacao` | `historico_versoes_prontuario` | `id_versao` | `id_sessao` |
-| `Pagamento` | `pagamentos` | `id_pagamento` | `id_agendamento` |
-| `Notificacao` | `notificacoes` | `id_notificacao` | `id_agendamento` |
-| `LogAcesso` | `logs_acesso` | `id_log` | `id_usuario` |
+| `Usuario` (Base) | `usuarios` | `id_usuario` | `uq_usuarios_login`, `uq_usuarios_id_perfil` |
+| `ProfissionalSaude` | `profissionais_saude` | `id_usuario` | `fk_prof_usuario (id_usuario, perfil)`, `uq_prof_registro` |
+| `Administrador` | `administradores` | `id_usuario` | `fk_adm_usuario (id_usuario, perfil)` |
+| `Paciente` | `pacientes` | `id_paciente` | `uq_pacientes_documento`, `fk_pacientes_profissional` |
+| `Agendamento` | `agendamentos` | `id_agendamento` | `fk_agendamento_paciente`, `fk_agendamento_profissional` |
+| `SessaoProntuario` | `sessoes_prontuario` | `id_sessao` | `fk_sessao_paciente`, `fk_sessao_agendamento` |
+| `VersaoAnotacao` | `historico_versoes_prontuario` | `id_versao` | `fk_versao_sessao (id_sessao)` |
+| `Pagamento` | `pagamentos` | `id_pagamento` | `uq_pagamentos_agendamento (RN07)` |
+| `LogAcesso` | `logs_acesso` | `id_log` | `fk_logs_usuario (id_usuario)`, `idx_logs_data` |
 
-Quando chegar a disciplina de Banco de Dados II:
-1. Criam-se os scripts DDL (`CREATE TABLE ...`) no MySQL.
-2. Cria-se o projeto `Clinica.Infrastructure.Database` implementando as mesmas interfaces (`IPacienteRepository`, etc.) via ADO.NET / Dapper.
-3. Altera-se apenas a linha de injeção de dependência na inicialização da aplicação:
-   ```csharp
-   // De:
-   builder.Services.AddSingleton<IPacienteRepository, InMemoryPacienteRepository>();
-   // Para:
-   builder.Services.AddScoped<IPacienteRepository, MySqlPacienteRepository>();
-   ```
-   **Resultado:** 100% das regras de negócio de POO permanecem intactas!
+### 6.2 Repositórios Relacionais Dapper (`ClinicaApp.Infrastructure.MySQL`)
+Optou-se pelo micro-ORM **Dapper** em conjunto com **MySqlConnector** devido à performance máxima e ao controle explícito de consultas SQL parametrizadas (**RQ09 - Prevenção contra SQL Injection**):
+1. **`MySqlPacienteRepository`:** Executa CRUD de pacientes e aplica anonimização lógica LGPD (`RN16, RQ03`).
+2. **`MySqlAgendamentoRepository`:** Consulta bloqueios de horário (`RN01, RN02`) e marcação de cancelamento tardio (`RN10`).
+3. **`MySqlUsuarioRepository`:** Gerencia herança Table-per-Type (TPT) com integridade transacional ACID (`usuarios` + `profissionais_saude`/`administradores`).
+4. **`MySqlProntuarioRepository`:** Persiste sessões clínicas e histórico imutável de versões (`RN17, RF16`).
+5. **`MySqlPagamentoRepository`:** Garante unicidade de cobrança por consulta (`RN07`) e controle de quitação (`RN08`).
+6. **`MySqlLogAcessoRepository`:** Gravação imutável de trilha de auditoria para fins de compliance LGPD (`RF28, RN13, RQ07`).
 
----
+### 6.3 Injeção de Dependência Híbrida & Gestão Segura de Credenciais
+No `Program.cs` da API, adotou-se o padrão de **Injeção Híbrida**:
+- Se a connection string `ClinixDb` estiver presente e válida, a API registra os repositórios MySQL em escopo `Scoped`.
+- Caso contrário, faz fallback gracioso para os repositórios `InMemory` em escopo `Singleton`.
+- Para proteger senhas de banco de dados, utiliza-se o **Secret Manager** (`dotnet user-secrets`), mantendo credenciais fora de arquivos rastreados pelo Git.
 
-## 7. Estratégia de Transição para Desenvolvimento de Interface (Web)
-
-Para alimentar a interface em HTML5, CSS3 e JavaScript:
-1. O backend em C# expõe endpoints HTTP claros e padronizados em JSON:
-   - `POST /api/auth/login` (Autenticação)
-   - `GET /api/pacientes` e `POST /api/pacientes` (Cadastro e listagem)
-   - `GET /api/agendamentos` e `POST /api/agendamentos` (Agenda)
-   - `POST /api/prontuario` (Registro clínico)
-   - `GET /api/financeiro/resumo` (Resumo mensal)
-2. No front-end Web, as requisições são feitas via `fetch()` assíncrono padrão do JavaScript.
-3. Para a demonstração do professor de POO, pode-se tanto subir a API e abrir o front-end Web no navegador, quanto rodar um módulo CLI interativo que executa os mesmos serviços.
+### 6.4 Orquestração Conteinerizada (Docker Compose)
+O arquivo [`docker-compose.yml`](../../docker-compose.yml) provê um ambiente completo em 1 comando (`docker compose up -d`):
+- Container **MySQL 8.0** com inicialização automática dos scripts DDL e Seed via volume `/docker-entrypoint-initdb.d/`.
+- Container **API .NET 8** conectada em rede interna ao banco de dados com healthcheck automático.
 
 ---
 
-## 8. Estrutura Física da Solução C# (.NET)
+## 7. Camada de Apresentação e Integração Web
 
-A solução será organizada no diretório `src/` com a seguinte árvore estrutural:
+### 7.1 ASP.NET Core Web API (`ClinicaApp.Api`)
+A exposição de serviços adota o padrão RESTful com endpoints documentados via Swagger:
+- **`AuthController`:** `POST /api/auth/login` (autenticação segura e RBAC).
+- **`PacientesController`:** `GET /api/pacientes`, `POST /api/pacientes`, `PUT /api/pacientes/{id}`, `DELETE /api/pacientes/{id}` (anonimização LGPD).
+- **`AgendamentosController`:** `GET /api/agendamentos`, `POST /api/agendamentos`, `PUT /api/agendamentos/{id}/confirmar`, `PUT /api/agendamentos/{id}/cancelar`.
+- **`ProntuariosController`:** `GET /api/prontuarios/{pacienteId}`, `POST /api/prontuarios` (versões imutáveis).
+- **`FinanceiroController`:** `GET /api/financeiro/resumo?mes={m}&ano={a}`, `PUT /api/financeiro/{id}/pagar`.
+
+### 7.2 Camada Cliente Front-End (`api.js` & `index.html`)
+O frontend web consome os endpoints através de um módulo cliente desacoplado (`api.js`):
+- Chamadas assíncronas via `fetch()` com cabeçalhos padronizados `application/json`.
+- Captura de exceções de domínio e exibição de alertas amigáveis em tela (**RQ11**).
+- Modo Híbrido: se a API estiver offline (como na demonstração do GitHub Pages), a interface alterna automaticamente para armazenamento local em `localStorage`.
+
+---
+
+## 8. Estrutura Física da Solução C# (.NET 8)
+
+A organização no diretório `src/` reflete estritamente a separação em camadas:
 
 ```
 src/
-└── ClinicaApp/
-    ├── ClinicaApp.sln
-    └── ClinicaApp/
-        ├── Domain/                     # POO Pura
-        │   ├── Entities/
-        │   │   ├── Usuario.cs
-        │   │   ├── ProfissionalSaude.cs
-        │   │   ├── Administrador.cs
-        │   │   ├── Paciente.cs
-        │   │   ├── Agendamento.cs
-        │   │   ├── SessaoProntuario.cs
-        │   │   ├── VersaoAnotacao.cs
-        │   │   ├── Pagamento.cs
-        │   │   ├── Notificacao.cs
-        │   │   └── LogAcesso.cs
-        │   ├── Enums/
-        │   │   ├── PerfilUsuario.cs
-        │   │   ├── StatusAgendamento.cs
-        │   │   ├── StatusPagamento.cs
-        │   │   ├── FormaPagamento.cs
-        │   │   ├── TipoNotificacao.cs
-        │   │   └── CanalNotificacao.cs
-        │   └── Interfaces/
-        │       ├── IPacienteRepository.cs
-        │       ├── IAgendamentoRepository.cs
-        │       ├── IProntuarioRepository.cs
-        │       ├── IPagamentoRepository.cs
-        │       ├── IUsuarioRepository.cs
-        │       └── INotificador.cs
-        ├── Services/                   # Regras de Negócio e Casos de Uso
-        │   ├── AuthService.cs
-        │   ├── AgendaService.cs
-        │   ├── ProntuarioService.cs
-        │   ├── FinanceiroService.cs
-        │   └── NotificacaoService.cs
-        ├── Infrastructure/             # Persistência e Implementações
-        │   ├── InMemory/
-        │   │   ├── InMemoryPacienteRepository.cs
-        │   │   ├── InMemoryAgendamentoRepository.cs
-        │   │   ├── InMemoryProntuarioRepository.cs
-        │   │   ├── InMemoryPagamentoRepository.cs
-        │   │   └── InMemoryUsuarioRepository.cs
-        │   └── External/
-        │       └── NotificadorWhatsApp.cs
-        ├── Common/                     # Utilitários globais
-        │   ├── CriptografiaUtil.cs
-        │   └── SessaoUsuario.cs
-        ├── Presentation/               # API / Controladores e Execução
-        │   └── Program.cs
-        └── ClinicaApp.csproj
-    └── ClinicaApp.Tests/               # Suíte de Testes Automatizados (TDD / xUnit)
-        ├── Domain/
-        │   ├── PacienteTests.cs        # Validações, inativação e anonimização (RN16, RQ03)
-        │   ├── AgendamentoTests.cs     # Conflito de horários e cancelamento tardio (RN01, RN10)
-        │   ├── SessaoProntuarioTests.cs# Versionamento e imutabilidade de anotações (RN17)
-        │   └── PagamentoTests.cs       # Quitação e status financeiro (RN07, RN08)
-        ├── Services/
-        │   ├── AgendaServiceTests.cs   # Orquestração de agendamento e notificações
-        │   └── AuthServiceTests.cs     # Autenticação e hash de senhas (RQ08)
-        └── ClinicaApp.Tests.csproj
+├── ClinicaApp.slnx                     # Arquivo de Solução (.NET 8)
+├── ClinicaApp/                         # Domínio e Infraestrutura
+│   ├── Domain/
+│   │   ├── Entities/                   # Paciente, Agendamento, SessaoProntuario, Pagamento, etc.
+│   │   ├── Enums/                      # StatusAgendamento, PerfilUsuario, FormaPagamento, etc.
+│   │   └── Interfaces/                 # IPacienteRepository, IAgendamentoRepository, INotificador, etc.
+│   ├── Infrastructure/
+│   │   ├── InMemory/                   # Persistência em memória thread-safe (Fallback & Testes)
+│   │   ├── MySQL/                      # 6 Repositórios relacionais concretos com Dapper
+│   │   └── External/                   # NotificadorWhatsApp (simulação de mensageria externa)
+│   └── Services/                       # Application Services com guardiões das Regras de Negócio
+│       ├── AuthService.cs              # RF26, RQ08: Autenticação PBKDF2/SHA-256 + Salt
+│       ├── AgendaService.cs            # RN01/RN02: Conflitos; RN10: Cancelamento tardio; RF12: WhatsApp
+│       ├── ProntuarioService.cs        # RN05, RN17: Histórico imutável; RN13, RQ07: Auditoria LGPD
+│       └── FinanceiroService.cs        # RN07: Cobrança sem duplicidade; RN08/RN09: Quitação e fechamento
+├── ClinicaApp.Api/                     # Apresentação e API REST
+│   ├── Controllers/                    # Endpoints RESTful
+│   ├── Data/DadosIniciais.cs           # Seed de dados para modo em memória
+│   ├── Program.cs                      # Injeção híbrida, CORS, Swagger e estáticos
+│   └── wwwroot/                        # Interface Web distribuída diretamente com a API
+├── ClinicaApp.Tests/                   # Suíte de Testes Automatizados (xUnit / TDD)
+│   ├── Domain/                         # 23 testes unitários focados nas entidades
+│   └── Services/                       # 29 testes unitários dos fluxos de regras de negócio
+└── README.md                           # Documentação técnica do código-fonte
 ```
 
 ---
 
 ## 9. Metodologia de Desenvolvimento: TDD (Test-Driven Development)
 
-Para assegurar confiabilidade máxima, conformidade com os requisitos de qualidade (**RQ12, RQ14, RQ16**) e demonstrar rigor de engenharia de software na disciplina de POO, o sistema adota a metodologia **TDD (Test-Driven Development)** utilizando o framework **xUnit**.
+Para assegurar confiabilidade máxima e conformidade com os requisitos de qualidade (**RQ12, RQ13, RQ14**), a suíte automatizada conta com **52 testes unitários** desenvolvidos com **xUnit**:
 
-### 9.1 Ciclo Red-Green-Refactor
+```bash
+dotnet test src/
+```
+```text
+Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52 (100% de sucesso)
+```
 
-Cada entidade de domínio e regra de negócio é desenvolvida estritamente seguindo o ciclo:
-
-1. **🔴 Red (Escrever o teste primeiro):**
-   - Cria-se um método de teste em `ClinicaApp.Tests` especificando o comportamento esperado de um requisito (ex.: `Deve_Marcar_Cancelamento_Como_Tardio_Quando_Menor_Que_24_Horas()`).
-   - O teste falha inicialmente (ou nem compila), pois o código de produção correspondente ainda não existe ou não possui a regra.
-2. **🟢 Green (Implementar o código mínimo):**
-   - No projeto `ClinicaApp`, implementa-se a quantidade mínima de código necessária para fazer o teste passar.
-   - Executa-se `dotnet test` para validar o sucesso da suíte.
-3. **🔵 Refactor (Aperfeiçoar com segurança):**
-   - O código é refatorado para aplicar boas práticas de POO (Clean Code, encapsulamento adequado, nomes expressivos e redução de redundâncias), mantendo todos os testes verdes.
-
-### 9.2 Matriz de Cobertura de Testes Prioritários (TDD)
+### 9.1 Matriz de Cobertura de Testes Prioritários (TDD)
 
 | Teste Automatizado | Regra / Requisito Coberto | Cenário Validado | Status |
 | :--- | :--- | :--- | :---: |
-| `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis (e-mail, telefone) são anonimizados. | ✅ Aprovado |
-| `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se uma nova consulta coincidir com o intervalo de outra confirmada. | ✅ Aprovado |
-| `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando a solicitação ocorre a menos de 24h da consulta. | ✅ Aprovado |
-| `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar uma anotação, a versão anterior é salva no histórico imutável com data e motivo. | ✅ Aprovado |
-| `PagamentoTests.RegistrarPagamento_DeveAtualizarStatusParaPagoEData()` | RN07, RN08 | Registra a quitação da consulta, atualizando status para Pago e gravando forma/data. | ✅ Aprovado |
-| `NotificacaoTests.PodeReenviar_ApenasUmaTentativaApos15Minutos()` | RN14, RN15 | Garante que apenas 1 nova tentativa seja autorizada após 15 minutos de falha. | ✅ Aprovado |
+| `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis são anonimizados. | ✅ Aprovado |
+| `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se nova consulta coincidir com o intervalo de outra confirmada. | ✅ Aprovado |
+| `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando cancelada com menos de 24h. | ✅ Aprovado |
+| `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar anotação, versão anterior é salva no histórico imutável com justificativa. | ✅ Aprovado |
+| `PagamentoTests.RegistrarPagamento_DeveAtualizarStatusParaPagoEData()` | RN07, RN08 | Registra quitação, atualizando status para Pago e gravando forma e timestamp. | ✅ Aprovado |
 | `LogAcessoTests.Deve_Criar_Log_Com_Sucesso_E_DataHora_Atual()` | RF28, RN13, RQ07 | Valida criação de logs de auditoria imutáveis com rastreabilidade exigida pela LGPD. | ✅ Aprovado |
 | `UsuarioTests.Autenticar_ComSenhaIncorreta_DeveRetornarFalse()` | RF26, RQ08 | Garante validação segura com hash sem expor senhas em texto puro. | ✅ Aprovado |
-| `UsuarioTests.Administrador_Deve_Poder_Auditar_Logs()` | RN12 | Polimorfismo: Administrador pode auditar logs; usuário comum não tem permissão. | ✅ Aprovado |
+| `AgendaServiceTests.AgendarConsulta_ComConflito_DeveLancarExcecao()` | RN01, RN02 | AgendaService impede agendamento simultâneo para o mesmo médico. | ✅ Aprovado |
+| `FinanceiroServiceTests.GerarCobranca_ConsultaJaComCobranca_DeveLancarExcecao()` | RN07 | Bloqueia duplicidade de cobrança financeira para a mesma consulta. | ✅ Aprovado |
 
 ---
 
-## 10. Conclusão e Status de Implementação
+## 10. Conclusão e Status Consolidado de Implementação
 
-### 10.1 Status das Entregas de POO
+Todos os módulos planejados no ciclo do Projeto Integrador foram **100% implementados, testados e integrados**:
 
-* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído**  
-  Todas as 9 entidades de domínio (`Paciente`, `Agendamento`, `SessaoProntuario`, `VersaoAnotacao`, `Pagamento`, `Notificacao`, `LogAcesso`, `Usuario`, `ProfissionalSaude`, `Administrador`) e os 7 enums foram implementados e cobertos por **23 testes automatizados via xUnit**, executando com 0 falhas (`dotnet test src/`).
+* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído** (23 testes xUnit).
+* **Bloco 2 — Interfaces e Repositórios In-Memory:** ✅ **100% Concluído** (contratos DDD).
+* **Bloco 3 — Serviços de Aplicação e Casos de Uso:** ✅ **100% Concluído** (29 testes xUnit).
+* **Bloco 4 — Persistência Relacional MySQL 8.0 & Dapper:** ✅ **100% Concluído** (15 tabelas, 3FN, 6 repositórios concretos Dapper, segredos protegidos).
+* **Bloco 5 — ASP.NET Core Web API, Docker e Interface Web:** ✅ **100% Concluído** (Controllers REST, Swagger, modo híbrido, Docker Compose).
 
-* **Bloco 2 — Interfaces e Repositórios In-Memory:** ✅ **100% Concluído**  
-  Implementação de 100% dos contratos de domínio (`IPacienteRepository`, `IAgendamentoRepository`, `IProntuarioRepository`, `IPagamentoRepository`, `IUsuarioRepository`, `ILogAcessoRepository`, `INotificador`) e dos seus respectivos repositórios em memória baseados em `List<T>` com LINQ (`InMemoryPacienteRepository`, `InMemoryAgendamentoRepository`, `InMemoryProntuarioRepository`, `InMemoryPagamentoRepository`, `InMemoryUsuarioRepository`, `InMemoryLogAcessoRepository`), garantindo desacoplamento total para a transição futura para o MySQL em BD II.
-
-* **Bloco 3 — Serviços de Aplicação (Casos de Uso e Orquestração):** 🚀 **Foco Imediato**  
-  Implementação das regras de negócio orquestradas (`AgendaService`, `ProntuarioService`, `FinanceiroService`, `AuthService`) e o canal concreto `NotificadorWhatsApp`.
-
-* **Bloco 4 — Interface de Demonstração (MVP):** ⏳ Planejado  
-  Apresentação interativa do fluxo completo da clínica.

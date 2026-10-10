@@ -18,23 +18,22 @@
 
 ## 🎯 Divisão Multidisciplinar do Projeto Integrador
 
-O projeto conecta os conteúdos práticos de 4 disciplinas do curso de Engenharia de Software do CEUB:
-
+O projeto conecta os conteúdos práticos de 4 disciplinas do curso de Engenharia de Software:
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                                 PROJETO INTEGRADOR                                     │
 ├──────────────────┬──────────────────┬─────────────────────────┬────────────────────────┤
 │ 1. Eng. Requisitos│ 2. POO (C# / .NET)│ 3. Banco de Dados II    │ 4. Interface Web (MVP) │
-│   [✅ CONCLUÍDO]  │   [✅ CONCLUÍDO]  │   [🚀 EM ANDAMENTO]     │     [✅ CONCLUÍDO]     │
+│   [✅ CONCLUÍDO]  │   [✅ CONCLUÍDO]  │     [✅ CONCLUÍDO]      │     [✅ CONCLUÍDO]     │
 └──────────────────┴──────────────────┴─────────────────────────┴────────────────────────┘
 ```
 
 | Fase | Disciplina | Foco & Entregáveis | Responsável | Status |
-| :--- | :--- | :--- | :---: | :---: |
-| **Parte 1** | **Engenharia de Requisitos** | Mapeamento BPMN, Levantamento com cliente, 28 RFs, 17 RNs e 16 RQs (ISO/IEC 25010 e LGPD). | Lucas | ✅ Concluído |
-| **Parte 2** | **Programação Orientada a Objetos** | Clean Architecture, DDD pragmático, 52 testes unitários (TDD com xUnit), Serviços de Domínio e API REST. | Davi Felinto | ✅ Concluído |
-| **Parte 3** | **Banco de Dados II (MySQL)** | Modelo Lógico (15 tabelas no Workbench), normalização (3FN), DDL, triggers e dados de seed. | Isaac / Davi | 🚀 Em andamento |
-| **Parte 4** | **Desenvolvimento de Interface Web** | Interface responsiva, usabilidade em até 3 cliques (RQ10), modo híbrido (API C# + fallback offline). | Miguel / Davi | ✅ Concluído |
+| :--- | :--- | :--- | :--- | :---: |
+| **Parte 1** | **Engenharia de Requisitos** | Mapeamento BPMN, 28 RFs, 17 RNs e 16 RQs ([Ver Especificação](docs/requisitos/README.md)). | Lucas | ✅ Concluído |
+| **Parte 2** | **Programação Orientada a Objetos** | Clean Architecture, DDD, 52 testes unitários xUnit ([Ver Detalhes](src/README.md)). | Davi Felinto | ✅ Concluído |
+| **Parte 3** | **Banco de Dados II (MySQL)** | 15 tabelas, 3FN, DDL/DML e repositórios relacionais Dapper ([Ver Banco](bancodedadosclinica/README.md)). | Isaac / Davi | ✅ Concluído |
+| **Parte 4** | **Desenvolvimento de Interface Web** | Interface responsiva, usabilidade em até 3 cliques (RQ10), modo híbrido e PWA. | Miguel / Davi | ✅ Concluído |
 
 ---
 
@@ -123,28 +122,57 @@ Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52, Duração: 80
 
 ## 🚀 Como Executar o Projeto Localmente
 
-### Pré-requisitos:
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [MySQL Server 8.0+](https://dev.mysql.com/downloads/mysql/) (opcional, para a etapa de banco de dados)
+### Opção A: Execução em 1 Clique com Docker Compose (Recomendado)
+Sobe o **MySQL 8.0** já com as 15 tabelas criadas (`01_schema_ddl.sql`), dados de demonstração populados (`02_dados_iniciais.sql`) e a **API .NET** conectada:
 
-### 1. Rodar a API Integrada com o Front-End:
 ```bash
-# Executa a API e serve a interface gráfica em uma única porta
-dotnet run --project src/ClinicaApp.Api --urls "http://localhost:5055"
+docker compose up -d
 ```
 Acesse no navegador:
-👉 **Aplicação:** `http://localhost:5055/`  
-👉 **Documentação Swagger:** `http://localhost:5055/swagger`
+- 👉 **Aplicação Web:** `http://localhost:5055/`
+- 👉 **Swagger API:** `http://localhost:5055/swagger`
+
+---
+
+### Opção B: Execução com .NET SDK Local
+
+#### 1. Pré-requisitos:
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [MySQL Server 8.0+](https://dev.mysql.com/downloads/mysql/) (opcional — caso não tenha, a API faz fallback automático em memória)
+
+#### 2. Configurar Segredo do Banco (Opcional - Se usar MySQL local):
+Para proteger sua senha de banco e não commitar dados sensíveis:
+```bash
+cd src/ClinicaApp.Api
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:ClinixDb" "Server=localhost;Port=3306;Database=clinix_db;Uid=root;Pwd=SUA_SENHA_AQUI;"
+```
+
+#### 3. Rodar a API:
+
+**Com Banco de Dados MySQL 8.0 (Persistência Relacional):**
+```bash
+dotnet run --project src/ClinicaApp.Api --urls "http://localhost:5055"
+```
+
+**Sem Banco de Dados / Modo Em Memória (Mock / Fallback):**
+> Ideal para quem não tem MySQL instalado ou deseja testar de forma rápida sem configurar banco.
+```bash
+dotnet run --project src/ClinicaApp.Api --urls "http://localhost:5055" --in-memory
+```
+
+Acesse no navegador: **`http://localhost:5055/`**
+
+#### 4. Indicadores de Status em Tempo Real no Header:
+A interface web identifica dinamicamente o estado da arquitetura através do endpoint `GET /api/status`:
+- 🟢 **`● API .NET C# Conectada`**: Backend C# ativo respondendo via HTTP/REST.
+- 🔵 **`● MySQL 8.0 Ativo`**: Repositórios relacionais com Dapper ativos gravando no banco.
+- 🟣 **`● Memória (Mock)`**: Repositórios InMemory ativos com dados pré-populados pelo `DadosIniciais.cs`.
+- 🟡 **`● Modo Standalone (Offline)`**: Execução estática/offline (GitHub Pages) com persistência em `localStorage`.
 
 **Credenciais de Acesso de Demonstração:**
-- **Profissional (Dr. Davi Felinto):** `davi.profissional@clinix.com` | Senha: `123456`
-- **Administrador (Juliana Costa):** `admin@clinix.com` | Senha: `123456`
-
-### 2. Rodar o Banco de Dados (MySQL):
-```bash
-mysql -u root -p < bancodedadosclinica/01_schema_ddl.sql
-mysql -u root -p < bancodedadosclinica/02_dados_iniciais.sql
-```
+- **Profissional (Dr. Davi Felinto):** `davi.profissional@clinix.com` | Senha: `123` (ou `123456`)
+- **Administrador (Juliana Costa):** `admin@clinix.com` | Senha: `123` (ou `123456`)
 
 ---
 
@@ -153,27 +181,29 @@ mysql -u root -p < bancodedadosclinica/02_dados_iniciais.sql
 ```
 ├── .github/                               # Workflows de CI/CD (GitHub Pages)
 ├── bancodedadosclinica/                   # Módulo de Banco de Dados II (MySQL)
-│   ├── clínica.mwb                        # Modelo Workbench atualizado
+│   ├── clínica.mwb                        # Modelo Workbench atualizado (15 tabelas)
 │   ├── 01_schema_ddl.sql                  # Script DDL de criação
 │   ├── 02_dados_iniciais.sql              # Carga de dados (seed)
-│   └── README.md                          # Documentação técnica do banco
+│   └── README.md                          # Documentação técnica, DER e dicionário de dados
 ├── docs/                                  # Central de Documentação do Projeto
 │   ├── apresentacao/                      # Roteiros e apresentações executivas
 │   ├── comercial/                         # Proposta de precificação e viabilidade
 │   ├── design/                            # SDD (Software Design Document)
 │   ├── diagramas/                         # Diagramas UML, BPMN e Arquitetura
-│   ├── requisitos/                        # Documento formal de requisitos
+│   ├── requisitos/                        # Especificação completa de requisitos (RF, RN, RQ)
 │   └── README.md                          # Índice central da documentação
 ├── ia-system/                             # Memória Viva e Contexto da Equipe
 │   ├── CONTEXTO_MEMORIA_PROJETO.md        # Memória compartilhada do projeto
 │   └── membros/                           # Memórias pessoais por integrante (Davi, Miguel)
 ├── src/                                   # Código-fonte da aplicação
-│   ├── ClinicaApp/                        # Domínio, Serviços e Infraestrutura
-│   ├── ClinicaApp.Api/                    # ASP.NET Core Web API
-│   └── ClinicaApp.Tests/                  # Suíte de Testes xUnit (TDD)
+│   ├── ClinicaApp/                        # Domínio, Serviços e Repositórios Dapper
+│   ├── ClinicaApp.Api/                    # ASP.NET Core Web API com DI Híbrida
+│   ├── ClinicaApp.Tests/                  # Suíte de Testes xUnit (TDD)
+│   └── README.md                          # Guia detalhado da arquitetura backend
+├── docker-compose.yml                     # Orquestração MySQL 8.0 + API .NET
+├── Dockerfile                             # Build e deploy conteinerizado
 ├── api.js                                 # Camada cliente de serviços front-end
 ├── index.html                             # Aplicação web estática / GitHub Pages
-├── Dockerfile                             # Build e deploy conteinerizado
 ├── ClinicaApp.sln                         # Arquivo de Solução Visual Studio
 └── README.md                              # Documentação mestre do projeto
 ```
