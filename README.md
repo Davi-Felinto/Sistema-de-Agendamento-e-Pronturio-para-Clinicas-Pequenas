@@ -14,6 +14,12 @@
 🌐 **Demonstração Web (GitHub Pages):**  
 👉 [https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/](https://davi-felinto.github.io/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/)
 
+⚡ **API REST & Swagger na Nuvem (Render.com):**  
+👉 [https://clinix-api-c58x.onrender.com/swagger](https://clinix-api-c58x.onrender.com/swagger)
+
+🗄️ **Banco de Dados Relacional na Nuvem (Aiven Cloud):**  
+👉 Cluster MySQL 8.4 gerenciado ativo com 15 tabelas, views, triggers e dados de outubro/2026.
+
 ---
 
 ## 🎯 Divisão Multidisciplinar do Projeto Integrador

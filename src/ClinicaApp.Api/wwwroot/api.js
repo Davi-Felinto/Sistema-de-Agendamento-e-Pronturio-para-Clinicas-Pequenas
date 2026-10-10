@@ -12,18 +12,31 @@ const getTodayDateStr = () => {
   return `${year}-${month}-${day}`;
 };
 
+const CLOUD_API_URL = 'https://clinix-api-c58x.onrender.com';
+
 const getApiBase = () => {
   if (typeof window !== 'undefined' && window.location) {
+    // Servido diretamente pela API C# (.NET 8 local na porta 5055)
     if (window.location.port === '5055' || (window.location.href && window.location.href.includes(':5055/'))) {
       return '';
     }
+    // Servido diretamente pelo container no Render
+    if (window.location.hostname.includes('onrender.com')) {
+      return '';
+    }
+    // Live Server ou arquivo local: conecta ao backend local na porta 5055
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
       return 'http://localhost:5055';
     }
+    // Produção no GitHub Pages: conecta à API de produção no Render
+    if (window.location.hostname.includes('github.io')) {
+      return CLOUD_API_URL;
+    }
   }
-  return '';
+  return CLOUD_API_URL;
 };
 const API_BASE = getApiBase();
+
 
 export const api = {
   isConnected: false,

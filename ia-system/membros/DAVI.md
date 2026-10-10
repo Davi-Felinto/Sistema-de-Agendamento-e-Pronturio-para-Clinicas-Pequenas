@@ -56,7 +56,12 @@
   - Provisionado cluster gerenciado MySQL 8.4 na nuvem Aiven (`clinix-davifd0978-afc9.b.aivencloud.com:10178`).
   - Executados com sucesso na nuvem os 3 scripts (`01_schema_ddl.sql`, `02_dados_iniciais.sql` e `03_procedures_views_triggers.sql`), deixando o banco na nuvem 100% povoado com 12 pacientes, 37 consultas e fechamentos consolidados.
   - 52 testes xUnit passando com 100% de sucesso.
-- **Próximo passo:** Hospedar a API C# no Render.com conectada ao Aiven Cloud e apontar o front-end do GitHub Pages para a URL pública da API.
+- **Hospedagem Full-Stack na Nuvem 100% Concluída e Operacional:**
+  - **Banco de Dados (Aiven Cloud):** Cluster MySQL 8.4 (`clinix_db`) ativo com 15 tabelas, views analíticas, triggers de auditoria LGPD e procedures.
+  - **API Backend (Render.com):** Container ASP.NET Core .NET 8 no ar em `https://clinix-api-c58x.onrender.com` com Swagger e endpoints validados.
+  - **Front-end (GitHub Pages):** `api.js` configurado com resolução dinâmica, conectando o GitHub Pages diretamente ao Render com persistência relacional.
+  - 52 testes xUnit passando com 100% de sucesso.
+- **Próximo passo:** Apresentação acadêmica para a banca do CEUB e apoio ao Miguel nas melhorias de UI/UX do front-end.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -71,5 +76,7 @@
 | 10/10/2026 | Antigravity AI | Criado endpoint `GET /api/status`, sistema duplo de badges no frontend (`API .NET C# Conectada` + `MySQL 8.0 Ativo`/`Memória`), flag `--in-memory` e povoamento completo de dados de demonstração (seed) em todas as 15 tabelas do MySQL. | Apresentação acadêmica. |
 | 10/10/2026 | Antigravity AI | Expansão massiva do seed de outubro/2026 (37 consultas, 12 pacientes); estruturação do Docker Compose com phpMyAdmin e hot-reload; criação do guia `GUIA_DOCKER_MIGUEL.md` e inclusão na fila do Miguel. | Implementar Opção 2 (Views, Procedures e Triggers em `03_procedures_views_triggers.sql`). |
 | 10/10/2026 | Antigravity AI | Criado `03_procedures_views_triggers.sql` (3 views, 3 triggers LGPD, 2 procedures); provisionado cluster MySQL 8.4 na nuvem Aiven e carregados todos os 3 scripts com 100% de sucesso. 52 testes xUnit OK. | Hospedar API C# no Render.com conectada ao Aiven Cloud. |
+| 10/10/2026 | Antigravity AI | Deploy da API C# concluído no Render (`https://clinix-api-c58x.onrender.com`); integração do `api.js` apontando para o Render em produção; validação ponta a ponta com banco Aiven Cloud. | Apresentação acadêmica e apoio ao Miguel no UI/UX. |
+
 
 
