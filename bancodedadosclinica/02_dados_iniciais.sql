@@ -17,21 +17,26 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. USUÁRIOS DO SISTEMA (RF26, RQ08)
 -- ----------------------------------------------------------------------------
 INSERT INTO usuarios (id_usuario, nome, login, senha_hash, perfil, ativo, criado_em) VALUES
-(1, 'Dr. Davi Felinto', 'davi.profissional@clinix.com', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Profissional', 1, '2026-09-01 08:00:00'),
-(2, 'Juliana Costa', 'admin@clinix.com', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Administrador', 1, '2026-09-01 08:00:00'),
-(3, 'Dr. Roberto Silva', 'roberto.med', '3b612c75a7b5c85d6176d4c45a0fc11a5ff02f26708f473a30f320219ac838b3', 'Profissional', 1, '2026-09-01 08:00:00'),
-(4, 'Ana Costa', 'ana.admin', '3b612c75a7b5c85d6176d4c45a0fc11a5ff02f26708f473a30f320219ac838b3', 'Administrador', 1, '2026-09-01 08:00:00')
+(1, 'Dr. Davi Felinto',      'davi@clinix.com',    '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Profissional',  1, '2026-09-01 08:00:00'),
+(2, 'Lucas Pereira',        'lucas@clinix.com',   '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00'),
+(3, 'Dr. Miguel Silva',     'miguel@clinix.com',  '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Profissional',  1, '2026-09-01 08:00:00'),
+(4, 'Isaac Santos',         'isaac@clinix.com',   '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00'),
+(5, 'Dra. Vanessa Oliveira', 'vanessa@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Profissional',  1, '2026-09-01 08:00:00'),
+(6, 'Juliana Costa',        'juliana@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00')
 ON DUPLICATE KEY UPDATE nome = VALUES(nome), login = VALUES(login), senha_hash = VALUES(senha_hash), perfil = VALUES(perfil), ativo = VALUES(ativo);
 
 INSERT INTO profissionais_saude (id_usuario, perfil, registro_profissional, especialidade) VALUES
 (1, 'Profissional', 'CRP-DF 12345', 'Psicologia Clínica & Neuropsicologia'),
-(3, 'Profissional', 'CRM-DF 98765', 'Clínica Geral & Medicina da Família')
+(3, 'Profissional', 'CRM-DF 54321', 'Clínica Geral & Telemedicina'),
+(5, 'Profissional', 'CRM-DF 67890', 'Pediatria & Saúde da Família')
 ON DUPLICATE KEY UPDATE registro_profissional = VALUES(registro_profissional), especialidade = VALUES(especialidade);
 
 INSERT INTO administradores (id_usuario, perfil, cargo) VALUES
-(2, 'Administrador', 'Gestão & Recepção Clínica'),
-(4, 'Administrador', 'Gerente de Operações')
+(2, 'Administrador', 'Engenharia de Requisitos & Gestão de Processos'),
+(4, 'Administrador', 'Administrador de Banco de Dados (DBA) & Auditor LGPD'),
+(6, 'Administrador', 'Recepção & Atendimento ao Paciente')
 ON DUPLICATE KEY UPDATE cargo = VALUES(cargo);
+
 
 -- ----------------------------------------------------------------------------
 -- 2. PACIENTES CADASTRADOS (RF01-RF05, RN16)

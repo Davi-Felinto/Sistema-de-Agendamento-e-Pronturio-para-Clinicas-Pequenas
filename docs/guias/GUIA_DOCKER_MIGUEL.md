@@ -106,11 +106,16 @@ Ao abrir, você verá a aplicação completa conectada diretamente ao MySQL do c
   - 🟢 **API: Online (.NET 8)**
   - 🟢 **Banco: MySQL 8.0 (Persistência Relacional)**
 
-#### 🔑 Credenciais para Login de Teste:
-| Perfil | Usuário | Senha | O que você pode testar |
+#### 🔑 Credenciais para Login de Teste (Senha Padrão: `123456`):
+| Perfil | Login (E-mail) | Senha | O que você pode testar |
 |---|---|---|---|
-| **Dr. Davi Felinto** (Médico / Administrador) | `Davi` | `Davi123!` | Ver agenda, acessar prontuários com histórico, editar diagnósticos, ver relatórios financeiros. |
-| **Juliana Lima** (Recepcionista) | `Juliana` | `Juliana123!` | Agendar novas consultas, cadastrar pacientes, registrar pagamentos, emitir recibos. |
+| **Dr. Davi Felinto** (Médico) | `davi@clinix.com` | `123456` | Ver agenda médica, prontuários eletrônicos com histórico imutável (RN17). |
+| **Dr. Miguel Silva** (Médico) | `miguel@clinix.com` | `123456` | Testar o seu próprio perfil médico nas telas, agenda e prescrições. |
+| **Dra. Vanessa Oliveira** (Médica) | `vanessa@clinix.com` | `123456` | Perfil de atendimento clínico e prontuário. |
+| **Lucas Pereira** (Administrador) | `lucas@clinix.com` | `123456` | Gestão de pacientes, regras de agendamento e painel financeiro. |
+| **Isaac Santos** (Administrador) | `isaac@clinix.com` | `123456` | Módulo administrativo, auditoria LGPD e relatórios. |
+| **Juliana Costa** (Recepcionista) | `juliana@clinix.com` | `123456` | Agendamento rápido de consultas e recebimento de pagamentos. |
+
 
 #### 📊 O que já vem povoado para você ver em tela:
 - **Pacientes:** 12 pacientes cadastrados com CPFs, telefones, endereços e histórico clínico.

@@ -26,8 +26,23 @@
 | **Miguel** | Desenvolvimento de Interface Web — apenas as telas (melhorias visuais/UX do `index.html`) | [`membros/MIGUEL.md`](membros/MIGUEL.md) |
 | **Isaac** | Apoio em Banco de Dados II (MySQL) | *(a criar — `membros/ISAAC.md`)* |
 | **Lucas** | Engenharia de Requisitos | *(a criar — `membros/LUCAS.md`)* |
+| **Vanessa** | Membro da equipe e apoio na gestão clínica | *(a criar — `membros/VANESSA.md`)* |
+
+### 🔑 Credenciais Oficiais de Teste na Nuvem (Produção)
+
+Todos os membros da equipe possuem conta ativa no banco na nuvem e podem entrar diretamente pela tela de login:
+
+| Nome do Membro | Login (E-mail) | Senha Padrão | Perfil RBAC | Especialidade / Atribuição no Sistema |
+|---|---|---|---|---|
+| **Dr. Davi Felinto** | `davi@clinix.com` | `123456` | **Profissional** | Dev Principal / Psicologia Clínica & Neuropsicologia |
+| **Lucas Pereira** | `lucas@clinix.com` | `123456` | **Administrador** | Engenharia de Requisitos & Gestão de Processos |
+| **Dr. Miguel Silva** | `miguel@clinix.com` | `123456` | **Profissional** | Interface Web / Clínica Geral & Telemedicina |
+| **Isaac Santos** | `isaac@clinix.com` | `123456` | **Administrador** | Banco de Dados (DBA) & Auditoria LGPD |
+| **Dra. Vanessa Oliveira** | `vanessa@clinix.com` | `123456` | **Profissional** | Pediatria & Saúde da Família |
+| **Juliana Costa** | `juliana@clinix.com` | `123456` | **Administrador** | Recepção Clínica & Atendimento |
 
 > Se a pessoa não tiver memória pessoal ainda, avise e use só a memória compartilhada (sem criar o arquivo sem o Davi pedir).
+
 
 ---
 
