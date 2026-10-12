@@ -23,5 +23,8 @@ COPY --from=build /app/publish .
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
+# Executa a aplicação com o usuário sem privilégios da imagem (não como root)
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "ClinicaApp.Api.dll"]
 

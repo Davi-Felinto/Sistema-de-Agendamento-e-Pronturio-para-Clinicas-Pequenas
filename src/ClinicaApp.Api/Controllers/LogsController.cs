@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ClinicaApp.Domain.Enums;
 using ClinicaApp.Domain.Interfaces;
 
 namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = nameof(PerfilUsuario.Administrador))] // RN12: só o Administrador audita os logs
 public class LogsController : ControllerBase
 {
     private readonly ILogAcessoRepository _logAcessoRepository;
@@ -22,4 +25,3 @@ public class LogsController : ControllerBase
         return Ok(logs);
     }
 }
-

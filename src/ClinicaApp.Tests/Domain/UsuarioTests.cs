@@ -65,4 +65,18 @@ public class UsuarioTests
         Assert.True(usuario.Autenticar("Segredo123"));
         Assert.False(usuario.Autenticar("SenhaErrada"));
     }
+
+    [Fact]
+    public void Senhas_Iguais_Devem_Gerar_Hashes_Diferentes_Por_Causa_Do_Salt()
+    {
+        // Arrange (RQ08)
+        var usuario1 = new Administrador(id: 4, nome: "Admin Um", login: "admin.um", senhaPura: "MesmaSenha@1", cargo: "Gerente");
+        var usuario2 = new Administrador(id: 5, nome: "Admin Dois", login: "admin.dois", senhaPura: "MesmaSenha@1", cargo: "Gerente");
+
+        // Assert
+        Assert.NotEqual(usuario1.SenhaHash, usuario2.SenhaHash);
+        Assert.DoesNotContain("MesmaSenha@1", usuario1.SenhaHash);
+        Assert.True(usuario1.Autenticar("MesmaSenha@1"));
+        Assert.True(usuario2.Autenticar("MesmaSenha@1"));
+    }
 }

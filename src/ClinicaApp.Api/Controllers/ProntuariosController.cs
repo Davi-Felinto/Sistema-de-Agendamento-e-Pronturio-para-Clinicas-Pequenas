@@ -1,22 +1,35 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ClinicaApp.Api.Seguranca;
 using ClinicaApp.Services;
 
 namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProntuariosController : ControllerBase
 {
     private readonly ProntuarioService _prontuarioService;
+    private readonly GeradorDeIds _geradorDeIds;
 
-    public ProntuariosController(ProntuarioService prontuarioService)
+    public ProntuariosController(ProntuarioService prontuarioService, GeradorDeIds geradorDeIds)
     {
         _prontuarioService = prontuarioService;
+        _geradorDeIds = geradorDeIds;
     }
 
-    public record RegistroSessaoRequest(int PacienteId, int AgendamentoId, string AnotacoesClinicas, int UsuarioId);
-    public record EdicaoAnotacaoRequest(string NovoTexto, string Motivo, int UsuarioId);
+    // RN13: o autor da operação vem sempre do token (User), nunca do corpo da requisição,
+    // para que ninguém consiga registrar ou consultar um prontuário em nome de outro usuário.
+    public record RegistroSessaoRequest(
+        [Range(1, int.MaxValue)] int PacienteId,
+        int AgendamentoId,
+        [Required, StringLength(10000)] string AnotacoesClinicas);
+    public record EdicaoAnotacaoRequest(
+        [Required, StringLength(10000)] string NovoTexto,
+        [Required, StringLength(500)] string Motivo);
 
     // POST: api/prontuarios
     [HttpPost]
@@ -24,15 +37,14 @@ public class ProntuariosController : ControllerBase
     {
         try
         {
-            // Simulando ID autoincremento para o MVP
-            int novoId = new Random().Next(100, 10000);
+            int novoId = _geradorDeIds.ProximaSessao();
 
             var sessao = _prontuarioService.RegistrarSessao(
                 id: novoId,
                 pacienteId: request.PacienteId,
                 agendamentoId: request.AgendamentoId,
                 anotacoesClinicas: request.AnotacoesClinicas,
-                usuarioId: request.UsuarioId
+                usuarioId: User.ObterId()
             );
 
             return Ok(sessao);
@@ -49,7 +61,7 @@ public class ProntuariosController : ControllerBase
     {
         try
         {
-            _prontuarioService.EditarAnotacao(id, request.NovoTexto, request.Motivo, request.UsuarioId);
+            _prontuarioService.EditarAnotacao(id, request.NovoTexto, request.Motivo, User.ObterId());
             return Ok(new { mensagem = "Anotação editada e versionada com sucesso (RN17)." });
         }
         catch (InvalidOperationException ex)
@@ -58,13 +70,13 @@ public class ProntuariosController : ControllerBase
         }
     }
 
-    // GET: api/prontuarios/paciente/{pacienteId}?usuarioId=1
+    // GET: api/prontuarios/paciente/{pacienteId}
     [HttpGet("paciente/{pacienteId}")]
-    public IActionResult ConsultarHistorico(int pacienteId, [FromQuery] int usuarioId)
+    public IActionResult ConsultarHistorico(int pacienteId)
     {
         try
         {
-            var historico = _prontuarioService.ConsultarHistorico(pacienteId, usuarioId);
+            var historico = _prontuarioService.ConsultarHistorico(pacienteId, User.ObterId());
             return Ok(historico);
         }
         catch (InvalidOperationException ex)

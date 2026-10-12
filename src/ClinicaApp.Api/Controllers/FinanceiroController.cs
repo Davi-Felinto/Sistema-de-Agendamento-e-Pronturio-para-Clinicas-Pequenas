@@ -1,5 +1,8 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ClinicaApp.Api.Seguranca;
 using ClinicaApp.Services;
 using ClinicaApp.Domain.Enums;
 
@@ -7,17 +10,22 @@ namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class FinanceiroController : ControllerBase
 {
     private readonly FinanceiroService _financeiroService;
+    private readonly GeradorDeIds _geradorDeIds;
 
-    public FinanceiroController(FinanceiroService financeiroService)
+    public FinanceiroController(FinanceiroService financeiroService, GeradorDeIds geradorDeIds)
     {
         _financeiroService = financeiroService;
+        _geradorDeIds = geradorDeIds;
     }
 
-    public record NovaCobrancaRequest(int AgendamentoId, decimal Valor);
-    public record QuitacaoRequest(FormaPagamento Forma);
+    public record NovaCobrancaRequest(
+        [Range(1, int.MaxValue)] int AgendamentoId,
+        [Range(0.01, 100000, ErrorMessage = "O valor deve estar entre R$ 0,01 e R$ 100.000,00.")] decimal Valor);
+    public record QuitacaoRequest([EnumDataType(typeof(FormaPagamento))] FormaPagamento Forma);
 
     // POST: api/financeiro/cobranca
     [HttpPost("cobranca")]
@@ -25,7 +33,7 @@ public class FinanceiroController : ControllerBase
     {
         try
         {
-            int novoId = new Random().Next(100, 10000);
+            int novoId = _geradorDeIds.ProximoPagamento();
             var cobranca = _financeiroService.GerarCobranca(novoId, request.AgendamentoId, request.Valor);
             return Ok(cobranca);
         }

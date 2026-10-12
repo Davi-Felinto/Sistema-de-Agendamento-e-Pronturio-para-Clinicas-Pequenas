@@ -86,6 +86,23 @@ public class AgendaServiceTests
     }
 
     [Fact]
+    public void Deve_Lancar_Excecao_Ao_Agendar_No_Passado()
+    {
+        // Arrange
+        var paciente = CriarPacienteValido();
+        _pacienteRepository.Adicionar(paciente);
+
+        var inicio = DateTime.Now.AddDays(-1);
+        var fim = inicio.AddHours(1);
+
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            _agendaService.AgendarConsulta(1, paciente.Id, 10, inicio, fim));
+
+        Assert.StartsWith("Não é possível agendar consulta no passado.", ex.Message);
+    }
+
+    [Fact]
     public void Deve_Lancar_Excecao_Ao_Agendar_Para_Paciente_Inativo()
     {
         // Arrange (RN16)

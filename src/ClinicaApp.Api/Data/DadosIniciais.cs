@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using ClinicaApp.Domain.Entities;
 using ClinicaApp.Domain.Interfaces;
 using ClinicaApp.Services;
@@ -11,13 +12,17 @@ public static class DadosIniciais
         var authService = services.GetRequiredService<AuthService>();
         var pacienteRepository = services.GetRequiredService<IPacienteRepository>();
         var agendaService = services.GetRequiredService<AgendaService>();
+        var configuration = services.GetRequiredService<IConfiguration>();
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DadosIniciais");
 
-        // RF26, RQ08 - Usuários de demonstração com senha armazenada em hash + salt
+        // RF26, RQ08 - Usuários de demonstração com senha armazenada em hash + salt.
+        // As senhas não ficam no código: vêm das variáveis de ambiente Seed__SenhaProfissional
+        // e Seed__SenhaAdministrador. Sem elas, uma senha aleatória é gerada e exibida no console.
         var medico = new ProfissionalSaude(
             id: 1,
             nome: "Dr. Roberto Silva",
             login: "roberto.med",
-            senhaPura: "SenhaSegura@2026",
+            senhaPura: ObterSenha(configuration, logger, "Seed:SenhaProfissional", "roberto.med"),
             registroProfissional: "CRM-DF 12345",
             especialidade: "Clínica Geral"
         );
@@ -27,7 +32,7 @@ public static class DadosIniciais
             id: 2,
             nome: "Ana Costa",
             login: "ana.admin",
-            senhaPura: "AdminMaster@2026",
+            senhaPura: ObterSenha(configuration, logger, "Seed:SenhaAdministrador", "ana.admin"),
             cargo: "Gerente de Operações"
         );
         authService.Cadastrar(admin);
@@ -65,5 +70,15 @@ public static class DadosIniciais
             observacoes: "Consulta de rotina"
         );
     }
-}
 
+    private static string ObterSenha(IConfiguration configuration, ILogger logger, string chave, string login)
+    {
+        var senha = configuration[chave];
+        if (!string.IsNullOrWhiteSpace(senha))
+            return senha;
+
+        senha = Convert.ToHexString(RandomNumberGenerator.GetBytes(8));
+        logger.LogWarning("Senha de {Login} não configurada ({Chave}). Senha temporária desta execução: {Senha}", login, chave, senha);
+        return senha;
+    }
+}
