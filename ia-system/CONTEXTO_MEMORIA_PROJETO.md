@@ -143,18 +143,19 @@ src/
 - Hoje o front (React via CDN + Tailwind, ~2870 linhas) persiste dados em `localStorage` (`clinix_*`).
 - **Responsável pelas telas:** Miguel — revisar o `index.html` atual e implementar melhorias visuais/UX (sem mexer na lógica de dados).
 
-### 🚧 Bloco 5: MVP Visual Integrado (API + index.html) — EM ANDAMENTO
-- **Decisão (08/10/2026):** Davi quer apresentar um MVP funcional e visual ANTES de Banco de Dados II. Integração feita com repositórios `InMemory` (Singleton + seed de dados); a API servirá o `index.html` via `wwwroot` para apresentação local com um único `dotnet run` (sem CORS/hospedagem). MySQL entra depois trocando apenas o registro de DI.
-- **Padrão escolhido:** Controllers (classes com DI via construtor, coerente com POO).
-- Roadmap:
-  1. ⏳ Criar `src/ClinicaApp.Api` (webapi --use-controllers, net8.0), referenciando `ClinicaApp`.
-  2. ⏳ `Program.cs` da API: registrar repositórios InMemory como `AddSingleton`, serviços, seed de dados, `UseStaticFiles`; remover boilerplate `WeatherForecast`.
-  3. `PacientesController` (RF01-RF05).
-  4. `AgendamentosController` (RN01, RN02, RN10) — exibir erro de conflito na tela.
-  5. Trocar `localStorage` por `fetch()` no `index.html` (Pacientes e Agenda) — **responsável: Davi**.
-  6. (Opcional) Prontuário e Financeiro.
-  7. Testes de integração dos endpoints.
-- Atenção: `AgendaService.AgendarConsulta` e `ProntuarioService.RegistrarSessao` recebem `id` do chamador — a API precisará gerar IDs.
+### ✅ Bloco 5: MVP Visual Integrado (API + index.html) — 100% CONCLUÍDO
+- **Concluído em 09/10/2026:** Apresentação funcional integrada servida pela API ASP.NET Core (`ClinicaApp.Api`) via `wwwroot` com um único `dotnet run` e fallback transparente para localStorage quando hospedado no GitHub Pages.
+- **Padrão implementado:** Controllers em ASP.NET Core com DI via construtor, DTOs explícitos e CORS ativado.
+- Roadmap executado:
+  1. ✅ Projeto `src/ClinicaApp.Api` configurado referenciando `ClinicaApp`.
+  2. ✅ `Program.cs`: repositórios InMemory como `AddSingleton`, serviços scoped, seed de dados demonstrativos em `DadosIniciais.cs`, CORS e `UseStaticFiles`.
+  3. ✅ `PacientesController`: listagem geral/ativos, cadastro com DTO e geração de IDs, inativação com anonimização LGPD (`RN16, RQ03`).
+  4. ✅ `AgendamentosController`: criação validada pelo `AgendaService` com bloqueio de conflito (`RN01, RN02`) e cancelamento com cálculo tardio (`RN10`).
+  5. ✅ `AuthController`: autenticação segura com PBKDF2 + Salt (`RQ08`).
+  6. ✅ Integração front ↔ API no `index.html` (nova tela definitiva do Miguel) e módulo modular `api.js`, com indicador visual de status de conexão no cabeçalho.
+  7. ✅ Correção dos bugs de lógica: regex `/\D/g` para desformatar CPF no arquivo de portabilidade LGPD e cálculo de data local em `getTodayDateStr` (evitando avanço indevido às 21h em Brasília).
+  8. ✅ Sincronização automática entre o `index.html` raiz e `src/ClinicaApp.Api/wwwroot/index.html`.
+  9. ✅ 52 testes unitários de xUnit passando (100% de sucesso).
 
 ---
 
@@ -189,6 +190,7 @@ src/
 | 07/10/2026 | Antigravity AI | Concluiu `FinanceiroService.cs` e testes (8 testes). Implementou simulação interativa ponta a ponta no `Program.cs`. 52 testes unitários passando (100% de cobertura de POO). | Avançar para a disciplina de Banco de Dados II (MySQL - Modelagem DDL e repositórios relacionais). |
 | 08/10/2026 | Antigravity AI | Davi optou por MVP visual antes do MySQL. Verificado projeto `ClinicaApp.Api` (build OK, 52 testes passando). Commits: `027baa0` (Prontuario/Financeiro) e `0492e68` (scaffold da API). Não foi feito push. | Etapa 2 do Bloco 5: configurar DI Singleton + seed + static files no `Program.cs` da API. |
 | 08/10/2026 | Antigravity AI (usuário: Davi) | Memória dividida por membro: criada `ia-system/membros/` com `DAVI.md` e `MIGUEL.md`; tabela de equipe (Seção 0); protocolo de identificação em `AGENTS.md`, `CLAUDE.md`, `.cursorrules` e `copilot-instructions.md`. | Criar `ISAAC.md` e `LUCAS.md` quando o Davi pedir. Davi: etapa 2 do Bloco 5. |
+| 09/10/2026 | Antigravity AI (usuário: Davi) | Bloco 5 Concluído: integração front ↔ backend C# na branch `feature/novas-telas`, criação de `api.js`, sincronização em `wwwroot/index.html`, correção de bugs de lógica (LGPD e data UTC) e testes de endpoints. | Revisão da branch para merge em `main` e avanço para Banco de Dados II (MySQL) com o Isaac. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
 

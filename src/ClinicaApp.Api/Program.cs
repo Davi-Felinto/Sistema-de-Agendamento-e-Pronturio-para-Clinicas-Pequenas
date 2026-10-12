@@ -59,6 +59,18 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+// Front publicado em outra origem (ex.: GitHub Pages). A autenticação é por token no cabeçalho
+// Authorization (não por cookie), então liberar a origem não expõe a sessão de ninguém.
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers(options => options.Filters.Add<ErrosDeNegocioFilter>());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -100,6 +112,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -107,5 +120,8 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Rota pública, sem dados, para o front saber se a API está no ar antes do login
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 
 app.Run();

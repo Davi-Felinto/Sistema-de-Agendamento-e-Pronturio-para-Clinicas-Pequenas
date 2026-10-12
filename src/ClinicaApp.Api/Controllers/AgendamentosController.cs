@@ -92,4 +92,29 @@ public class AgendamentosController : ControllerBase
             return BadRequest(new { erro  = ex.Message });
         }
     }
+
+    // PUT: api/agendamentos/{id}/cancelar
+    [HttpPut("{id}/cancelar")]
+    public IActionResult Cancelar(int id)
+    {
+        try
+        {
+            // RN12: Profissional só cancela consultas da própria agenda
+            var existente = _agendamentoRepository.ObterPorId(id);
+            if (existente != null && !User.EhAdministrador() && existente.ProfissionalId != User.ObterId())
+                return Forbid();
+
+            // RN10: O service avalia se o cancelamento foi feito com menos de 24h
+            _agendaService.CancelarConsulta(id, DateTime.Now);
+            var agendamento = _agendamentoRepository.ObterPorId(id);
+            return Ok(new { 
+                mensagem = "Consulta cancelada com sucesso.",
+                cancelamentoTardio = agendamento?.CancelamentoTardio ?? false
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { erro = ex.Message });
+        }
+    }
 }
