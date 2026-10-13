@@ -89,7 +89,8 @@
 | 10/10/2026 | Antigravity AI | Deploy da API C# concluído no Render (`https://clinix-api-c58x.onrender.com`); integração do `api.js` apontando para o Render em produção; validação ponta a ponta com banco Aiven Cloud. | Apresentação acadêmica e apoio ao Miguel no UI/UX. |
 | 12/10/2026 | Antigravity AI | Integração cirúrgica do PR #1: JWT (`TokenService`), Rate Limiting, CSP/HSTS, `ErrosDeNegocioFilter` (RQ11), PBKDF2 com Salt retrocompatível, máscaras de CPF/telefone, validações e CSV com BOM UTF-8; 55 testes xUnit 100% OK; persistência MySQL (Aiven/Render) preservada. | Corrigir codificação UTF-8 e login dos 6 membros. |
 | 12/10/2026 | Antigravity AI | Correção de codificação UTF-8 (mojibake eliminado), inclusão dos 6 membros no frontend com preenchimento da senha (123456), aliases resilientes e atalho de senha em `AuthService.cs`. 56 testes xUnit 100% OK. Container Docker rebuildado e testado. | Corrigir codificação dos dados dos pacientes no MySQL. |
-| 12/10/2026 | Antigravity AI | Corrigida causa raiz de codificação no MySQL (`SET NAMES utf8mb4` nos scripts SQL e connection string); dados do MySQL reimportados limpos; adicionada função defensiva `sanitizeData` no front-end para auto-higienização de cache e responses. | Commitar na `main` e dar push no Git. |
+| 12/10/2026 | Antigravity AI | Corrigida causa raiz de codificação no MySQL (`SET NAMES utf8mb4` nos scripts SQL e connection string); dados do MySQL reimportados limpos; adicionada função defensiva `sanitizeData` no front-end para auto-higienização de cache e responses. | Restaurar badge de status do banco de dados no frontend. |
+| 12/10/2026 | Antigravity AI | Restaurado badge duplo de monitoramento de banco de dados (`MySQL 8.0 Ativo` / `Memória Mock`) no header e na tela de login via `GET /api/status`. Commits enviados para a `main`. | Testar no navegador e validar com a equipe. |
 
 
 

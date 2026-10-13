@@ -248,14 +248,29 @@
         return this.token ? { ...extra, 'Authorization': `Bearer ${this.token}` } : extra;
       },
 
+      storage: 'offline', // 'mysql' | 'memoria' | 'offline'
+      storageLabel: 'Modo Standalone (Offline)',
+
       async checkHealth() {
         try {
-          const res = await fetch('/api/health', { method: 'GET', headers: { 'Accept': 'application/json' } });
-          this.isConnected = res.ok;
-          return res.ok;
+          const res = await fetch('/api/status', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          if (res.ok) {
+            const data = await res.json();
+            this.isConnected = true;
+            this.storage = data.storage || 'memoria';
+            this.storageLabel = data.storageLabel || 'Banco: MySQL 8.0';
+            return { ok: true, storage: this.storage, storageLabel: this.storageLabel };
+          }
+          const resHealth = await fetch('/api/health', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          this.isConnected = resHealth.ok;
+          this.storage = resHealth.ok ? 'memoria' : 'offline';
+          this.storageLabel = resHealth.ok ? 'Banco: Memória (Mock)' : 'Modo Standalone (Offline)';
+          return { ok: resHealth.ok, storage: this.storage, storageLabel: this.storageLabel };
         } catch {
           this.isConnected = false;
-          return false;
+          this.storage = 'offline';
+          this.storageLabel = 'Modo Standalone (Offline)';
+          return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
         }
       },
 
@@ -551,14 +566,17 @@
         return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_LOGS;
       });
 
-      // Conexão em tempo real com a Web API ASP.NET Core
+      // Conexão em tempo real com a Web API ASP.NET Core e Provedor do Banco
       const [isApiConnected, setIsApiConnected] = useState(false);
+      const [storageProvider, setStorageProvider] = useState('offline'); // 'mysql' | 'memoria' | 'offline'
 
       useEffect(() => {
         async function conectarBackend() {
-          const saudavel = await api.checkHealth();
-          setIsApiConnected(saudavel);
-          if (!saudavel || !isAuthenticated) return;
+          const health = await api.checkHealth();
+          const conectado = typeof health === 'boolean' ? health : (health && health.ok);
+          setIsApiConnected(conectado);
+          setStorageProvider((health && health.storage) || 'offline');
+          if (!conectado || !isAuthenticated) return;
 
           // Com a API ativa, as rotas exigem o token do login: sem ele, volta para a tela de acesso
           if (!api.token) {
@@ -849,6 +867,19 @@
                   <span className="sm:hidden">{isApiConnected ? '.NET' : 'Offline'}</span>
                 </span>
 
+                {/* Indicador de Provedor de Persistência: MySQL vs Memória */}
+                {isApiConnected && (
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    storageProvider === 'mysql'
+                      ? 'bg-blue-50 text-blue-800 border-blue-200 shadow-sm'
+                      : 'bg-purple-50 text-purple-800 border-purple-200 shadow-sm'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${storageProvider === 'mysql' ? 'bg-blue-600 animate-pulse' : 'bg-purple-500'}`}></span>
+                    <span className="hidden sm:inline">{storageProvider === 'mysql' ? 'MySQL 8.0 Ativo' : 'Memória (Mock)'}</span>
+                    <span className="sm:hidden">{storageProvider === 'mysql' ? 'MySQL' : 'Memória'}</span>
+                  </span>
+                )}
+
                 <button
                   onClick={() => setShowRequirementsModal(true)}
                   className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 outline-none focus-visible:ring-4 focus-visible:ring-slate-400/40"
@@ -995,6 +1026,13 @@
       const [password, setPassword] = useState(DEMO_PASSWORD);
       const [showPassword, setShowPassword] = useState(false);
       const [loginError, setLoginError] = useState(erro || null);
+      const [dbStatus, setDbStatus] = useState(api.storage);
+
+      useEffect(() => {
+        api.checkHealth().then(h => {
+          if (h && h.storage) setDbStatus(h.storage);
+        });
+      }, []);
 
       const selectedUser = users.find(u => u.id === selectedUserId);
 
@@ -1079,9 +1117,16 @@
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h2>
                   <p className="mt-1.5 text-sm text-slate-600">Escolha o perfil e informe a senha para entrar.</p>
                 </div>
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${api.isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                  {api.isConnected ? '● API .NET Ativa' : '● Standalone'}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${api.isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                    {api.isConnected ? '● API .NET Ativa' : '● Standalone'}
+                  </span>
+                  {api.isConnected && (
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${dbStatus === 'mysql' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}>
+                      {dbStatus === 'mysql' ? '● MySQL 8.0' : '● Memória'}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* RQ11 - Mensagem amigável devolvida pela API */}
