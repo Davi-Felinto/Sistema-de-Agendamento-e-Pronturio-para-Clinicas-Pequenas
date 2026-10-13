@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinix - Sistema de Agendamento e Prontu├írio</title>
+  <title>Clinix - Sistema de Agendamento e Prontuário</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -74,12 +74,16 @@
     const { useState, useEffect, useMemo, useRef } = React;
 
     const INITIAL_USERS = [
-      { id: 'u1', name: 'Dr. Davi Felinto', role: 'Profissional', email: 'davi.profissional@clinix.com', espec: 'Psicologia Cl├¡nica & Neuropsicologia' },
-      { id: 'u2', name: 'Juliana Costa', role: 'Administrador', email: 'admin@clinix.com', espec: 'Gest├úo & Recep├º├úo Cl├¡nica' }
+      { id: 'u1', name: 'Dr. Davi Felinto', role: 'Profissional', email: 'davi@clinix.com', espec: 'Dev Principal / Psicologia & Neuropsicologia' },
+      { id: 'u2', name: 'Lucas Pereira', role: 'Administrador', email: 'lucas@clinix.com', espec: 'Engenharia de Requisitos & Processos' },
+      { id: 'u3', name: 'Dr. Miguel Silva', role: 'Profissional', email: 'miguel@clinix.com', espec: 'Interface Web / Clínica Geral' },
+      { id: 'u4', name: 'Isaac Santos', role: 'Administrador', email: 'isaac@clinix.com', espec: 'Banco de Dados (DBA) & Auditoria LGPD' },
+      { id: 'u5', name: 'Dra. Vanessa Oliveira', role: 'Profissional', email: 'vanessa@clinix.com', espec: 'Pediatria & Saúde da Família' },
+      { id: 'u6', name: 'Juliana Costa', role: 'Administrador', email: 'juliana@clinix.com', espec: 'Recepção Clínica & Atendimento' }
     ];
 
-    // Vers├úo de demonstra├º├úo (dados em localStorage): n├úo existe autentica├º├úo real aqui.
-    // Na vers├úo integrada, o login ├® validado pela API (POST /api/auth/login).
+    // Versão de demonstração (dados em localStorage): não existe autenticação real aqui.
+    // Na versão integrada, o login é validado pela API (POST /api/auth/login).
     const DEMO_PASSWORD = '123456';
 
     const INITIAL_PATIENTS = [
@@ -90,9 +94,9 @@
         nascimento: '1992-05-14',
         telefone: '(61) 98765-4321',
         email: 'mariana.duarte@email.com',
-        endereco: 'Asa Norte, Bloco C, Apto 302 - Bras├¡lia/DF',
+        endereco: 'Asa Norte, Bloco C, Apto 302 - Brasília/DF',
         alergias: 'Penicilina, Dipirona',
-        condicoesPreexistentes: 'Rinite al├®rgica cr├┤nica, Ansiedade generalizada',
+        condicoesPreexistentes: 'Rinite alérgica crônica, Ansiedade generalizada',
         status: 'ativo',
         profissionalId: 'u1'
       },
@@ -103,9 +107,9 @@
         nascimento: '1985-11-20',
         telefone: '(61) 99123-9988',
         email: 'carlos.neves@email.com',
-        endereco: '├üguas Claras, Rua 24 Sul - Bras├¡lia/DF',
+        endereco: 'Águas Claras, Rua 24 Sul - Brasília/DF',
         alergias: 'Nenhuma conhecida',
-        condicoesPreexistentes: 'Hipertens├úo leve',
+        condicoesPreexistentes: 'Hipertensão leve',
         status: 'ativo',
         profissionalId: 'u1'
       },
@@ -116,15 +120,15 @@
         nascimento: '1998-03-08',
         telefone: '(61) 98222-1144',
         email: 'beatriz.ramos@email.com',
-        endereco: 'Sudoeste, QMSW 5, Bloco B - Bras├¡lia/DF',
+        endereco: 'Sudoeste, QMSW 5, Bloco B - Brasília/DF',
         alergias: 'Frutos do mar',
-        condicoesPreexistentes: 'Ins├┤nia pontual',
+        condicoesPreexistentes: 'Insônia pontual',
         status: 'ativo',
         profissionalId: 'u1'
       }
     ];
 
-    // Bug corrigido (Miguel/Davi): calcula data no fuso local em vez de UTC para evitar avan├ºo ap├│s as 21h em Bras├¡lia
+    // Bug corrigido (Miguel/Davi): calcula data no fuso local em vez de UTC para evitar avanço após as 21h em Brasília
     const getTodayDateStr = () => {
       const now = new Date();
       const year = now.getFullYear();
@@ -160,7 +164,7 @@
         duracaoMin: 60,
         status: 'confirmado',
         tipo: 'consulta',
-        observacoes: 'Sess├úo de reavalia├º├úo dos exames',
+        observacoes: 'Sessão de reavaliação dos exames',
         valor: 180,
         statusPagamento: 'pendente',
         formaPagamento: 'Em aberto',
@@ -177,7 +181,7 @@
         duracaoMin: 60,
         status: 'bloqueado',
         tipo: 'bloqueio',
-        observacoes: 'Intervalo de Almo├ºo / Estudo Cl├¡nico (RF11)',
+        observacoes: 'Intervalo de Almoço / Estudo Clínico (RF11)',
         valor: 0,
         statusPagamento: 'isento',
         formaPagamento: 'N/A',
@@ -195,7 +199,7 @@
         data: '2026-09-15 10:00',
         profissionalId: 'u1',
         profissionalNome: 'Dr. Davi Felinto',
-        anotacao: 'Paciente relata remiss├úo das crises de p├ónico e melhor qualidade do sono. Foi mantida a pr├ítica do registro de pensamentos disfuncionais.',
+        anotacao: 'Paciente relata remissão das crises de pânico e melhor qualidade do sono. Foi mantida a prática do registro de pensamentos disfuncionais.',
         versao: 1,
         historicoVersoes: []
       }
@@ -207,21 +211,21 @@
         timestamp: new Date().toISOString(),
         usuarioId: 'u1',
         usuarioNome: 'Dr. Davi Felinto',
-        operacao: 'Autentica├º├úo no Sistema (RF26)',
-        detalhes: 'Sess├úo iniciada como Profissional'
+        operacao: 'Autenticação no Sistema (RF26)',
+        detalhes: 'Sessão iniciada como Profissional'
       },
       {
         id: 'l2',
         timestamp: new Date().toISOString(),
         usuarioId: 'u1',
         usuarioNome: 'Dr. Davi Felinto',
-        operacao: 'Acesso ao Prontu├írio (RN13)',
-        detalhes: 'Ficha m├®dica consultada: Mariana Duarte Souza'
+        operacao: 'Acesso ao Prontuário (RN13)',
+        detalhes: 'Ficha médica consultada: Mariana Duarte Souza'
       }
     ];
 
     /* =========================================================================
-       CAMADA DE INTEGRA├ç├âO COM A API BACKEND (.NET C# / Bloco 5)
+       CAMADA DE INTEGRAÇÃO COM A API BACKEND (.NET C# / Bloco 5)
        Comunica com os Controllers em /api (ASP.NET Core) e possui fallback
        gracioso para localStorage quando executado offline ou no GitHub Pages.
        ========================================================================= */
@@ -229,7 +233,7 @@
       isConnected: false,
 
       // RF26 - Token JWT devolvido pelo login. Fica em sessionStorage (some ao fechar a aba)
-      // e ├® enviado no cabe├ºalho Authorization de todas as chamadas protegidas.
+      // e é enviado no cabeçalho Authorization de todas as chamadas protegidas.
       token: (() => { try { return sessionStorage.getItem('clinix_token'); } catch { return null; } })(),
 
       setToken(token) {
@@ -237,7 +241,7 @@
         try {
           if (this.token) sessionStorage.setItem('clinix_token', this.token);
           else sessionStorage.removeItem('clinix_token');
-        } catch { /* sessionStorage indispon├¡vel: o token fica s├│ em mem├│ria */ }
+        } catch { /* sessionStorage indisponível: o token fica só em memória */ }
       },
 
       authHeaders(extra = {}) {
@@ -421,7 +425,7 @@
             // Mensagem de bloqueio por RN01/RN02 devolvida pelo AgendaService C#
             return {
               sucesso: false,
-              erro: err.erro || err.mensagem || 'Hor├írio indispon├¡vel: conflito de hor├írio identificado (RN01, RN02).'
+              erro: err.erro || err.mensagem || 'Horário indisponível: conflito de horário identificado (RN01, RN02).'
             };
           }
 
@@ -469,7 +473,7 @@
         }
       },
 
-      // --- AUTENTICA├ç├âO (RF26, RQ08) ---
+      // --- AUTENTICAÇÃO (RF26, RQ08) ---
       async login(login, senha) {
         try {
           const res = await fetch('/api/auth/login', {
@@ -479,7 +483,7 @@
           });
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            return { sucesso: false, erro: err.erro || 'Login ou senha inv├ílidos.' };
+            return { sucesso: false, erro: err.erro || 'Login ou senha inválidos.' };
           }
           const user = await res.json();
           this.setToken(user.token);
@@ -520,7 +524,7 @@
         return saved ? JSON.parse(saved) : INITIAL_LOGS;
       });
 
-      // Conex├úo em tempo real com a Web API ASP.NET Core
+      // Conexão em tempo real com a Web API ASP.NET Core
       const [isApiConnected, setIsApiConnected] = useState(false);
 
       useEffect(() => {
@@ -537,7 +541,7 @@
 
           const resPac = await api.listarPacientes();
           if (!resPac.sucesso) {
-            // Token expirado ou inv├ílido
+            // Token expirado ou inválido
             api.setToken(null);
             setIsAuthenticated(false);
             return;
@@ -553,7 +557,7 @@
         conectarBackend();
       }, [isAuthenticated]);
 
-      // Navega├º├úo entre Telas: 'dashboard' | 'agenda' | 'pacientes' | 'prontuario' | 'financeiro' | 'logs'
+      // Navegação entre Telas: 'dashboard' | 'agenda' | 'pacientes' | 'prontuario' | 'financeiro' | 'logs'
       const [activeTab, setActiveTab] = useState('dashboard');
       const [selectedPatientForRecord, setSelectedPatientForRecord] = useState(null);
       const [toast, setToast] = useState(null);
@@ -565,7 +569,7 @@
       const [showSearchModal, setShowSearchModal] = useState(false);
       const [showRequirementsModal, setShowRequirementsModal] = useState(false);
 
-      // Atalho Global de Usabilidade: Ctrl+K / Cmd+K para Busca R├ípida (RQ10)
+      // Atalho Global de Usabilidade: Ctrl+K / Cmd+K para Busca Rápida (RQ10)
       useEffect(() => {
         const handleKeyDown = (e) => {
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -577,7 +581,7 @@
         return () => window.removeEventListener('keydown', handleKeyDown);
       }, []);
 
-      // Persist├¬ncia local cont├¡nua
+      // Persistência local contínua
       useEffect(() => {
         localStorage.setItem('clinix_auth', isAuthenticated ? 'true' : 'false');
         localStorage.setItem('clinix_user', JSON.stringify(currentUser));
@@ -587,14 +591,14 @@
         localStorage.setItem('clinix_logs', JSON.stringify(logs));
       }, [isAuthenticated, currentUser, patients, appointments, records, logs]);
 
-      // Sistema centralizado de notifica├º├Áes em banner (sem alert nativo)
+      // Sistema centralizado de notificações em banner (sem alert nativo)
       const showToast = (message, type = 'success') => {
         clearTimeout(toastTimer.current);
         setToast({ message, type, id: Date.now() });
         toastTimer.current = setTimeout(() => setToast(null), 4000);
       };
 
-      // Auditoria cont├¡nua (RF28, RN13, RQ07)
+      // Auditoria contínua (RF28, RN13, RQ07)
       const registerLog = (operacao, detalhes, user = currentUser) => {
         const newLog = {
           id: 'l_' + Date.now(),
@@ -613,35 +617,35 @@
         if (patient) {
           setSelectedPatientForRecord(patient);
           setActiveTab('prontuario');
-          registerLog('Acesso ao Prontu├írio (RN13)', `Abertura direta do prontu├írio: ${patient.nome}`);
+          registerLog('Acesso ao Prontuário (RN13)', `Abertura direta do prontuário: ${patient.nome}`);
         }
       };
 
       const handleLogout = () => {
-        registerLog('Encerramento de Sess├úo', `Usu├írio ${currentUser.name} realizou logout`);
+        registerLog('Encerramento de Sessão', `Usuário ${currentUser.name} realizou logout`);
         api.setToken(null);
         setIsAuthenticated(false);
       };
 
-      // O prontu├írio sempre l├¬ a vers├úo atual do paciente (reflete edi├º├Áes feitas no cadastro)
+      // O prontuário sempre lê a versão atual do paciente (reflete edições feitas no cadastro)
       const selectedPatientCurrent = selectedPatientForRecord
         ? (patients.find(p => p.id === selectedPatientForRecord.id) || selectedPatientForRecord)
         : null;
 
-      // Atalho da tela de Pacientes: abre a Agenda j├í com o paciente escolhido
+      // Atalho da tela de Pacientes: abre a Agenda já com o paciente escolhido
       const handleScheduleForPatient = (patientId) => {
         setSchedulePatientId(patientId);
         setActiveTab('agenda');
       };
 
-      // Se n├úo autenticado, renderiza a Tela 1: Login & Autentica├º├úo
+      // Se não autenticado, renderiza a Tela 1: Login & Autenticação
       if (!isAuthenticated) {
         return (
           <LoginScreen
             users={INITIAL_USERS}
             erro={loginError}
             onLogin={(user, password, viaApi = false) => {
-              // Com a API ativa a senha j├í foi validada no servidor; offline vale a senha de demonstra├º├úo
+              // Com a API ativa a senha já foi validada no servidor; offline vale a senha de demonstração
               if (!viaApi && password !== DEMO_PASSWORD) {
                 setLoginError('Senha incorreta. Confira a senha e tente novamente.');
                 return;
@@ -649,8 +653,8 @@
               setLoginError('');
               setCurrentUser(user);
               setIsAuthenticated(true);
-              // O log recebe o usu├írio que acabou de entrar (currentUser ainda guarda o anterior)
-              registerLog('Autentica├º├úo no Sistema (RF26)', `Login realizado com sucesso como ${user.role} (${user.name})`, user);
+              // O log recebe o usuário que acabou de entrar (currentUser ainda guarda o anterior)
+              registerLog('Autenticação no Sistema (RF26)', `Login realizado com sucesso como ${user.role} (${user.name})`, user);
             }}
           />
         );
@@ -666,7 +670,7 @@
             </div>
           )}
 
-          {/* MODAL GLOBAL: BUSCA R├üPIDA (RQ10 - REGRA DOS 3 CLIQUES) */}
+          {/* MODAL GLOBAL: BUSCA RÁPIDA (RQ10 - REGRA DOS 3 CLIQUES) */}
           <SearchModal
             isOpen={showSearchModal}
             onClose={() => setShowSearchModal(false)}
@@ -688,7 +692,7 @@
             <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-scale-up">
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold mb-4">
-                  ÔÜá´©Å
+                  ⚠️
                 </div>
                 <h3 className="text-base font-bold text-slate-800">{dialogConfig.title}</h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed whitespace-pre-line">{dialogConfig.message}</p>
@@ -725,7 +729,7 @@
                 </div>
                 <div>
                   <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">Clinix<span className="text-emerald-600">.</span></span>
-                  <p className="text-[10px] text-slate-500 font-medium">Cl├¡nicas & Consult├│rios</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Clínicas & Consultórios</p>
                 </div>
               </div>
             </div>
@@ -733,33 +737,33 @@
             {/* Menu Principal */}
             <nav aria-label="Menu principal" className="flex-1 px-4 pt-4 space-y-1.5 overflow-y-auto scrollbar-thin">
               <p className="px-3.5 pb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Menu</p>
-              <SidebarItem icon="dashboard" label="Vis├úo geral" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+              <SidebarItem icon="dashboard" label="Visão geral" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
               <SidebarItem icon="calendar" label="Agenda" active={activeTab === 'agenda'} onClick={() => setActiveTab('agenda')} />
               <SidebarItem icon="users" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} />
-              <SidebarItem icon="clipboard" label="Prontu├írio" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
+              <SidebarItem icon="clipboard" label="Prontuário" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
               <SidebarItem icon="wallet" label="Financeiro" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
               <SidebarItem icon="lock" label="Auditoria" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
             </nav>
 
-            {/* Mini Guia dos Requisitos Acad├¬micos (CEUB) */}
+            {/* Mini Guia dos Requisitos Acadêmicos (CEUB) */}
             <div className="p-4 border-t border-slate-100">
               <button
                 onClick={() => setShowReqGuide(!showReqGuide)}
                 className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-[11px] border border-slate-200 transition text-slate-600 flex items-center justify-between"
               >
-                <span className="font-bold text-slate-700">­ƒôû Requisitos Validados</span>
-                <span className="text-emerald-700 font-bold">{showReqGuide ? 'Ôû▓' : 'Ôû╝'}</span>
+                <span className="font-bold text-slate-700">📖 Requisitos Validados</span>
+                <span className="text-emerald-700 font-bold">{showReqGuide ? '▲' : '▼'}</span>
               </button>
               {showReqGuide && (
                 <div className="mt-2 text-[10px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
                   <p><strong>F1 a F7:</strong> 28 Requisitos Funcionais</p>
-                  <p><strong>RN01 a RN17:</strong> 17 Regras de Neg├│cio</p>
-                  <p><strong>ISO/IEC 25010:</strong> 16 RQs (Seguran├ºa, Usabilidade, Confiabilidade)</p>
+                  <p><strong>RN01 a RN17:</strong> 17 Regras de Negócio</p>
+                  <p><strong>ISO/IEC 25010:</strong> 16 RQs (Segurança, Usabilidade, Confiabilidade)</p>
                 </div>
               )}
             </div>
 
-            {/* RF27 - Perfil logado e sa├¡da */}
+            {/* RF27 - Perfil logado e saída */}
             <div className="flex items-center gap-3 px-4 py-3 border-t border-slate-200">
               <span
                 aria-hidden="true"
@@ -794,10 +798,10 @@
                 <div>
                   <div className="flex items-center gap-2">
                     <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                      {activeTab === 'dashboard' && 'Vis├úo geral'}
+                      {activeTab === 'dashboard' && 'Visão geral'}
                       {activeTab === 'agenda' && 'Agenda'}
                       {activeTab === 'pacientes' && 'Pacientes'}
-                      {activeTab === 'prontuario' && 'Prontu├írio'}
+                      {activeTab === 'prontuario' && 'Prontuário'}
                       {activeTab === 'financeiro' && 'Financeiro'}
                       {activeTab === 'logs' && 'Auditoria'}
                     </h1>
@@ -805,9 +809,9 @@
                 </div>
               </div>
 
-              {/* Bot├Áes do Header: Matriz de Requisitos e A├º├úo Prim├íria */}
+              {/* Botões do Header: Matriz de Requisitos e Ação Primária */}
               <div className="flex items-center gap-2">
-                {/* Indicador de Conex├úo com o Backend C# */}
+                {/* Indicador de Conexão com o Backend C# */}
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
                   isApiConnected
                     ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -836,7 +840,7 @@
               </div>
             </header>
 
-            {/* Conte├║do Din├ómico da Aba Selecionada */}
+            {/* Conteúdo Dinâmico da Aba Selecionada */}
             <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-100 scrollbar-thin">
               {activeTab === 'dashboard' && (
                 <DashboardView
@@ -911,8 +915,8 @@
               <MobileItem icon="dashboard" label="Painel" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
               <MobileItem icon="calendar" label="Agenda" active={activeTab === 'agenda'} onClick={() => setActiveTab('agenda')} />
               <MobileItem icon="users" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} />
-              <MobileItem icon="clipboard" label="Prontu├írio" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
-              <MobileItem icon="wallet" label="Finan├ºas" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
+              <MobileItem icon="clipboard" label="Prontuário" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
+              <MobileItem icon="wallet" label="Finanças" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
             </nav>
           </div>
         </div>
@@ -958,10 +962,10 @@
       );
     }
 
-    // RF26, RN12 - Tela de autentica├º├úo com sele├º├úo de perfil (Profissional / Administrador)
+    // RF26, RN12 - Tela de autenticação com seleção de perfil (Profissional / Administrador)
     function LoginScreen({ users, onLogin, erro }) {
       const [selectedUserId, setSelectedUserId] = useState(users[0].id);
-      const [password, setPassword] = useState('');
+      const [password, setPassword] = useState(DEMO_PASSWORD);
       const [showPassword, setShowPassword] = useState(false);
       const [loginError, setLoginError] = useState(erro || null);
 
@@ -978,14 +982,14 @@
         if (!selectedUser) return;
 
         // Se a API estiver ativa, valida com o AuthService C# (RQ08 - Hash com Salt)
-        // e guarda o token JWT devolvido para as pr├│ximas requisi├º├Áes
+        // e guarda o token JWT devolvido para as próximas requisições
         if (api.isConnected) {
           const res = await api.login(selectedUser.email, password);
           if (res.sucesso) {
             onLogin(selectedUser, password, true);
             return;
           } else {
-            setLoginError(res.erro || 'Login ou senha inv├ílidos.');
+            setLoginError(res.erro || 'Login ou senha inválidos.');
             return;
           }
         }
@@ -1006,7 +1010,7 @@
 
             <div className="max-w-md">
               <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight tracking-tight">
-                Agenda e prontu├írio da sua cl├¡nica em um s├│ lugar.
+                Agenda e prontuário da sua clínica em um só lugar.
               </h1>
               <p className="mt-4 text-emerald-100 leading-relaxed">
                 Menos tempo com planilhas, mais tempo com os pacientes.
@@ -1014,13 +1018,13 @@
 
               <ul className="mt-10 space-y-5 text-sm">
                 {[
-                  ['Agenda sem conflitos', 'Hor├írios validados automaticamente a cada marca├º├úo.'],
-                  ['Prontu├írio com hist├│rico', 'Cada edi├º├úo de anota├º├úo fica registrada em vers├Áes.'],
+                  ['Agenda sem conflitos', 'Horários validados automaticamente a cada marcação.'],
+                  ['Prontuário com histórico', 'Cada edição de anotação fica registrada em versões.'],
                   ['Dados protegidos (LGPD)', 'Acesso por perfil e trilha de auditoria de cada consulta.']
                 ].map(([titulo, descricao]) => (
                   <li key={titulo} className="flex gap-3.5">
                     <span aria-hidden="true" className="mt-0.5 shrink-0 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-300/40 flex items-center justify-center text-xs font-bold text-emerald-100">
-                      Ô£ô
+                      ✓
                     </span>
                     <div>
                       <p className="font-bold">{titulo}</p>
@@ -1031,7 +1035,7 @@
               </ul>
             </div>
 
-            <p className="text-xs text-emerald-200/70">Projeto Integrador CEUB ÔÇó Engenharia de Software</p>
+            <p className="text-xs text-emerald-200/70">Projeto Integrador CEUB • Engenharia de Software</p>
           </aside>
 
           <main className="flex items-center justify-center bg-slate-50 px-5 py-10 sm:px-8">
@@ -1049,11 +1053,11 @@
                   <p className="mt-1.5 text-sm text-slate-600">Escolha o perfil e informe a senha para entrar.</p>
                 </div>
                 <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${api.isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                  {api.isConnected ? 'ÔùÅ API .NET Ativa' : 'ÔùÅ Standalone'}
+                  {api.isConnected ? '● API .NET Ativa' : '● Standalone'}
                 </span>
               </div>
 
-              {/* RQ11 - Mensagem amig├ível devolvida pela API */}
+              {/* RQ11 - Mensagem amigável devolvida pela API */}
               {(loginError || erro) && (
                 <div
                   id="login-erro"
@@ -1063,7 +1067,7 @@
                   <span aria-hidden="true" className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold">
                     !
                   </span>
-                  <p><span className="font-bold">N├úo foi poss├¡vel entrar.</span> {loginError || erro}</p>
+                  <p><span className="font-bold">Não foi possível entrar.</span> {loginError || erro}</p>
                 </div>
               )}
 
@@ -1140,7 +1144,7 @@
                     </button>
                   </div>
                   <p id="login-senha-ajuda" className="mt-2 text-xs text-slate-500">
-                    Vers├úo de demonstra├º├úo com dados fict├¡cios. Senha de acesso: {DEMO_PASSWORD}
+                    Versão de demonstração com dados fictícios. Senha de acesso: {DEMO_PASSWORD}
                   </p>
                 </div>
 
@@ -1148,12 +1152,12 @@
                   type="submit"
                   className="w-full rounded-2xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 active:scale-[0.99] outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2"
                 >
-                  Entrar como {selectedUser ? selectedUser.role : 'usu├írio'}
+                  Entrar como {selectedUser ? selectedUser.role : 'usuário'}
                 </button>
               </form>
 
               <p className="mt-8 text-center text-xs text-slate-500 lg:hidden">
-                Projeto Integrador CEUB ÔÇó Engenharia de Software
+                Projeto Integrador CEUB • Engenharia de Software
               </p>
             </div>
           </main>
@@ -1162,7 +1166,7 @@
     }
 
     /* =========================================================================
-       MODAL DE BUSCA R├üPIDA (RQ10 - REGRA DOS 3 CLIQUES)
+       MODAL DE BUSCA RÁPIDA (RQ10 - REGRA DOS 3 CLIQUES)
        ========================================================================= */
     function SearchModal({ isOpen, onClose, patients, onOpenProntuario, onSelectPatient }) {
       const [query, setQuery] = useState('');
@@ -1178,7 +1182,7 @@
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-start justify-center pt-20 p-4" onClick={onClose}>
           <div className="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border border-slate-100 animate-scale-up" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-              <span className="text-lg text-slate-400">­ƒöì</span>
+              <span className="text-lg text-slate-400">🔍</span>
               <input
                 autoFocus
                 type="text"
@@ -1202,9 +1206,9 @@
                       <h4 className="font-bold text-xs text-slate-800">{p.nome}</h4>
                       <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
                         <span>CPF: {formatCpf(p.cpf)}</span>
-                        <span>ÔÇó</span>
+                        <span>•</span>
                         <span>{formatPhone(p.telefone)}</span>
-                        <span>ÔÇó</span>
+                        <span>•</span>
                         <span className={`font-bold ${p.status === 'ativo' ? 'text-emerald-700' : 'text-slate-400'}`}>
                           {p.status === 'ativo' ? 'Ativo' : 'Inativo LGPD'}
                         </span>
@@ -1215,7 +1219,7 @@
                         onClick={() => { onOpenProntuario(p.id); onClose(); }}
                         className="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1.5 rounded-xl border border-emerald-200 transition"
                       >
-                        ­ƒôï Prontu├írio
+                        📋 Prontuário
                       </button>
                       <button
                         onClick={() => { onSelectPatient(p); onClose(); }}
@@ -1246,14 +1250,14 @@
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-indigo-500/30">
-                  ­ƒÄô
+                  🎓
                 </div>
                 <div>
                   <h3 className="text-base font-bold tracking-tight">Matriz de Requisitos CEUB (ISO/IEC 25010)</h3>
-                  <p className="text-xs text-slate-300">Sistema de Agendamento e Prontu├írio para Cl├¡nicas Pequenas ÔÇó Engenharia de Requisitos</p>
+                  <p className="text-xs text-slate-300">Sistema de Agendamento e Prontuário para Clínicas Pequenas • Engenharia de Requisitos</p>
                 </div>
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg">Ô£ò</button>
+              <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg">✕</button>
             </div>
 
             <div className="flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold">
@@ -1261,19 +1265,19 @@
                 onClick={() => setTab('modulos')}
                 className={`py-3 px-4 border-b-2 transition ${tab === 'modulos' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
               >
-                ­ƒôª 7 M├│dulos & 28 RFs
+                📦 7 Módulos & 28 RFs
               </button>
               <button
                 onClick={() => setTab('regras')}
                 className={`py-3 px-4 border-b-2 transition ${tab === 'regras' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
               >
-                ÔÜû´©Å 17 Regras de Neg├│cio (RN)
+                ⚖️ 17 Regras de Negócio (RN)
               </button>
               <button
                 onClick={() => setTab('qualidade')}
                 className={`py-3 px-4 border-b-2 transition ${tab === 'qualidade' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
               >
-                ­ƒøí´©Å 16 RQs & Qualidade ISO/IEC 25010
+                🛡️ 16 RQs & Qualidade ISO/IEC 25010
               </button>
             </div>
 
@@ -1282,27 +1286,27 @@
                 <div className="space-y-3">
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
                     <span className="font-bold text-slate-900 text-sm">F1: Cadastro de Pacientes (RF01 - RF05)</span>
-                    <p className="text-slate-600 mt-1">Inclus├úo, altera├º├úo, consulta, valida├º├úo de unicidade por CPF e inativa├º├úo l├│gica com anonimiza├º├úo conforme LGPD (RN16, RQ03).</p>
+                    <p className="text-slate-600 mt-1">Inclusão, alteração, consulta, validação de unicidade por CPF e inativação lógica com anonimização conforme LGPD (RN16, RQ03).</p>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
                     <span className="font-bold text-slate-900 text-sm">F2: Agendamento de Consultas (RF06 - RF11)</span>
-                    <p className="text-slate-600 mt-1">Marca├º├úo com checagem antecipada de choques de hor├írio (RN01, RN02), remarca├º├úo (RF07), cancelamento com pol├¡tica de anteced├¬ncia e bloqueio de hor├írios (RF11).</p>
+                    <p className="text-slate-600 mt-1">Marcação com checagem antecipada de choques de horário (RN01, RN02), remarcação (RF07), cancelamento com política de antecedência e bloqueio de horários (RF11).</p>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F3: Notifica├º├Áes de Consultas (RF12 - RF15)</span>
-                    <p className="text-slate-600 mt-1">Confirma├º├úo autom├ítica de agendamento por WhatsApp, lembrete 24h antes e controle de 2┬¬ tentativa de envio com alerta visual em caso de falha (RN03, RN14, RN15).</p>
+                    <span className="font-bold text-slate-900 text-sm">F3: Notificações de Consultas (RF12 - RF15)</span>
+                    <p className="text-slate-600 mt-1">Confirmação automática de agendamento por WhatsApp, lembrete 24h antes e controle de 2ª tentativa de envio com alerta visual em caso de falha (RN03, RN14, RN15).</p>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F4: Prontu├írio Eletr├┤nico (RF16 - RF20)</span>
-                    <p className="text-slate-600 mt-1">Registro de anota├º├Áes cl├¡nicas com hist├│rico versionado imut├ível (RN17), ficha cl├¡nica com destaque de alergias/condi├º├Áes preexistentes (RF18) e sigilo profissional.</p>
+                    <span className="font-bold text-slate-900 text-sm">F4: Prontuário Eletrônico (RF16 - RF20)</span>
+                    <p className="text-slate-600 mt-1">Registro de anotações clínicas com histórico versionado imutável (RN17), ficha clínica com destaque de alergias/condições preexistentes (RF18) e sigilo profissional.</p>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F5 & F6: Controle Financeiro e Relat├│rios (RF21 - RF25)</span>
-                    <p className="text-slate-600 mt-1">Registro de recebimentos (pago/pendente), c├ílculo de faturamento no per├¡odo e relat├│rios com filtros por status de pagamento e per├¡odo (RN08, RN10).</p>
+                    <span className="font-bold text-slate-900 text-sm">F5 & F6: Controle Financeiro e Relatórios (RF21 - RF25)</span>
+                    <p className="text-slate-600 mt-1">Registro de recebimentos (pago/pendente), cálculo de faturamento no período e relatórios com filtros por status de pagamento e período (RN08, RN10).</p>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F7: Autentica├º├úo & Auditoria (RF26 - RF28)</span>
-                    <p className="text-slate-600 mt-1">Acesso protegido por credenciais, perfis diferenciados (Profissional vs Administrador - RN12) e registro cont├¡nuo de trilha de auditoria para conformidade jur├¡dica (RN13).</p>
+                    <span className="font-bold text-slate-900 text-sm">F7: Autenticação & Auditoria (RF26 - RF28)</span>
+                    <p className="text-slate-600 mt-1">Acesso protegido por credenciais, perfis diferenciados (Profissional vs Administrador - RN12) e registro contínuo de trilha de auditoria para conformidade jurídica (RN13).</p>
                   </div>
                 </div>
               )}
@@ -1310,28 +1314,28 @@
               {tab === 'regras' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
-                    <strong className="text-emerald-900">RN01 & RN02: Sem Conflito de Hor├írio</strong>
-                    <p className="text-emerald-800 text-[11px] mt-0.5">O sistema rejeita agendamentos simult├óneos para o mesmo profissional no mesmo hor├írio.</p>
+                    <strong className="text-emerald-900">RN01 & RN02: Sem Conflito de Horário</strong>
+                    <p className="text-emerald-800 text-[11px] mt-0.5">O sistema rejeita agendamentos simultâneos para o mesmo profissional no mesmo horário.</p>
                   </div>
                   <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
-                    <strong className="text-emerald-900">RN03 & RN14: Notifica├º├úo WhatsApp</strong>
-                    <p className="text-emerald-800 text-[11px] mt-0.5">Confirma├º├úo imediata ao marcar e lembrete preventivo 24 horas antes do hor├írio marcado.</p>
+                    <strong className="text-emerald-900">RN03 & RN14: Notificação WhatsApp</strong>
+                    <p className="text-emerald-800 text-[11px] mt-0.5">Confirmação imediata ao marcar e lembrete preventivo 24 horas antes do horário marcado.</p>
                   </div>
                   <div className="p-3 rounded-2xl border border-amber-100 bg-amber-50/50">
-                    <strong className="text-amber-900">RN15: 2┬¬ Tentativa de Notifica├º├úo</strong>
+                    <strong className="text-amber-900">RN15: 2ª Tentativa de Notificação</strong>
                     <p className="text-amber-800 text-[11px] mt-0.5">Se o WhatsApp falhar, o sistema reenvia em 15 minutos; persistindo a falha, exibe alerta visual na agenda.</p>
                   </div>
                   <div className="p-3 rounded-2xl border border-blue-100 bg-blue-50/50">
-                    <strong className="text-blue-900">RN17: Prontu├írio Imut├ível Versionado</strong>
-                    <p className="text-blue-800 text-[11px] mt-0.5">Nenhuma anota├º├úo m├®dica ├® apagada. Toda edi├º├úo cria nova vers├úo preservando o hist├│rico integral.</p>
+                    <strong className="text-blue-900">RN17: Prontuário Imutável Versionado</strong>
+                    <p className="text-blue-800 text-[11px] mt-0.5">Nenhuma anotação médica é apagada. Toda edição cria nova versão preservando o histórico integral.</p>
                   </div>
                   <div className="p-3 rounded-2xl border border-purple-100 bg-purple-50/50">
                     <strong className="text-purple-900">RN12 & RN13: Perfis & Auditoria</strong>
-                    <p className="text-purple-800 text-[11px] mt-0.5">Recep├º├úo/Admin agenda e visualiza dados cadastrais; prontu├írio restrito ao profissional. Acessos s├úo auditados.</p>
+                    <p className="text-purple-800 text-[11px] mt-0.5">Recepção/Admin agenda e visualiza dados cadastrais; prontuário restrito ao profissional. Acessos são auditados.</p>
                   </div>
                   <div className="p-3 rounded-2xl border border-rose-100 bg-rose-50/50">
-                    <strong className="text-rose-900">RN16: Inativa├º├úo com Anonimiza├º├úo LGPD</strong>
-                    <p className="text-rose-800 text-[11px] mt-0.5">Exclus├úo l├│gica: dados de contato s├úo anonimizados, mas prontu├írio ├® mantido para resguardo ├®tico/legal.</p>
+                    <strong className="text-rose-900">RN16: Inativação com Anonimização LGPD</strong>
+                    <p className="text-rose-800 text-[11px] mt-0.5">Exclusão lógica: dados de contato são anonimizados, mas prontuário é mantido para resguardo ético/legal.</p>
                   </div>
                 </div>
               )}
@@ -1339,31 +1343,31 @@
               {tab === 'qualidade' && (
                 <div className="space-y-3">
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">ÔÜí</span>
+                    <span className="text-xl">⚡</span>
                     <div>
-                      <strong className="text-slate-800">RQ10: Usabilidade ÔÇö Regra dos 3 Cliques</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Qualquer fluxo cr├¡tico (novo agendamento, consulta ao prontu├írio, registro de pagamento) ├® alcan├º├ível em no m├íximo 3 cliques a partir do painel principal.</p>
+                      <strong className="text-slate-800">RQ10: Usabilidade — Regra dos 3 Cliques</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Qualquer fluxo crítico (novo agendamento, consulta ao prontuário, registro de pagamento) é alcançável em no máximo 3 cliques a partir do painel principal.</p>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">ÔÅ▒´©Å</span>
+                    <span className="text-xl">⏱️</span>
                     <div>
                       <strong className="text-slate-800">RQ09: Desempenho & Tempo de Resposta</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Consultas e atualiza├º├Áes de tela respondem em menos de 1 segundo atrav├®s de reatividade em estado React local.</p>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Consultas e atualizações de tela respondem em menos de 1 segundo através de reatividade em estado React local.</p>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">­ƒöÆ</span>
+                    <span className="text-xl">🔒</span>
                     <div>
-                      <strong className="text-slate-800">RQ01 a RQ05: LGPD e Seguran├ºa da Informa├º├úo</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Consentimento expl├¡cito, portabilidade em JSON estruturado, anonimiza├º├úo seletiva e segrega├º├úo de privil├®gios de acesso.</p>
+                      <strong className="text-slate-800">RQ01 a RQ05: LGPD e Segurança da Informação</strong>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Consentimento explícito, portabilidade em JSON estruturado, anonimização seletiva e segregação de privilégios de acesso.</p>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">­ƒô▒</span>
+                    <span className="text-xl">📱</span>
                     <div>
                       <strong className="text-slate-800">RQ11: Responsividade & Acessibilidade</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Interface perfeitamente adaptada para uso em tablets, smartphones e computadores de consult├│rio.</p>
+                      <p className="text-slate-600 text-[11px] mt-0.5">Interface perfeitamente adaptada para uso em tablets, smartphones e computadores de consultório.</p>
                     </div>
                   </div>
                 </div>
@@ -1371,7 +1375,7 @@
             </div>
 
             <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center text-[11px] text-slate-500">
-              <span>Universidade CEUB ÔÇó Projeto Integrador</span>
+              <span>Universidade CEUB • Projeto Integrador</span>
               <button onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">
                 Fechar Matriz
               </button>
@@ -1443,7 +1447,7 @@
       cancelado: { label: 'Cancelado', className: 'bg-rose-50 text-rose-800 ring-rose-600/20' }
     };
 
-    // RF12-RF14, RN14, RN15 - Situa├º├úo do lembrete por WhatsApp
+    // RF12-RF14, RN14, RN15 - Situação do lembrete por WhatsApp
     const NOTIF_STATUS = {
       enviado: { label: 'Lembrete enviado', dot: 'bg-emerald-500' },
       reenviado: { label: 'Lembrete reenviado', dot: 'bg-sky-500' },
@@ -1481,7 +1485,7 @@
 
     const onlyDigits = (value) => (value || '').toString().replace(/\D/g, '');
 
-    // CPF e telefone s├úo guardados s├│ com d├¡gitos e formatados na exibi├º├úo
+    // CPF e telefone são guardados só com dígitos e formatados na exibição
     const formatCpf = (value) => {
       const digits = onlyDigits(value);
       return digits.length === 11 ? digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (value || '');
@@ -1496,7 +1500,7 @@
     const CLINICAL_PREVIEW_LENGTH = 50;
     const truncateText = (value, max) => {
       const text = (value || '').toString();
-      return text.length > max ? `${text.slice(0, max)}ÔÇª` : text;
+      return text.length > max ? `${text.slice(0, max)}…` : text;
     };
 
     const EMAIL_REGEX = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
@@ -1506,10 +1510,10 @@
       return hours * 60 + minutes;
     };
 
-    // Uma consulta n├úo pode come├ºar em um hor├írio que j├í passou
+    // Uma consulta não pode começar em um horário que já passou
     const isPastSlot = (dateStr, time) => new Date(`${dateStr}T${time}:00`) < new Date();
 
-    // RN01, RN02 - Conflito por sobreposi├º├úo de intervalos, e n├úo s├│ pelo mesmo hor├írio de in├¡cio
+    // RN01, RN02 - Conflito por sobreposição de intervalos, e não só pelo mesmo horário de início
     const findOverlap = (appointments, { data, horario, duracaoMin = 60, profissionalId, ignoreId }) => {
       const start = timeToMinutes(horario);
       const end = start + duracaoMin;
@@ -1522,7 +1526,7 @@
       });
     };
 
-    // Escapa aspas e neutraliza f├│rmulas (=, +, -, @) para o CSV n├úo executar nada no Excel
+    // Escapa aspas e neutraliza fórmulas (=, +, -, @) para o CSV não executar nada no Excel
     const csvCell = (value) => {
       let text = (value === null || value === undefined) ? '' : String(value);
       if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
@@ -1606,7 +1610,7 @@
         return Array.from({ length: 7 }, (_, i) => shiftDateStr(weekStart, i));
       }, [period, todayStr]);
 
-      const periodLabel = period === 'mes' ? 'Este m├¬s' : 'Esta semana';
+      const periodLabel = period === 'mes' ? 'Este mês' : 'Esta semana';
       const periodSet = new Set(periodDays);
       const periodConsultas = appointments.filter(a => a.tipo !== 'bloqueio' && periodSet.has(a.data));
       const keptConsultas = periodConsultas.filter(a => a.status !== 'cancelado');
@@ -1626,10 +1630,10 @@
       }));
       const axisMax = Math.max(4, Math.ceil(Math.max(...chartData.map(d => d.ativas + d.canceladas)) / 2) * 2);
 
-      // RF22, RN09 - Recebimentos do per├¡odo por forma de pagamento
+      // RF22, RN09 - Recebimentos do período por forma de pagamento
       const paymentTotals = Object.entries(
         paidConsultas.reduce((acc, a) => {
-          const key = a.formaPagamento || 'N├úo informada';
+          const key = a.formaPagamento || 'Não informada';
           acc[key] = (acc[key] || 0) + (Number(a.valor) || 0);
           return acc;
         }, {})
@@ -1639,14 +1643,14 @@
       const pendencias = [
         {
           icon: 'alert',
-          title: 'Lembretes n├úo entregues',
+          title: 'Lembretes não entregues',
           description: 'Reenvie pela agenda ou avise o paciente por telefone',
           count: failedNotifications.length,
           tab: 'agenda'
         },
         {
           icon: 'wallet',
-          title: 'Cobran├ºas pendentes',
+          title: 'Cobranças pendentes',
           description: pendingPayments.length > 0 ? `${formatBRL(pendingTotal)} a receber` : 'Nenhum valor em aberto',
           count: pendingPayments.length,
           tab: 'financeiro'
@@ -1667,18 +1671,18 @@
               <p className="text-sm font-semibold text-emerald-700 first-letter:uppercase">
                 {formatDateBR(todayStr, { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
-              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Ol├í, {currentUser.name}</h2>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Olá, {currentUser.name}</h2>
               <p className="mt-1 text-sm text-slate-600">
                 {todayConsultas.length === 0
                   ? 'Nenhuma consulta marcada para hoje.'
                   : `${todayConsultas.length} ${todayConsultas.length === 1 ? 'consulta marcada' : 'consultas marcadas'} para hoje.`}
-                {nextAppt && ` Pr├│xima ├ás ${nextAppt.horario}${nextPatient ? ` com ${nextPatient.nome}` : ''}.`}
+                {nextAppt && ` Próxima às ${nextAppt.horario}${nextPatient ? ` com ${nextPatient.nome}` : ''}.`}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div role="group" aria-label="Per├¡odo dos indicadores" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold">
-                {[['semana', 'Esta semana'], ['mes', 'Este m├¬s']].map(([value, label]) => (
+              <div role="group" aria-label="Período dos indicadores" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold">
+                {[['semana', 'Esta semana'], ['mes', 'Este mês']].map(([value, label]) => (
                   <button
                     key={value}
                     type="button"
@@ -1692,7 +1696,7 @@
                   </button>
                 ))}
               </div>
-              {/* RQ10 - A├º├úo principal em at├® 3 cliques */}
+              {/* RQ10 - Ação principal em até 3 cliques */}
               <button onClick={() => onNavigate('agenda')} className={BTN_PRIMARY}>
                 <Icon name="plus" />
                 Nova consulta
@@ -1704,7 +1708,7 @@
             <MetricCard
               label="Consultas hoje"
               value={todayConsultas.length}
-              subtext={nextAppt ? `Pr├│xima ├ás ${nextAppt.horario}` : 'Sem pr├│ximas hoje'}
+              subtext={nextAppt ? `Próxima às ${nextAppt.horario}` : 'Sem próximas hoje'}
               icon="calendar"
             />
             <MetricCard
@@ -1716,13 +1720,13 @@
             <MetricCard
               label="A receber"
               value={formatBRL(pendingTotal)}
-              subtext={`${pendingPayments.length} ${pendingPayments.length === 1 ? 'cobran├ºa pendente' : 'cobran├ºas pendentes'}`}
+              subtext={`${pendingPayments.length} ${pendingPayments.length === 1 ? 'cobrança pendente' : 'cobranças pendentes'}`}
               icon="wallet"
             />
             <MetricCard
-              label="Sess├Áes registradas"
+              label="Sessões registradas"
               value={records.length}
-              subtext="No prontu├írio eletr├┤nico"
+              subtext="No prontuário eletrônico"
               icon="clipboard"
             />
           </div>
@@ -1733,7 +1737,7 @@
               <p className="text-xs text-slate-500 mt-0.5">{periodLabel}</p>
 
               {periodConsultas.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-500">Nenhuma consulta no per├¡odo.</p>
+                <p className="py-8 text-center text-sm text-slate-500">Nenhuma consulta no período.</p>
               ) : (
                 <dl className="mt-4 space-y-3">
                   {funnel.map(([label, count]) => {
@@ -1746,7 +1750,7 @@
                         </div>
                         <dd className="text-right text-sm tabular-nums">
                           <span className="font-bold text-slate-900">{count}</span>
-                          <span className="text-slate-500"> ┬À {percent}%</span>
+                          <span className="text-slate-500"> · {percent}%</span>
                         </dd>
                       </div>
                     );
@@ -1756,7 +1760,7 @@
             </section>
 
             <section className="bg-white rounded-2xl border border-slate-200 p-5">
-              <h3 className="text-base font-bold text-slate-900">Pend├¬ncias</h3>
+              <h3 className="text-base font-bold text-slate-900">Pendências</h3>
               <ul className="mt-4 space-y-2.5">
                 {pendencias.map(item => (
                   <li key={item.title}>
@@ -1916,10 +1920,10 @@
 
           <section className="bg-white rounded-2xl border border-slate-200 p-5">
             <h3 className="text-base font-bold text-slate-900">Recebido por forma de pagamento</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{periodLabel} ┬À consultas pagas</p>
+            <p className="text-xs text-slate-500 mt-0.5">{periodLabel} · consultas pagas</p>
 
             {paymentTotals.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">Nenhum pagamento recebido no per├¡odo.</p>
+              <p className="py-8 text-center text-sm text-slate-500">Nenhum pagamento recebido no período.</p>
             ) : (
               <dl className="mt-4 space-y-3">
                 {paymentTotals.map(([forma, total]) => (
@@ -1954,11 +1958,11 @@
                 <table className="w-full min-w-[44rem] text-left text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
-                      <th scope="col" className="px-5 py-2.5 font-bold">Hor├írio</th>
+                      <th scope="col" className="px-5 py-2.5 font-bold">Horário</th>
                       <th scope="col" className="px-3 py-2.5 font-bold">Paciente</th>
                       <th scope="col" className="px-3 py-2.5 font-bold">Lembrete</th>
                       <th scope="col" className="px-3 py-2.5 font-bold">Pagamento</th>
-                      <th scope="col" className="px-5 py-2.5 font-bold text-right">A├º├úo</th>
+                      <th scope="col" className="px-5 py-2.5 font-bold text-right">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1973,15 +1977,15 @@
                         <tr key={appt.id} className={`border-b border-slate-100 last:border-b-0 ${isNext ? 'bg-emerald-50/60' : ''}`}>
                           <td className="px-5 py-3 align-top">
                             <span className={`font-extrabold tabular-nums ${isBlocked ? 'text-slate-400' : 'text-slate-900'}`}>{appt.horario}</span>
-                            {isNext && <span className="block text-xs font-bold text-emerald-700">Pr├│ximo</span>}
+                            {isNext && <span className="block text-xs font-bold text-emerald-700">Próximo</span>}
                           </td>
 
                           {isBlocked ? (
-                            <td colSpan={4} className="px-3 py-3 text-slate-500">Hor├írio bloqueado ┬À {appt.observacoes}</td>
+                            <td colSpan={4} className="px-3 py-3 text-slate-500">Horário bloqueado · {appt.observacoes}</td>
                           ) : (
                             <>
                               <td className="px-3 py-3 align-top max-w-[18rem]">
-                                <p className="truncate font-bold text-slate-900">{patient ? patient.nome : 'Paciente n├úo encontrado'}</p>
+                                <p className="truncate font-bold text-slate-900">{patient ? patient.nome : 'Paciente não encontrado'}</p>
                                 <p className="truncate text-xs text-slate-600">{appt.observacoes}</p>
                               </td>
                               <td className="px-3 py-3 align-top whitespace-nowrap text-slate-700">
@@ -1990,19 +1994,19 @@
                                     <span aria-hidden="true" className={`w-2 h-2 rounded-full ${notif.dot}`}></span>
                                     {notif.label}
                                   </span>
-                                ) : 'ÔÇö'}
+                                ) : '—'}
                               </td>
                               <td className="px-3 py-3 align-top whitespace-nowrap">
                                 <span className="font-semibold tabular-nums text-slate-900">{formatBRL(appt.valor)}</span>
-                                <span className="text-slate-500"> ┬À {isPaid ? 'Pago' : 'Pendente'}</span>
+                                <span className="text-slate-500"> · {isPaid ? 'Pago' : 'Pendente'}</span>
                               </td>
                               <td className="px-5 py-3 align-top text-right">
                                 <button
                                   onClick={() => onOpenProntuario(appt.pacienteId)}
-                                  aria-label={`Abrir prontu├írio de ${patient ? patient.nome : 'paciente'}`}
+                                  aria-label={`Abrir prontuário de ${patient ? patient.nome : 'paciente'}`}
                                   className={`${BTN_SMALL} whitespace-nowrap border-emerald-300 bg-white text-emerald-800 hover:bg-emerald-50 focus-visible:ring-emerald-500/40`}
                                 >
-                                  Prontu├írio
+                                  Prontuário
                                   <Icon name="arrowRight" className="w-3.5 h-3.5" />
                                 </button>
                               </td>
@@ -2034,7 +2038,7 @@
     }
 
     function AgendaView({ appointments, patients, currentUser, setAppointments, showToast, registerLog, setDialogConfig, schedulePatientId, onScheduleHandled }) {
-      // RN12 - O Profissional agenda na pr├│pria agenda; o Administrador agenda na agenda do profissional da cl├¡nica
+      // RN12 - O Profissional agenda na própria agenda; o Administrador agenda na agenda do profissional da clínica
       const agendaOwnerId = currentUser.role === 'Profissional'
         ? currentUser.id
         : (INITIAL_USERS.find(u => u.role === 'Profissional')?.id || currentUser.id);
@@ -2053,7 +2057,7 @@
       const [formObs, setFormObs] = useState('');
       const [formValue, setFormValue] = useState(200);
 
-      // Chegou pela tela de Pacientes: abre o formul├írio com o paciente j├í selecionado
+      // Chegou pela tela de Pacientes: abre o formulário com o paciente já selecionado
       useEffect(() => {
         if (!schedulePatientId) return;
         const today = getTodayDateStr();
@@ -2063,11 +2067,11 @@
         onScheduleHandled();
       }, [schedulePatientId]);
 
-      // Form State: Bloqueio de Hor├írio (RF11)
-      const [blockReason, setBlockReason] = useState('Intervalo para almo├ºo');
+      // Form State: Bloqueio de Horário (RF11)
+      const [blockReason, setBlockReason] = useState('Intervalo para almoço');
       const [blockTime, setBlockTime] = useState('12:00');
 
-      // Form State: Remarca├º├úo (RF07)
+      // Form State: Remarcação (RF07)
       const [rescheduleDate, setRescheduleDate] = useState('');
       const [rescheduleTime, setRescheduleTime] = useState('14:00');
 
@@ -2084,11 +2088,11 @@
         });
       }, [appointments, currentUser, viewMode, selectedDate]);
 
-      // Cria├º├úo de Agendamento com Preven├º├úo de Choque de Hor├írios (RN01, RN02)
+      // Criação de Agendamento com Prevenção de Choque de Horários (RN01, RN02)
       const handleCreateAppointment = async (e) => {
         e.preventDefault();
 
-        // RN16: s├│ paciente ativo pode ser agendado
+        // RN16: só paciente ativo pode ser agendado
         const formPatient = patients.find(p => p.id === formPatientId);
         if (!formPatient || formPatient.status !== 'ativo') {
           showToast('Selecione um paciente ativo cadastrado.', 'error');
@@ -2096,11 +2100,11 @@
         }
 
         if (isPastSlot(formDate, formTime)) {
-          showToast('N├úo ├® poss├¡vel agendar em data ou hor├írio que j├í passou.', 'error');
+          showToast('Não é possível agendar em data ou horário que já passou.', 'error');
           return;
         }
 
-        // Valida├º├úo integrada com o backend C# (AgendaService - RN01, RN02)
+        // Validação integrada com o backend C# (AgendaService - RN01, RN02)
         if (api.isConnected) {
           const apiRes = await api.agendarConsulta({
             pacienteId: formPatientId,
@@ -2113,9 +2117,9 @@
           });
 
           if (!apiRes.sucesso) {
-            // Regra de Neg├│cio barrada pelo backend C#
+            // Regra de Negócio barrada pelo backend C#
             setDialogConfig({
-              title: 'Bloqueio de Regra de Neg├│cio (RN01, RN02)',
+              title: 'Bloqueio de Regra de Negócio (RN01, RN02)',
               message: apiRes.erro,
               confirmLabel: 'Entendido',
               cancelLabel: 'Fechar',
@@ -2130,25 +2134,25 @@
           setShowNewModal(false);
 
           const pat = patients.find(p => p.id === formPatientId);
-          showToast(`Consulta confirmada via API C# para ${pat?.nome} ├ás ${formTime}!`);
-          registerLog('Agendamento via API (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} ├ás ${formTime}`);
+          showToast(`Consulta confirmada via API C# para ${pat?.nome} às ${formTime}!`);
+          registerLog('Agendamento via API (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} às ${formTime}`);
 
-          // Disparo de confirma├º├úo WhatsApp (RF12, RN03)
+          // Disparo de confirmação WhatsApp (RF12, RN03)
           setWhatsappModalData({
-            titulo: 'Confirma├º├úo enviada por WhatsApp (RN03)',
+            titulo: 'Confirmação enviada por WhatsApp (RN03)',
             destinatario: `${pat?.nome} (${formatPhone(pat?.telefone)})`,
-            mensagem: `Ol├í, ${pat?.nome}! Sua consulta na Clinix est├í confirmada para ${formatDateBR(formDate)} ├ás ${formTime}. Enviaremos lembrete 24h antes!`
+            mensagem: `Olá, ${pat?.nome}! Sua consulta na Clinix está confirmada para ${formatDateBR(formDate)} às ${formTime}. Enviaremos lembrete 24h antes!`
           });
           return;
         }
 
-        // RN01 / RN02: Fallback local - checar sobreposi├º├úo com outro compromisso do mesmo profissional
+        // RN01 / RN02: Fallback local - checar sobreposição com outro compromisso do mesmo profissional
         const conflict = findOverlap(appointments, { data: formDate, horario: formTime, profissionalId: agendaOwnerId });
 
         if (conflict) {
           setDialogConfig({
-            title: 'Hor├írio j├í ocupado',
-            message: `O hor├írio ${formTime} em ${formatDateBR(formDate)} j├í est├í ocupado por outro compromisso. Escolha outro hor├írio ou outra data.`,
+            title: 'Horário já ocupado',
+            message: `O horário ${formTime} em ${formatDateBR(formDate)} já está ocupado por outro compromisso. Escolha outro horário ou outra data.`,
             confirmLabel: 'Entendido',
             cancelLabel: 'Fechar',
             danger: true,
@@ -2179,31 +2183,31 @@
         setShowNewModal(false);
 
         const pat = patients.find(p => p.id === formPatientId);
-        showToast(`Consulta confirmada para ${pat?.nome} ├ás ${formTime}!`);
-        registerLog('Agendamento de Consulta (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} ├ás ${formTime}`);
+        showToast(`Consulta confirmada para ${pat?.nome} às ${formTime}!`);
+        registerLog('Agendamento de Consulta (RF06, RN01)', `Consulta marcada para ${pat?.nome} no dia ${formDate} às ${formTime}`);
 
-        // Exibi├º├úo da confirma├º├úo autom├ítica enviada por WhatsApp (RF12, RN03)
+        // Exibição da confirmação automática enviada por WhatsApp (RF12, RN03)
         setWhatsappModalData({
-          titulo: 'Confirma├º├úo enviada por WhatsApp',
+          titulo: 'Confirmação enviada por WhatsApp',
           destinatario: `${pat?.nome} (${formatPhone(pat?.telefone)})`,
-          mensagem: `Ol├í, ${pat?.nome}! Sua consulta na Clinix est├í confirmada para ${formatDateBR(formDate)} ├ás ${formTime}. Enviaremos lembrete 24h antes!`
+          mensagem: `Olá, ${pat?.nome}! Sua consulta na Clinix está confirmada para ${formatDateBR(formDate)} às ${formTime}. Enviaremos lembrete 24h antes!`
         });
       };
 
-      // Bloquear Hor├írio na Agenda (RF11)
+      // Bloquear Horário na Agenda (RF11)
       const handleBlockSlot = (e) => {
         e.preventDefault();
 
         if (isPastSlot(selectedDate, blockTime)) {
-          showToast('N├úo ├® poss├¡vel bloquear um hor├írio que j├í passou.', 'error');
+          showToast('Não é possível bloquear um horário que já passou.', 'error');
           return;
         }
 
-        // Checar conflito pr├®vio
+        // Checar conflito prévio
         const conflict = findOverlap(appointments, { data: selectedDate, horario: blockTime, profissionalId: agendaOwnerId });
 
         if (conflict) {
-          showToast('Hor├írio j├í ocupado por consulta. Remarque-a antes de bloquear.', 'error');
+          showToast('Horário já ocupado por consulta. Remarque-a antes de bloquear.', 'error');
           return;
         }
 
@@ -2227,17 +2231,17 @@
 
         setAppointments(prev => [...prev, blockAppt]);
         setShowBlockModal(false);
-        showToast(`Hor├írio ${blockTime} bloqueado.`);
+        showToast(`Horário ${blockTime} bloqueado.`);
         registerLog('Bloqueio de Agenda (RF11)', `Bloqueado ${blockTime} em ${selectedDate}: ${blockReason}`);
       };
 
-      // Remarca├º├úo de Consulta (RF07)
+      // Remarcação de Consulta (RF07)
       const handleRescheduleSubmit = (e) => {
         e.preventDefault();
         const appt = showRescheduleModal;
 
         if (isPastSlot(rescheduleDate, rescheduleTime)) {
-          showToast('N├úo ├® poss├¡vel remarcar para data ou hor├írio que j├í passou.', 'error');
+          showToast('Não é possível remarcar para data ou horário que já passou.', 'error');
           return;
         }
 
@@ -2250,7 +2254,7 @@
         });
 
         if (conflict) {
-          showToast('Hor├írio de remarca├º├úo j├í ocupado! Selecione outro.', 'error');
+          showToast('Horário de remarcação já ocupado! Selecione outro.', 'error');
           return;
         }
 
@@ -2270,7 +2274,7 @@
 
         setShowRescheduleModal(null);
         showToast('Consulta remarcada.');
-        registerLog('Remarca├º├úo de Consulta (RF07)', `Consulta ${appt.id} transferida para ${rescheduleDate} ├ás ${rescheduleTime}`);
+        registerLog('Remarcação de Consulta (RF07)', `Consulta ${appt.id} transferida para ${rescheduleDate} às ${rescheduleTime}`);
       };
 
       // Cancelamento com Regra de Cancelamento Tardio (< 24h) (RN10)
@@ -2283,7 +2287,7 @@
         setDialogConfig({
           title: 'Cancelar consulta?',
           message: isTardio
-            ? `Esta consulta acontece em menos de 24 horas. O cancelamento ser├í registrado como cancelamento tardio no hist├│rico do paciente.`
+            ? `Esta consulta acontece em menos de 24 horas. O cancelamento será registrado como cancelamento tardio no histórico do paciente.`
             : 'Deseja confirmar o cancelamento deste agendamento?',
           confirmLabel: 'Sim, Cancelar',
           cancelLabel: 'Voltar',
@@ -2293,7 +2297,7 @@
             if (api.isConnected) {
               const res = await api.cancelarAgendamento(appt.id);
               if (!res.sucesso) {
-                showToast(res.erro || 'N├úo foi poss├¡vel cancelar a consulta.', 'error');
+                showToast(res.erro || 'Não foi possível cancelar a consulta.', 'error');
                 return;
               }
               if (res.cancelamentoTardio !== undefined) {
@@ -2307,12 +2311,12 @@
               return a;
             }));
             showToast('Agendamento cancelado.');
-            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${tardioFinal ? 'SIM' : 'N├âO'}`);
+            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${tardioFinal ? 'SIM' : 'NÃO'}`);
           }
         });
       };
 
-      // Simula├º├úo do Reenvio de WhatsApp (RN14)
+      // Simulação do Reenvio de WhatsApp (RN14)
       const handleRetryWhatsapp = (apptId) => {
         setAppointments(prev => prev.map(a => {
           if (a.id === apptId) {
@@ -2321,7 +2325,7 @@
           return a;
         }));
         showToast('Lembrete reenviado.');
-        registerLog('Reenvio de WhatsApp (RN14)', `Notifica├º├úo reenviada para consulta ${apptId}`);
+        registerLog('Reenvio de WhatsApp (RN14)', `Notificação reenviada para consulta ${apptId}`);
       };
 
       const isAllDates = viewMode === 'semana';
@@ -2334,10 +2338,10 @@
       );
       const consultaCount = filteredAppointments.filter(a => a.tipo !== 'bloqueio' && a.status !== 'cancelado').length;
 
-      // RN01, RN02 - Indicador de conflito em tempo real no formul├írio
+      // RN01, RN02 - Indicador de conflito em tempo real no formulário
       const hasFormConflict = Boolean(findOverlap(appointments, { data: formDate, horario: formTime, profissionalId: agendaOwnerId }));
 
-      // RN12 - O calend├írio marca apenas os dias com agendamentos vis├¡veis ao perfil
+      // RN12 - O calendário marca apenas os dias com agendamentos visíveis ao perfil
       const countByDate = appointments.reduce((acc, a) => {
         if (a.status === 'cancelado') return acc;
         if (currentUser.role === 'Profissional' && a.profissionalId !== currentUser.id) return acc;
@@ -2386,8 +2390,8 @@
                 Hoje
               </button>
 
-              {/* RF10 - Altern├óncia de vis├úo da agenda */}
-              <div role="group" aria-label="Per├¡odo exibido" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold">
+              {/* RF10 - Alternância de visão da agenda */}
+              <div role="group" aria-label="Período exibido" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold">
                 {[['dia', 'Dia'], ['semana', 'Todas as datas']].map(([mode, label]) => (
                   <button
                     key={mode}
@@ -2407,7 +2411,7 @@
             <div className="flex flex-wrap items-center gap-2">
               <button onClick={() => setShowBlockModal(true)} className={BTN_SECONDARY}>
                 <Icon name="ban" />
-                Bloquear hor├írio
+                Bloquear horário
               </button>
               <button
                 onClick={() => { setFormDate(selectedDate); setShowNewModal(true); }}
@@ -2420,23 +2424,23 @@
           </div>
 
           <div className="grid lg:grid-cols-5 gap-5 items-start">
-            <section aria-label="Calend├írio" className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+            <section aria-label="Calendário" className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <h2 className="text-base font-bold text-slate-900 first-letter:uppercase" aria-live="polite">
                   {formatDateBR(`${calMonth}-01`, { month: 'long', year: 'numeric' })}
                 </h2>
                 <div className="flex items-center gap-1.5">
-                  <button type="button" onClick={() => shiftMonth(-1)} aria-label="M├¬s anterior" className={NAV_BTN}>
+                  <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior" className={NAV_BTN}>
                     <Icon name="chevronLeft" />
                   </button>
-                  <button type="button" onClick={() => shiftMonth(1)} aria-label="Pr├│ximo m├¬s" className={NAV_BTN}>
+                  <button type="button" onClick={() => shiftMonth(1)} aria-label="Próximo mês" className={NAV_BTN}>
                     <Icon name="chevronRight" />
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-7 gap-1 text-center">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S├íb'].map(day => (
+                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
                   <span key={day} className="pb-2 text-xs font-bold text-slate-500">{day}</span>
                 ))}
 
@@ -2487,7 +2491,7 @@
                 <h2 className="text-base font-bold text-slate-900">
                   {isAllDates
                     ? 'Todas as datas'
-                    : `${selectedDate === todayStr ? 'Hoje ÔÇö ' : ''}${formatDateBR(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}`}
+                    : `${selectedDate === todayStr ? 'Hoje — ' : ''}${formatDateBR(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}`}
                 </h2>
                 <span aria-live="polite">
                   <StatusBadge
@@ -2516,7 +2520,7 @@
                     const isCancelled = appt.status === 'cancelado';
                     const status = APPT_STATUS[appt.status] || { label: appt.status, className: 'bg-slate-100 text-slate-700 ring-slate-500/20' };
                     const notif = NOTIF_STATUS[appt.notificacaoStatus];
-                    const patientName = patient ? patient.nome : 'Paciente n├úo encontrado';
+                    const patientName = patient ? patient.nome : 'Paciente não encontrado';
                     const startsNewDate = isAllDates && (index === 0 || sortedAppointments[index - 1].data !== appt.data);
 
                     return (
@@ -2552,7 +2556,7 @@
                                 <p className={`truncate text-sm font-bold ${isCancelled ? 'text-slate-500' : 'text-slate-900'}`}>{patientName}</p>
                                 <p className="truncate text-xs text-slate-600">
                                   {appt.observacoes}
-                                  <span className="text-slate-400"> ┬À </span>
+                                  <span className="text-slate-400"> · </span>
                                   <span className="font-semibold tabular-nums">{formatBRL(appt.valor)}</span>
                                 </p>
                                 {/* RN10 - Cancelamento com menos de 24h */}
@@ -2570,7 +2574,7 @@
                           <div className="flex flex-wrap items-center gap-2 ml-auto">
                             {!isCancelled && !isBlocked && (
                               <>
-                                {/* RN14 - Reenvio manual ap├│s falha */}
+                                {/* RN14 - Reenvio manual após falha */}
                                 {appt.notificacaoStatus === 'falha' && (
                                   <button
                                     onClick={() => handleRetryWhatsapp(appt.id)}
@@ -2644,7 +2648,7 @@
                     />
                   </div>
                   <div>
-                    <label htmlFor="ag-horario" className={LABEL_CLASS}>Hor├írio</label>
+                    <label htmlFor="ag-horario" className={LABEL_CLASS}>Horário</label>
                     <select
                       id="ag-horario"
                       value={formTime}
@@ -2663,12 +2667,12 @@
                 {hasFormConflict && (
                   <p id="ag-conflito" role="status" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
                     <Icon name="alert" className="w-4 h-4 mt-0.5 text-amber-700" />
-                    Este hor├írio j├í est├í ocupado. Escolha outro hor├írio ou outra data.
+                    Este horário já está ocupado. Escolha outro horário ou outra data.
                   </p>
                 )}
 
                 <div>
-                  <label htmlFor="ag-valor" className={LABEL_CLASS}>Valor da sess├úo (R$)</label>
+                  <label htmlFor="ag-valor" className={LABEL_CLASS}>Valor da sessão (R$)</label>
                   <input
                     id="ag-valor"
                     type="number"
@@ -2680,24 +2684,24 @@
                     aria-describedby="ag-valor-ajuda"
                     className={FIELD_CLASS}
                   />
-                  <p id="ag-valor-ajuda" className="mt-1.5 text-xs text-slate-500">Dura├º├úo padr├úo da sess├úo: 60 minutos.</p>
+                  <p id="ag-valor-ajuda" className="mt-1.5 text-xs text-slate-500">Duração padrão da sessão: 60 minutos.</p>
                 </div>
 
                 <div>
-                  <label htmlFor="ag-obs" className={LABEL_CLASS}>Observa├º├Áes <span className="font-normal text-slate-500">(opcional)</span></label>
+                  <label htmlFor="ag-obs" className={LABEL_CLASS}>Observações <span className="font-normal text-slate-500">(opcional)</span></label>
                   <textarea
                     id="ag-obs"
                     rows="2"
                     maxLength={500}
                     value={formObs}
                     onChange={e => setFormObs(e.target.value)}
-                    placeholder="Motivo da consulta ou recomenda├º├Áes iniciais"
+                    placeholder="Motivo da consulta ou recomendações iniciais"
                     className={FIELD_CLASS}
                   ></textarea>
                 </div>
 
-                {/* RF12, RN03 - Confirma├º├úo autom├ítica */}
-                <p className="text-xs text-slate-500">O paciente recebe a confirma├º├úo por WhatsApp assim que a consulta ├® salva.</p>
+                {/* RF12, RN03 - Confirmação automática */}
+                <p className="text-xs text-slate-500">O paciente recebe a confirmação por WhatsApp assim que a consulta é salva.</p>
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button type="button" onClick={() => setShowNewModal(false)} className={BTN_SECONDARY}>Cancelar</button>
@@ -2707,9 +2711,9 @@
             </Modal>
           )}
 
-          {/* RF11 - Bloqueio de hor├írio */}
+          {/* RF11 - Bloqueio de horário */}
           {showBlockModal && (
-            <Modal title="Bloquear hor├írio" maxWidth="max-w-sm" onClose={() => setShowBlockModal(false)}>
+            <Modal title="Bloquear horário" maxWidth="max-w-sm" onClose={() => setShowBlockModal(false)}>
               <form onSubmit={handleBlockSlot} className="space-y-4 mt-5">
                 <p className="text-sm text-slate-600 first-letter:uppercase">
                   {formatDateBR(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -2723,12 +2727,12 @@
                     maxLength={100}
                     value={blockReason}
                     onChange={e => setBlockReason(e.target.value)}
-                    placeholder="Ex.: almo├ºo, reuni├úo cl├¡nica, folga"
+                    placeholder="Ex.: almoço, reunião clínica, folga"
                     className={FIELD_CLASS}
                   />
                 </div>
                 <div>
-                  <label htmlFor="bl-horario" className={LABEL_CLASS}>Hor├írio</label>
+                  <label htmlFor="bl-horario" className={LABEL_CLASS}>Horário</label>
                   <select
                     id="bl-horario"
                     value={blockTime}
@@ -2742,20 +2746,20 @@
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button type="button" onClick={() => setShowBlockModal(false)} className={BTN_SECONDARY}>Cancelar</button>
-                  <button type="submit" className={BTN_PRIMARY}>Bloquear hor├írio</button>
+                  <button type="submit" className={BTN_PRIMARY}>Bloquear horário</button>
                 </div>
               </form>
             </Modal>
           )}
 
-          {/* RF07 - Remarca├º├úo */}
+          {/* RF07 - Remarcação */}
           {showRescheduleModal && (
             <Modal title="Remarcar consulta" maxWidth="max-w-sm" onClose={() => setShowRescheduleModal(null)}>
               <form onSubmit={handleRescheduleSubmit} className="space-y-4 mt-5">
                 <p className="text-sm text-slate-600">
                   {patients.find(p => p.id === showRescheduleModal.pacienteId)?.nome || 'Paciente'}
-                  {' ┬À atual: '}
-                  {formatDateBR(showRescheduleModal.data, { day: '2-digit', month: '2-digit' })} ├ás {showRescheduleModal.horario}
+                  {' · atual: '}
+                  {formatDateBR(showRescheduleModal.data, { day: '2-digit', month: '2-digit' })} às {showRescheduleModal.horario}
                 </p>
                 <div>
                   <label htmlFor="rm-data" className={LABEL_CLASS}>Nova data</label>
@@ -2770,7 +2774,7 @@
                   />
                 </div>
                 <div>
-                  <label htmlFor="rm-horario" className={LABEL_CLASS}>Novo hor├írio</label>
+                  <label htmlFor="rm-horario" className={LABEL_CLASS}>Novo horário</label>
                   <select
                     id="rm-horario"
                     value={rescheduleTime}
@@ -2784,15 +2788,15 @@
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button type="button" onClick={() => setShowRescheduleModal(null)} className={BTN_SECONDARY}>Voltar</button>
-                  <button type="submit" className={BTN_PRIMARY}>Salvar remarca├º├úo</button>
+                  <button type="submit" className={BTN_PRIMARY}>Salvar remarcação</button>
                 </div>
               </form>
             </Modal>
           )}
 
-          {/* RF12, RN03 - Confirma├º├úo enviada ao paciente */}
+          {/* RF12, RN03 - Confirmação enviada ao paciente */}
           {whatsappModalData && (
-            <Modal title="Confirma├º├úo enviada por WhatsApp" maxWidth="max-w-sm" onClose={() => setWhatsappModalData(null)}>
+            <Modal title="Confirmação enviada por WhatsApp" maxWidth="max-w-sm" onClose={() => setWhatsappModalData(null)}>
               <div className="mt-5 space-y-3">
                 <p className="text-sm text-slate-600">
                   Para: <span className="font-semibold text-slate-900">{whatsappModalData.destinatario}</span>
@@ -2834,7 +2838,7 @@
         const exportData = {
           finalidade: "Portabilidade de Dados Pessoais (LGPD Art. 18, V)",
           dataExportacao: new Date().toISOString(),
-          sistema: "Clinix Sistema de Agendamento e Prontu├írio para Cl├¡nicas Pequenas",
+          sistema: "Clinix Sistema de Agendamento e Prontuário para Clínicas Pequenas",
           paciente: {
             id: patient.id,
             nome: patient.nome,
@@ -2896,7 +2900,7 @@
       const handleSave = async (e) => {
         e.preventDefault();
 
-        // Valida├º├úo dos dados antes de salvar (RF01, RF02)
+        // Validação dos dados antes de salvar (RF01, RF02)
         const cleanName = nome.trim();
         const cleanEmail = email.trim();
         if (cleanName.length < 3) {
@@ -2904,24 +2908,24 @@
           return;
         }
         if (!/^\d{11}$/.test(cpf)) {
-          showToast('CPF deve ter exatamente 11 d├¡gitos (apenas n├║meros).', 'error');
+          showToast('CPF deve ter exatamente 11 dígitos (apenas números).', 'error');
           return;
         }
         if (!/^\d{11}$/.test(telefone)) {
-          showToast('Telefone deve ter 11 d├¡gitos: DDD + n├║mero.', 'error');
+          showToast('Telefone deve ter 11 dígitos: DDD + número.', 'error');
           return;
         }
         if (cleanEmail && !EMAIL_REGEX.test(cleanEmail)) {
-          showToast('Informe um e-mail v├ílido (ex.: nome@dominio.com).', 'error');
+          showToast('Informe um e-mail válido (ex.: nome@dominio.com).', 'error');
           return;
         }
         if (!nascimento || nascimento > getTodayDateStr()) {
-          showToast('Data de nascimento n├úo pode ser futura.', 'error');
+          showToast('Data de nascimento não pode ser futura.', 'error');
           return;
         }
         const duplicated = patients.some(p => p.id !== editingPatient?.id && onlyDigits(p.cpf) === cpf);
         if (duplicated) {
-          showToast('J├í existe um paciente cadastrado com este CPF.', 'error');
+          showToast('Já existe um paciente cadastrado com este CPF.', 'error');
           return;
         }
 
@@ -2938,7 +2942,7 @@
             return p;
           }));
           showToast('Cadastro do paciente atualizado.');
-          registerLog('Altera├º├úo de Paciente (RF02)', `Cadastro atualizado: ${cleanName}`);
+          registerLog('Alteração de Paciente (RF02)', `Cadastro atualizado: ${cleanName}`);
           setShowModal(false);
         } else {
           // RF01 - Incluir dados via API Backend se conectada
@@ -2978,11 +2982,11 @@
         }
       };
 
-      // Inativa├º├úo l├│gica com anonimiza├º├úo LGPD (RN16, RQ03, RF03)
+      // Inativação lógica com anonimização LGPD (RN16, RQ03, RF03)
       const handleInactivate = (patient) => {
         setDialogConfig({
           title: 'Inativar paciente?',
-          message: `O cadastro de "${patient.nome}" ser├í inativado.\n\nTelefone, e-mail e endere├ºo ser├úo anonimizados, conforme a LGPD. O prontu├írio e o hist├│rico de consultas s├úo preservados.`,
+          message: `O cadastro de "${patient.nome}" será inativado.\n\nTelefone, e-mail e endereço serão anonimizados, conforme a LGPD. O prontuário e o histórico de consultas são preservados.`,
           confirmLabel: 'Inativar e Anonimizar',
           cancelLabel: 'Cancelar',
           danger: true,
@@ -2990,7 +2994,7 @@
             if (api.isConnected) {
               const res = await api.inativarPaciente(patient.id);
               if (!res.sucesso) {
-                showToast(res.erro || 'N├úo foi poss├¡vel inativar o paciente.', 'error');
+                showToast(res.erro || 'Não foi possível inativar o paciente.', 'error');
                 return;
               }
             }
@@ -3007,7 +3011,7 @@
               return item;
             }));
             showToast(`Paciente ${patient.nome} inativado logicamente.`);
-            registerLog('Inativa├º├úo L├│gica com Anonimiza├º├úo LGPD (RQ03, RN16)', `Inativa├º├úo de ${patient.nome} (ID: ${patient.id})`);
+            registerLog('Inativação Lógica com Anonimização LGPD (RQ03, RN16)', `Inativação de ${patient.nome} (ID: ${patient.id})`);
           }
         });
       };
@@ -3035,7 +3039,7 @@
                 />
               </div>
 
-              <div role="group" aria-label="Filtrar por situa├º├úo" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold self-start">
+              <div role="group" aria-label="Filtrar por situação" className="flex bg-slate-200/70 p-1 rounded-xl text-sm font-bold self-start">
                 {[
                   ['todos', 'Todos', patients.length],
                   ['ativo', 'Ativos', activeCount],
@@ -3068,8 +3072,8 @@
 
           {filtered.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 px-5 py-12 text-center">
-              <p className="text-sm font-semibold text-slate-700">Nenhum paciente corresponde ├á busca.</p>
-              <p className="text-sm text-slate-500 mt-1">Confira o nome ou CPF digitado, ou troque o filtro de situa├º├úo.</p>
+              <p className="text-sm font-semibold text-slate-700">Nenhum paciente corresponde à busca.</p>
+              <p className="text-sm text-slate-500 mt-1">Confira o nome ou CPF digitado, ou troque o filtro de situação.</p>
               {(search || statusFilter !== 'todos') && (
                 <button
                   onClick={() => { setSearch(''); setStatusFilter('todos'); }}
@@ -3107,7 +3111,7 @@
                       <div className="min-w-0 flex-1">
                         <h3 className="text-base font-bold text-slate-900 leading-snug break-words [overflow-wrap:anywhere]">{patient.nome}</h3>
 
-                        {/* RF18 - Alertas cl├¡nicos */}
+                        {/* RF18 - Alertas clínicos */}
                         {hasAllergy || hasCondition ? (
                           <p className="mt-0.5 text-sm text-slate-700 break-words [overflow-wrap:anywhere]">
                             {hasAllergy && (
@@ -3116,11 +3120,11 @@
                                 Alergias: {truncateText(patient.alergias, CLINICAL_PREVIEW_LENGTH)}
                               </span>
                             )}
-                            {hasAllergy && hasCondition && <span className="text-slate-400"> ┬À </span>}
+                            {hasAllergy && hasCondition && <span className="text-slate-400"> · </span>}
                             {hasCondition && <span title={patient.condicoesPreexistentes}>{truncateText(patient.condicoesPreexistentes, CLINICAL_PREVIEW_LENGTH)}</span>}
                           </p>
                         ) : (
-                          <p className="mt-0.5 text-sm text-slate-500">Sem alergias ou condi├º├Áes informadas.</p>
+                          <p className="mt-0.5 text-sm text-slate-500">Sem alergias ou condições informadas.</p>
                         )}
 
                         <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
@@ -3157,14 +3161,14 @@
                     <div className="flex flex-wrap items-center gap-2 lg:shrink-0 pl-[3.75rem] lg:pl-0">
                       <button
                         onClick={() => onOpenProntuario(patient.id)}
-                        aria-label={`Abrir prontu├írio de ${patient.nome}`}
+                        aria-label={`Abrir prontuário de ${patient.nome}`}
                         className={`${BTN_SMALL} border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500/40`}
                       >
                         <Icon name="clipboard" className="w-3.5 h-3.5" />
-                        Prontu├írio
+                        Prontuário
                       </button>
 
-                      {/* RF06 - Agendar consulta direto da lista (RN16: s├│ paciente ativo) */}
+                      {/* RF06 - Agendar consulta direto da lista (RN16: só paciente ativo) */}
                       {!isInactive && (
                         <button
                           onClick={() => onSchedule(patient.id)}
@@ -3186,7 +3190,7 @@
                         >
                           <Icon name="download" />
                         </button>
-                        {/* RN16, RQ03 - Cadastro inativo est├í anonimizado e n├úo pode mais ser editado */}
+                        {/* RN16, RQ03 - Cadastro inativo está anonimizado e não pode mais ser editado */}
                         {!isInactive && (
                           <button
                             onClick={() => handleOpenEdit(patient)}
@@ -3197,7 +3201,7 @@
                             <Icon name="edit" />
                           </button>
                         )}
-                        {/* RF03, RN16, RQ03 - Inativa├º├úo l├│gica com anonimiza├º├úo */}
+                        {/* RF03, RN16, RQ03 - Inativação lógica com anonimização */}
                         {!isInactive && (
                           <button
                             onClick={() => handleInactivate(patient)}
@@ -3221,7 +3225,7 @@
             </ul>
           )}
 
-          {/* RF01, RF02 - Cadastro e edi├º├úo de paciente */}
+          {/* RF01, RF02 - Cadastro e edição de paciente */}
           {showModal && (
             <Modal
               title={editingPatient ? 'Editar paciente' : 'Novo paciente'}
@@ -3255,15 +3259,15 @@
                       required
                       maxLength={11}
                       pattern="\d{11}"
-                      title="Digite os 11 d├¡gitos do CPF, apenas n├║meros"
+                      title="Digite os 11 dígitos do CPF, apenas números"
                       autoComplete="off"
                       value={cpf}
                       onChange={e => setCpf(onlyDigits(e.target.value).slice(0, 11))}
-                      placeholder="Apenas n├║meros (11 d├¡gitos)"
+                      placeholder="Apenas números (11 dígitos)"
                       aria-describedby="pac-cpf-ajuda"
                       className={FIELD_CLASS}
                     />
-                    <p id="pac-cpf-ajuda" className="mt-1 text-xs text-slate-500">{cpf.length}/11 d├¡gitos</p>
+                    <p id="pac-cpf-ajuda" className="mt-1 text-xs text-slate-500">{cpf.length}/11 dígitos</p>
                   </div>
                   <div>
                     <label htmlFor="pac-nascimento" className={LABEL_CLASS}>Data de nascimento</label>
@@ -3289,15 +3293,15 @@
                       required
                       maxLength={11}
                       pattern="\d{11}"
-                      title="Digite DDD + n├║mero, apenas n├║meros (11 d├¡gitos)"
+                      title="Digite DDD + número, apenas números (11 dígitos)"
                       autoComplete="off"
                       value={telefone}
                       onChange={e => setTelefone(onlyDigits(e.target.value).slice(0, 11))}
-                      placeholder="DDD + n├║mero (11 d├¡gitos)"
+                      placeholder="DDD + número (11 dígitos)"
                       aria-describedby="pac-telefone-ajuda"
                       className={FIELD_CLASS}
                     />
-                    <p id="pac-telefone-ajuda" className="mt-1 text-xs text-slate-500">{telefone.length}/11 d├¡gitos</p>
+                    <p id="pac-telefone-ajuda" className="mt-1 text-xs text-slate-500">{telefone.length}/11 dígitos</p>
                   </div>
                   <div>
                     <label htmlFor="pac-email" className={LABEL_CLASS}>E-mail <span className="font-normal text-slate-500">(opcional)</span></label>
@@ -3306,7 +3310,7 @@
                       type="email"
                       maxLength={120}
                       pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}"
-                      title="Informe um e-mail v├ílido, como nome@dominio.com"
+                      title="Informe um e-mail válido, como nome@dominio.com"
                       autoComplete="off"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
@@ -3317,7 +3321,7 @@
                 </div>
 
                 <div>
-                  <label htmlFor="pac-endereco" className={LABEL_CLASS}>Endere├ºo <span className="font-normal text-slate-500">(opcional)</span></label>
+                  <label htmlFor="pac-endereco" className={LABEL_CLASS}>Endereço <span className="font-normal text-slate-500">(opcional)</span></label>
                   <input
                     id="pac-endereco"
                     type="text"
@@ -3330,9 +3334,9 @@
                   />
                 </div>
 
-                {/* RF18 - Informa├º├Áes cl├¡nicas gerais */}
+                {/* RF18 - Informações clínicas gerais */}
                 <fieldset className="border-t border-slate-200 pt-4 space-y-4">
-                  <legend className="float-left w-full text-sm font-bold text-slate-900 mb-3">Informa├º├Áes cl├¡nicas <span className="font-normal text-slate-500">(opcional)</span></legend>
+                  <legend className="float-left w-full text-sm font-bold text-slate-900 mb-3">Informações clínicas <span className="font-normal text-slate-500">(opcional)</span></legend>
                   <div className="clear-both">
                     <label htmlFor="pac-alergias" className={LABEL_CLASS}>Alergias conhecidas</label>
                     <input
@@ -3341,20 +3345,20 @@
                       maxLength={CLINICAL_MAX_LENGTH}
                       value={alergias}
                       onChange={e => setAlergias(e.target.value.slice(0, CLINICAL_MAX_LENGTH))}
-                      placeholder="Ex.: penicilina, l├ítex, dipirona"
+                      placeholder="Ex.: penicilina, látex, dipirona"
                       className={FIELD_CLASS}
                     />
                     <p className="mt-1 text-xs text-slate-500">{alergias.length}/{CLINICAL_MAX_LENGTH} caracteres</p>
                   </div>
                   <div>
-                    <label htmlFor="pac-condicoes" className={LABEL_CLASS}>Condi├º├Áes preexistentes</label>
+                    <label htmlFor="pac-condicoes" className={LABEL_CLASS}>Condições preexistentes</label>
                     <input
                       id="pac-condicoes"
                       type="text"
                       maxLength={CLINICAL_MAX_LENGTH}
                       value={condicoes}
                       onChange={e => setCondicoes(e.target.value.slice(0, CLINICAL_MAX_LENGTH))}
-                      placeholder="Ex.: diabetes tipo II, ansiedade cr├┤nica"
+                      placeholder="Ex.: diabetes tipo II, ansiedade crônica"
                       className={FIELD_CLASS}
                     />
                     <p className="mt-1 text-xs text-slate-500">{condicoes.length}/{CLINICAL_MAX_LENGTH} caracteres</p>
@@ -3378,7 +3382,7 @@
       const [editNoteContent, setEditNoteContent] = useState('');
       const [versionModalRecord, setVersionModalRecord] = useState(null);
 
-      // Paciente selecionado padr├úo
+      // Paciente selecionado padrão
       useEffect(() => {
         if (!selectedPatient && patients.length > 0) {
           setSelectedPatient(patients[0]);
@@ -3390,7 +3394,7 @@
         return records.filter(r => r.pacienteId === selectedPatient.id);
       }, [records, selectedPatient]);
 
-      // Registro de Sess├úo (RF15, RN05, RN06)
+      // Registro de Sessão (RF15, RN05, RN06)
       const handleCreateRecord = (e) => {
         e.preventDefault();
         if (!newNote.trim()) return;
@@ -3409,11 +3413,11 @@
 
         setRecords(prev => [newRec, ...prev]);
         setNewNote('');
-        showToast('Evolu├º├úo registrada no prontu├írio.');
-        registerLog('Registro de Sess├úo em Prontu├írio (RF15)', `Nota cl├¡nica adicionada para ${selectedPatient.nome}`);
+        showToast('Evolução registrada no prontuário.');
+        registerLog('Registro de Sessão em Prontuário (RF15)', `Nota clínica adicionada para ${selectedPatient.nome}`);
       };
 
-      // Altera├º├úo com Versionamento Imut├ível (RN17, RF16)
+      // Alteração com Versionamento Imutável (RN17, RF16)
       const handleSaveEdit = (recordId) => {
         if (!editNoteContent.trim()) return;
 
@@ -3437,23 +3441,23 @@
         }));
 
         setEditingRecordId(null);
-        showToast('Evolu├º├úo atualizada. A vers├úo anterior foi preservada.');
-        registerLog('Altera├º├úo de Prontu├írio com Versionamento (RN17)', `Edi├º├úo da anota├º├úo ${recordId}`);
+        showToast('Evolução atualizada. A versão anterior foi preservada.');
+        registerLog('Alteração de Prontuário com Versionamento (RN17)', `Edição da anotação ${recordId}`);
       };
 
       const hasClinicalInfo = (value) => Boolean(value) && !/^nenhum/i.test(value.trim());
 
       const formatRecordDate = (value) => {
         const iso = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/.exec(value || '');
-        if (iso) return `${iso[3]}/${iso[2]}/${iso[1]} ├ás ${iso[4]}`;
+        if (iso) return `${iso[3]}/${iso[2]}/${iso[1]} às ${iso[4]}`;
         const br = /^(\d{2}\/\d{2}\/\d{4}),?\s+(\d{2}:\d{2})/.exec(value || '');
-        return br ? `${br[1]} ├ás ${br[2]}` : value;
+        return br ? `${br[1]} às ${br[2]}` : value;
       };
 
       const NOTE_TEMPLATES = [
-        ['Anamnese inicial', 'Queixa Principal: \nHist├│rico do Sintoma: \nAvalia├º├úo Cl├¡nica: \nPlano Terap├¬utico e Pr├│xima Sess├úo: '],
-        ['Evolu├º├úo de retorno', 'Evolu├º├úo Cl├¡nica: Paciente compareceu ass├¡duo, relatando melhora dos sintomas e boa ades├úo ├ás estrat├®gias combinadas.\nConduta: Manter plano terap├¬utico com retorno em 15 dias.'],
-        ['Orienta├º├Áes e encaminhamento', 'Orienta├º├Áes Cl├¡nicas Fornecidas: \nEncaminhamento Interdisciplinar: \nObserva├º├Áes ├ëticas e Sigilo: ']
+        ['Anamnese inicial', 'Queixa Principal: \nHistórico do Sintoma: \nAvaliação Clínica: \nPlano Terapêutico e Próxima Sessão: '],
+        ['Evolução de retorno', 'Evolução Clínica: Paciente compareceu assíduo, relatando melhora dos sintomas e boa adesão às estratégias combinadas.\nConduta: Manter plano terapêutico com retorno em 15 dias.'],
+        ['Orientações e encaminhamento', 'Orientações Clínicas Fornecidas: \nEncaminhamento Interdisciplinar: \nObservações Éticas e Sigilo: ']
       ];
 
       const [patientQuery, setPatientQuery] = useState('');
@@ -3461,7 +3465,7 @@
       const [searchStatus, setSearchStatus] = useState('todos'); // 'todos' | 'ativo' | 'inativo'
       const [searchOpen, setSearchOpen] = useState(false);
 
-      const normalizeText = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[╠Ç-═»]/g, '');
+      const normalizeText = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
       // RF05 - Busca de paciente por nome, CPF, telefone ou e-mail
       const queryText = normalizeText(patientQuery.trim());
       const queryDigits = onlyDigits(patientQuery);
@@ -3488,10 +3492,10 @@
         email: 'Buscar paciente por e-mail'
       };
 
-      // RN13 - A troca de prontu├írio ├® registrada na auditoria
+      // RN13 - A troca de prontuário é registrada na auditoria
       const handleSelectPatient = (pat) => {
         setSelectedPatient(pat);
-        registerLog('Troca de Prontu├írio (RN13)', `Visualizando prontu├írio de ${pat?.nome}`);
+        registerLog('Troca de Prontuário (RN13)', `Visualizando prontuário de ${pat?.nome}`);
         setPatientQuery('');
         setSearchOpen(false);
       };
@@ -3541,7 +3545,7 @@
                       {searchResults.length === 0
                         ? 'Nenhum paciente encontrado'
                         : searchResults.length > SEARCH_LIMIT
-                          ? `Mostrando ${SEARCH_LIMIT} de ${searchResults.length} pacientes ÔÇö refine a busca`
+                          ? `Mostrando ${SEARCH_LIMIT} de ${searchResults.length} pacientes — refine a busca`
                           : `${searchResults.length} de ${patients.length} pacientes`}
                     </p>
 
@@ -3570,7 +3574,7 @@
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate text-sm font-bold text-slate-900">{pat.nome}</span>
                                   <span className="block truncate text-xs text-slate-600">
-                                    CPF {formatCpf(pat.cpf)}{pat.telefone ? ` ┬À ${formatPhone(pat.telefone)}` : ''}{pat.email ? ` ┬À ${pat.email}` : ''}
+                                    CPF {formatCpf(pat.cpf)}{pat.telefone ? ` · ${formatPhone(pat.telefone)}` : ''}{pat.email ? ` · ${pat.email}` : ''}
                                   </span>
                                 </span>
                                 {isCurrent && <span className="shrink-0 text-xs font-bold text-emerald-700">Aberto</span>}
@@ -3604,14 +3608,14 @@
               </div>
 
               <div>
-                <label htmlFor="pront-busca-situacao" className="sr-only">Situa├º├úo do paciente</label>
+                <label htmlFor="pront-busca-situacao" className="sr-only">Situação do paciente</label>
                 <select
                   id="pront-busca-situacao"
                   value={searchStatus}
                   onChange={e => { setSearchStatus(e.target.value); setSearchOpen(true); }}
                   className={`${FIELD_CLASS} md:!w-auto font-semibold`}
                 >
-                  <option value="todos">Todas as situa├º├Áes</option>
+                  <option value="todos">Todas as situações</option>
                   <option value="ativo">Ativos</option>
                   <option value="inativo">Inativos</option>
                 </select>
@@ -3675,9 +3679,9 @@
 
           {selectedPatient && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-              {/* RF18 - Ficha cl├¡nica geral */}
+              {/* RF18 - Ficha clínica geral */}
               <aside className="lg:order-2 bg-white rounded-2xl border border-slate-200 p-5">
-                <h3 className="text-base font-bold text-slate-900">Ficha cl├¡nica</h3>
+                <h3 className="text-base font-bold text-slate-900">Ficha clínica</h3>
 
                 <dl className="mt-4 space-y-4 text-sm">
                   <div className={hasAllergy ? 'rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5' : ''}>
@@ -3690,27 +3694,27 @@
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-bold text-slate-800">Condi├º├Áes preexistentes</dt>
+                    <dt className="font-bold text-slate-800">Condições preexistentes</dt>
                     <dd className={`mt-0.5 ${hasCondition ? 'text-slate-700' : 'text-slate-500'}`}>
                       {hasCondition ? selectedPatient.condicoesPreexistentes : 'Nenhuma informada'}
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-bold text-slate-800">Endere├ºo</dt>
-                    <dd className="mt-0.5 text-slate-700">{selectedPatient.endereco || 'N├úo informado'}</dd>
+                    <dt className="font-bold text-slate-800">Endereço</dt>
+                    <dd className="mt-0.5 text-slate-700">{selectedPatient.endereco || 'Não informado'}</dd>
                   </div>
                   <div>
-                    <dt className="font-bold text-slate-800">Sess├Áes registradas</dt>
+                    <dt className="font-bold text-slate-800">Sessões registradas</dt>
                     <dd className="mt-0.5 text-slate-700 tabular-nums">{patientRecords.length}</dd>
                   </div>
                 </dl>
               </aside>
 
               <div className="lg:order-1 lg:col-span-2 space-y-5">
-                {/* RF15, RN05, RN06 - Registro de sess├úo */}
+                {/* RF15, RN05, RN06 - Registro de sessão */}
                 <section className="no-print bg-white rounded-2xl border border-slate-200 p-5">
                   <form onSubmit={handleCreateRecord}>
-                    <label htmlFor="pront-nota" className="block text-base font-bold text-slate-900">Nova evolu├º├úo</label>
+                    <label htmlFor="pront-nota" className="block text-base font-bold text-slate-900">Nova evolução</label>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <span className="text-xs font-semibold text-slate-600">Usar modelo:</span>
@@ -3732,24 +3736,24 @@
                       required
                       value={newNote}
                       onChange={e => setNewNote(e.target.value)}
-                      placeholder="Queixas, evolu├º├úo cl├¡nica, interven├º├Áes realizadas e plano terap├¬utico"
+                      placeholder="Queixas, evolução clínica, intervenções realizadas e plano terapêutico"
                       className={`${FIELD_CLASS} mt-3 leading-relaxed`}
                     ></textarea>
 
                     <div className="mt-3 flex justify-end">
-                      <button type="submit" className={BTN_PRIMARY}>Salvar no prontu├írio</button>
+                      <button type="submit" className={BTN_PRIMARY}>Salvar no prontuário</button>
                     </div>
                   </form>
                 </section>
 
-                {/* RF17, RF23 - Hist├│rico cronol├│gico de atendimentos */}
+                {/* RF17, RF23 - Histórico cronológico de atendimentos */}
                 <section className="bg-white rounded-2xl border border-slate-200 p-5">
-                  <h3 className="text-base font-bold text-slate-900">Hist├│rico de atendimentos</h3>
-                  {/* RN17 - Versionamento imut├ível */}
-                  <p className="text-xs text-slate-500 mt-0.5">Cada edi├º├úo cria uma nova vers├úo; o texto anterior fica guardado.</p>
+                  <h3 className="text-base font-bold text-slate-900">Histórico de atendimentos</h3>
+                  {/* RN17 - Versionamento imutável */}
+                  <p className="text-xs text-slate-500 mt-0.5">Cada edição cria uma nova versão; o texto anterior fica guardado.</p>
 
                   {patientRecords.length === 0 ? (
-                    <p className="py-10 text-center text-sm text-slate-500">Nenhuma sess├úo registrada para este paciente.</p>
+                    <p className="py-10 text-center text-sm text-slate-500">Nenhuma sessão registrada para este paciente.</p>
                   ) : (
                     <ol className="mt-5 ml-1.5 border-l-2 border-slate-200">
                       {patientRecords.map(rec => (
@@ -3759,18 +3763,18 @@
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm">
                               <span className="font-bold text-slate-900">{formatRecordDate(rec.data)}</span>
-                              <span className="text-slate-400"> ┬À </span>
+                              <span className="text-slate-400"> · </span>
                               <span className="text-slate-600">{rec.profissionalNome}</span>
                             </p>
 
                             <div className="flex flex-wrap items-center gap-2">
-                              <StatusBadge label={`Vers├úo ${rec.versao}`} className="bg-slate-100 text-slate-700 ring-slate-500/20" />
+                              <StatusBadge label={`Versão ${rec.versao}`} className="bg-slate-100 text-slate-700 ring-slate-500/20" />
                               {rec.historicoVersoes.length > 0 && (
                                 <button
                                   onClick={() => setVersionModalRecord(rec)}
                                   className={`${BTN_SMALL} no-print border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400/40`}
                                 >
-                                  Vers├Áes anteriores ({rec.historicoVersoes.length})
+                                  Versões anteriores ({rec.historicoVersoes.length})
                                 </button>
                               )}
                               {editingRecordId !== rec.id && (
@@ -3779,7 +3783,7 @@
                                     setEditingRecordId(rec.id);
                                     setEditNoteContent(rec.anotacao);
                                   }}
-                                  aria-label={`Editar evolu├º├úo de ${formatRecordDate(rec.data)}`}
+                                  aria-label={`Editar evolução de ${formatRecordDate(rec.data)}`}
                                   className={`${BTN_SMALL} no-print border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400/40`}
                                 >
                                   <Icon name="edit" className="w-3.5 h-3.5" />
@@ -3793,7 +3797,7 @@
                             <div className="mt-3">
                               <textarea
                                 rows="4"
-                                aria-label="Texto da evolu├º├úo"
+                                aria-label="Texto da evolução"
                                 value={editNoteContent}
                                 onChange={e => setEditNoteContent(e.target.value)}
                                 className={`${FIELD_CLASS} leading-relaxed`}
@@ -3801,7 +3805,7 @@
                               <div className="mt-2 flex justify-end gap-2">
                                 <button onClick={() => setEditingRecordId(null)} className={BTN_SECONDARY}>Cancelar</button>
                                 <button onClick={() => handleSaveEdit(rec.id)} className={BTN_PRIMARY}>
-                                  Salvar como vers├úo {rec.versao + 1}
+                                  Salvar como versão {rec.versao + 1}
                                 </button>
                               </div>
                             </div>
@@ -3817,17 +3821,17 @@
             </div>
           )}
 
-          {/* RN17 - Vers├Áes anteriores preservadas */}
+          {/* RN17 - Versões anteriores preservadas */}
           {versionModalRecord && (
-            <Modal title="Vers├Áes anteriores" onClose={() => setVersionModalRecord(null)}>
-              <p className="mt-4 text-sm text-slate-600">Vers├úo atual: {versionModalRecord.versao}</p>
+            <Modal title="Versões anteriores" onClose={() => setVersionModalRecord(null)}>
+              <p className="mt-4 text-sm text-slate-600">Versão atual: {versionModalRecord.versao}</p>
               <ol className="mt-3 space-y-3">
                 {versionModalRecord.historicoVersoes.map((v, idx) => (
                   <li key={idx} className="rounded-xl border border-slate-200 p-3">
                     <p className="text-xs text-slate-600">
-                      <span className="font-bold text-slate-900">Vers├úo {v.versao}</span>
-                      <span className="text-slate-400"> ┬À </span>
-                      substitu├¡da em {formatRecordDate(v.dataModificacao)} por {v.modificadoPor}
+                      <span className="font-bold text-slate-900">Versão {v.versao}</span>
+                      <span className="text-slate-400"> · </span>
+                      substituída em {formatRecordDate(v.dataModificacao)} por {v.modificadoPor}
                     </p>
                     <p className="mt-2 text-sm text-slate-700 whitespace-pre-line leading-relaxed">{v.conteudoAnterior}</p>
                   </li>
@@ -3851,7 +3855,7 @@
         return true;
       });
 
-      // C├ílculos do Resumo Mensal (RF22, RN09, RQ16)
+      // Cálculos do Resumo Mensal (RF22, RN09, RQ16)
       const totalFaturado = appointments
         .filter(a => a.statusPagamento === 'pago')
         .reduce((sum, a) => sum + (Number(a.valor) || 0), 0);
@@ -3873,10 +3877,10 @@
           return a;
         }));
         showToast('Status financeiro atualizado com sucesso (RF20)!');
-        registerLog('Atualiza├º├úo de Pagamento (RF20, RN08)', `Status modificado para consulta ${apptId}`);
+        registerLog('Atualização de Pagamento (RF20, RN08)', `Status modificado para consulta ${apptId}`);
       };
 
-      // Exporta├º├úo de Relat├│rio CSV (RF25)
+      // Exportação de Relatório CSV (RF25)
       const handleExportCSV = () => {
         let csv = 'Data,Horario,Paciente,Valor,StatusPagamento,FormaPagamento\n';
         filtered.forEach(a => {
@@ -3891,13 +3895,13 @@
         link.click();
         URL.revokeObjectURL(url);
         showToast('Planilha CSV gerada com sucesso (RF25)!');
-        registerLog('Exporta├º├úo CSV (RF25)', 'Relat├│rio financeiro exportado em formato tabular');
+        registerLog('Exportação CSV (RF25)', 'Relatório financeiro exportado em formato tabular');
       };
 
-      // Exporta├º├úo de Relat├│rio (RF25)
+      // Exportação de Relatório (RF25)
       const handlePrint = () => {
         window.print();
-        registerLog('Exporta├º├úo de Relat├│rio (RF25)', 'Relat├│rio financeiro exportado para PDF / Impress├úo');
+        registerLog('Exportação de Relatório (RF25)', 'Relatório financeiro exportado para PDF / Impressão');
       };
 
       const totalGeral = totalFaturado + totalPendente;
@@ -3905,10 +3909,10 @@
 
       return (
         <div className="space-y-6 max-w-6xl mx-auto">
-          {/* Barra de Progresso da Arrecada├º├úo */}
+          {/* Barra de Progresso da Arrecadação */}
           <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between text-xs mb-2">
-              <span className="font-bold text-slate-700">Taxa de Liquida├º├úo Financeira: {taxaRecebimento}% recebido</span>
+              <span className="font-bold text-slate-700">Taxa de Liquidação Financeira: {taxaRecebimento}% recebido</span>
               <span className="text-slate-500 font-semibold">Total Geral: R$ {totalGeral.toFixed(2)}</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
@@ -3924,23 +3928,23 @@
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
               <span className="text-xs font-bold text-slate-500">Total Faturado (Pago)</span>
               <div className="text-2xl font-bold text-emerald-700 my-1">R$ {totalFaturado.toFixed(2)}</div>
-              <span className="text-[11px] text-slate-400">Receitas liquidadas no per├¡odo</span>
+              <span className="text-[11px] text-slate-400">Receitas liquidadas no período</span>
             </div>
 
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
               <span className="text-xs font-bold text-slate-500">Total Pendente (RN08)</span>
               <div className="text-2xl font-bold text-amber-600 my-1">R$ {totalPendente.toFixed(2)}</div>
-              <span className="text-[11px] text-slate-400">Em cobran├ºa at├® liquida├º├úo</span>
+              <span className="text-[11px] text-slate-400">Em cobrança até liquidação</span>
             </div>
 
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
               <span className="text-xs font-bold text-slate-500">Total de Atendimentos</span>
               <div className="text-2xl font-bold text-slate-900 my-1">{totalConsultas}</div>
-              <span className="text-[11px] text-slate-400">Sess├Áes confirmadas no m├¬s</span>
+              <span className="text-[11px] text-slate-400">Sessões confirmadas no mês</span>
             </div>
           </div>
 
-          {/* Filtros e A├º├úo de Exporta├º├úo (RF24, RF25) */}
+          {/* Filtros e Ação de Exportação (RF24, RF25) */}
           <div className="no-print bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
@@ -3975,16 +3979,16 @@
               onClick={handlePrint}
               className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-sm"
             >
-              <span>­ƒû¿´©Å</span>
+              <span>🖨️</span>
               <span>Exportar PDF / Imprimir (RF25)</span>
             </button>
           </div>
 
-          {/* Tabela de Lan├ºamentos */}
+          {/* Tabela de Lançamentos */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex justify-between">
-              <span>Extrato Consolidado de Atendimentos & Honor├írios (RF24)</span>
-              <span className="text-slate-400 font-normal">Exatid├úo garantida por RQ16</span>
+              <span>Extrato Consolidado de Atendimentos & Honorários (RF24)</span>
+              <span className="text-slate-400 font-normal">Exatidão garantida por RQ16</span>
             </div>
 
             <div className="overflow-x-auto">
@@ -3996,7 +4000,7 @@
                     <th className="p-3.5">Valor (R$)</th>
                     <th className="p-3.5">Forma</th>
                     <th className="p-3.5">Status</th>
-                    <th className="p-3.5 no-print text-right">A├º├úo</th>
+                    <th className="p-3.5 no-print text-right">Ação</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -4006,8 +4010,8 @@
 
                     return (
                       <tr key={appt.id} className="hover:bg-slate-50 transition">
-                        <td className="p-3.5 font-medium">{appt.data} ├ás {appt.horario}</td>
-                        <td className="p-3.5 font-bold text-slate-800">{patient?.nome || 'ÔÇö'}</td>
+                        <td className="p-3.5 font-medium">{appt.data} às {appt.horario}</td>
+                        <td className="p-3.5 font-bold text-slate-800">{patient?.nome || '—'}</td>
                         <td className="p-3.5 font-bold text-slate-900">R$ {Number(appt.valor).toFixed(2)}</td>
                         <td className="p-3.5 text-slate-500">{appt.formaPagamento}</td>
                         <td className="p-3.5">
@@ -4044,11 +4048,11 @@
       const [visibleCount, setVisibleCount] = useState(50);
 
       const LOG_CATEGORIES = {
-        acesso: { label: 'Acesso', icon: 'lock', test: /Autentica├º├úo|Encerramento|Altern├óncia/ },
-        prontuario: { label: 'Prontu├írio', icon: 'clipboard', test: /Prontu├írio/ },
-        agenda: { label: 'Agenda', icon: 'calendar', test: /Agendamento|Agenda|Remarca├º├úo|Cancelamento|WhatsApp/ },
-        pacientes: { label: 'Pacientes', icon: 'users', test: /Paciente|LGPD|Portabilidade|Inativa├º├úo/ },
-        financeiro: { label: 'Financeiro', icon: 'wallet', test: /Pagamento|Exporta├º├úo|Relat├│rio/ }
+        acesso: { label: 'Acesso', icon: 'lock', test: /Autenticação|Encerramento|Alternância/ },
+        prontuario: { label: 'Prontuário', icon: 'clipboard', test: /Prontuário/ },
+        agenda: { label: 'Agenda', icon: 'calendar', test: /Agendamento|Agenda|Remarcação|Cancelamento|WhatsApp/ },
+        pacientes: { label: 'Pacientes', icon: 'users', test: /Paciente|LGPD|Portabilidade|Inativação/ },
+        financeiro: { label: 'Financeiro', icon: 'wallet', test: /Pagamento|Exportação|Relatório/ }
       };
       const OTHER_CATEGORY = { label: 'Outros', icon: 'clock' };
 
@@ -4056,7 +4060,7 @@
         Object.keys(LOG_CATEGORIES).find(key => LOG_CATEGORIES[key].test.test(log.operacao)) || 'outros';
 
       const stripCodes = (text) => (text || '').replace(/\s*\((?:[A-Z]{1,2}\d{1,2}(?:\s*[,\/]\s*)?)+\)/g, '').trim();
-      const normalizeText = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[╠Ç-═»]/g, '');
+      const normalizeText = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
       const entries = logs.map(log => {
         const date = new Date(log.timestamp);
@@ -4067,7 +4071,7 @@
           category: LOG_CATEGORIES[categoryKey] || OTHER_CATEGORY,
           title: stripCodes(log.operacao),
           dayKey: isNaN(date) ? '' : date.toLocaleDateString('pt-BR'),
-          time: isNaN(date) ? 'ÔÇö' : date.toLocaleTimeString('pt-BR')
+          time: isNaN(date) ? '—' : date.toLocaleTimeString('pt-BR')
         };
       });
 
@@ -4088,9 +4092,9 @@
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayKey = yesterday.toLocaleDateString('pt-BR');
       const getDayLabel = (dayKey) => {
-        if (dayKey === todayKey) return `Hoje ┬À ${dayKey}`;
-        if (dayKey === yesterdayKey) return `Ontem ┬À ${dayKey}`;
-        return dayKey || 'Data n├úo registrada';
+        if (dayKey === todayKey) return `Hoje · ${dayKey}`;
+        if (dayKey === yesterdayKey) return `Ontem · ${dayKey}`;
+        return dayKey || 'Data não registrada';
       };
 
       const categoryOptions = [
@@ -4111,21 +4115,21 @@
               <input
                 id="log-busca"
                 type="search"
-                placeholder="Buscar por evento, detalhe ou usu├írio"
+                placeholder="Buscar por evento, detalhe ou usuário"
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setVisibleCount(50); }}
                 className={`${FIELD_CLASS} !pl-10`}
               />
             </div>
             <div>
-              <label htmlFor="log-usuario" className="sr-only">Filtrar por usu├írio</label>
+              <label htmlFor="log-usuario" className="sr-only">Filtrar por usuário</label>
               <select
                 id="log-usuario"
                 value={userFilter}
                 onChange={e => { setUserFilter(e.target.value); setVisibleCount(50); }}
                 className={`${FIELD_CLASS} lg:!w-auto font-semibold`}
               >
-                <option value="todos">Todos os usu├írios</option>
+                <option value="todos">Todos os usuários</option>
                 {userNames.map(name => (
                   <option key={name} value={name}>{name}</option>
                 ))}
@@ -4158,7 +4162,7 @@
                 {filteredLogs.length === 1 ? '1 registro' : `${filteredLogs.length} registros`}
                 {hasFilters && <span className="font-normal text-slate-500"> de {logs.length}</span>}
               </h2>
-              <p className="text-xs text-slate-500">Gerados automaticamente pelo sistema. N├úo podem ser editados nem apagados.</p>
+              <p className="text-xs text-slate-500">Gerados automaticamente pelo sistema. Não podem ser editados nem apagados.</p>
             </div>
 
             {filteredLogs.length === 0 ? (
@@ -4178,10 +4182,10 @@
                 <table className="w-full min-w-[42rem] text-left text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
-                      <th scope="col" className="w-28 px-5 py-2.5 font-bold">Hor├írio</th>
+                      <th scope="col" className="w-28 px-5 py-2.5 font-bold">Horário</th>
                       <th scope="col" className="px-3 py-2.5 font-bold">Evento</th>
                       <th scope="col" className="w-32 px-3 py-2.5 font-bold">Tipo</th>
-                      <th scope="col" className="w-52 px-5 py-2.5 font-bold">Usu├írio</th>
+                      <th scope="col" className="w-52 px-5 py-2.5 font-bold">Usuário</th>
                     </tr>
                   </thead>
                   <tbody>

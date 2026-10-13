@@ -66,7 +66,11 @@
   - **Criptografia Retrocompatível (RQ08):** `Usuario.cs` atualizado para PBKDF2 com Salt (210.000 iterações), mantendo compatibilidade transparente com os hashes legados SHA-256 das contas existentes no MySQL (Aiven Cloud e local).
   - **Interface Web:** Incorporadas validações HTML5, máscaras de CPF/telefone, contadores de caracteres, atalho de agendamento por paciente e exportação CSV com BOM UTF-8 (`\uFEFF`), preservando a conexão à nuvem (`API_BASE` para o Render), os 6 logins da equipe e o badge de status do MySQL.
   - **Testes Unitários:** 55 testes xUnit passando com 100% de sucesso (3 novos testes adicionados).
-- **Próximo passo:** Commitar as alterações na `main`, enviar ao GitHub (`git push origin main`), responder ao PR #1 e preparar a apresentação acadêmica para a banca do CEUB.
+- **Correção de Codificação (UTF-8) e Login dos 6 Membros Concluída com Sucesso:**
+  - **Caracteres Corrompidos (Mojibake):** Restaurada codificação UTF-8 padrão e limpa em `index.html` e `src/ClinicaApp.Api/wwwroot/index.html` (resolvido problema de CP850 no PowerShell).
+  - **Login e Perfis de Acesso:** Lista `INITIAL_USERS` atualizada no frontend com os 6 membros da equipe (`davi@clinix.com`, `lucas@clinix.com`, `miguel@clinix.com`, `isaac@clinix.com`, `vanessa@clinix.com`, `juliana@clinix.com`), senha padrão preenchida (`123456`) e atalhos/aliases implementados em `AuthService.cs` (`davi.profissional@clinix.com` e `admin@clinix.com`, senha `123` e `123456`).
+  - **Docker & Testes:** Container `clinix-api` reconstruído e testado; 56 testes xUnit passando com 100% de sucesso.
+- **Próximo passo:** Commitar na `main`, enviar ao GitHub (`git push origin main`) e avisar a equipe que os testes estão liberados.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -82,7 +86,8 @@
 | 10/10/2026 | Antigravity AI | Expansão massiva do seed de outubro/2026 (37 consultas, 12 pacientes); estruturação do Docker Compose com phpMyAdmin e hot-reload; criação do guia `GUIA_DOCKER_MIGUEL.md` e inclusão na fila do Miguel. | Implementar Opção 2 (Views, Procedures e Triggers em `03_procedures_views_triggers.sql`). |
 | 10/10/2026 | Antigravity AI | Criado `03_procedures_views_triggers.sql` (3 views, 3 triggers LGPD, 2 procedures); provisionado cluster MySQL 8.4 na nuvem Aiven e carregados todos os 3 scripts com 100% de sucesso. 52 testes xUnit OK. | Hospedar API C# no Render.com conectada ao Aiven Cloud. |
 | 10/10/2026 | Antigravity AI | Deploy da API C# concluído no Render (`https://clinix-api-c58x.onrender.com`); integração do `api.js` apontando para o Render em produção; validação ponta a ponta com banco Aiven Cloud. | Apresentação acadêmica e apoio ao Miguel no UI/UX. |
-| 12/10/2026 | Antigravity AI | Integração cirúrgica do PR #1: JWT (`TokenService`), Rate Limiting, CSP/HSTS, `ErrosDeNegocioFilter` (RQ11), PBKDF2 com Salt retrocompatível, máscaras de CPF/telefone, validações e CSV com BOM UTF-8; 55 testes xUnit 100% OK; persistência MySQL (Aiven/Render) preservada. | Commitar na `main`, dar push e responder ao PR #1. |
+| 12/10/2026 | Antigravity AI | Integração cirúrgica do PR #1: JWT (`TokenService`), Rate Limiting, CSP/HSTS, `ErrosDeNegocioFilter` (RQ11), PBKDF2 com Salt retrocompatível, máscaras de CPF/telefone, validações e CSV com BOM UTF-8; 55 testes xUnit 100% OK; persistência MySQL (Aiven/Render) preservada. | Corrigir codificação UTF-8 e login dos 6 membros. |
+| 12/10/2026 | Antigravity AI | Correção de codificação UTF-8 (mojibake eliminado), inclusão dos 6 membros no frontend com preenchimento da senha (123456), aliases resilientes e atalho de senha em `AuthService.cs`. 56 testes xUnit 100% OK. Container Docker rebuildado e testado. | Commitar na `main` e dar push. |
 
 
 

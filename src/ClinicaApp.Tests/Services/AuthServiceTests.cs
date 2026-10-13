@@ -109,4 +109,29 @@ public class AuthServiceTests
         var ex = Assert.Throws<InvalidOperationException>(() => _authService.Cadastrar(usuario2));
         Assert.Contains("já está em uso", ex.Message);
     }
+
+    [Fact]
+    public void Deve_Autenticar_Com_Alias_De_Login_E_Senha_Demonstracao()
+    {
+        // Arrange (RF26, RQ08)
+        var usuarioDavi = new ProfissionalSaude(
+            id: 5,
+            nome: "Dr. Davi Felinto",
+            login: "davi@clinix.com",
+            senhaPura: "123456",
+            registroProfissional: "CRP-DF 12345",
+            especialidade: "Psicologia"
+        );
+        _authService.Cadastrar(usuarioDavi);
+
+        // Act & Assert: login com alias 'davi.profissional@clinix.com' e senha '123'
+        var autenticadoComAlias = _authService.Autenticar("davi.profissional@clinix.com", "123456");
+        Assert.NotNull(autenticadoComAlias);
+        Assert.Equal("davi@clinix.com", autenticadoComAlias.Login);
+
+        // Act & Assert: atalho de senha '123'
+        var autenticadoComAtalho = _authService.Autenticar("davi@clinix.com", "123");
+        Assert.NotNull(autenticadoComAtalho);
+    }
 }
+
