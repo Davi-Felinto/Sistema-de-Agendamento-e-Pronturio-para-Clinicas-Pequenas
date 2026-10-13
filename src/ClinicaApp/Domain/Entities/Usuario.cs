@@ -36,13 +36,37 @@ public abstract class Usuario
         Ativo = true;
     }
 
+    private const int IteracoesPbkdf2 = 210_000;
+    private const int TamanhoSalt = 16;
+    private const int TamanhoHash = 32;
+
     /// <summary>
     /// RQ08: Autenticação segura comparando o hash da senha digitada.
+    /// Suporta PBKDF2 com Salt (novo padrão) e hash SHA-256 legado (compatibilidade com banco existente).
     /// </summary>
-    public bool Autenticar(string senhaDigitada){
+    public bool Autenticar(string senhaDigitada)
+    {
         if (string.IsNullOrWhiteSpace(senhaDigitada)) return false;
-        var hashDigitado = GerarHashSenha(senhaDigitada);
-        return string.Equals(hashDigitado, SenhaHash, StringComparison.OrdinalIgnoreCase);
+
+        // Se o hash armazenado estiver no formato PBKDF2 ("iteracoes.saltHex.hashHex")
+        if (SenhaHash.Contains('.'))
+        {
+            var partes = SenhaHash.Split('.');
+            if (partes.Length != 3 || !int.TryParse(partes[0], out var iteracoes)) return false;
+
+            var salt = Convert.FromHexString(partes[1]);
+            var hashArmazenado = Convert.FromHexString(partes[2]);
+            var hashDigitado = Rfc2898DeriveBytes.Pbkdf2(senhaDigitada, salt, iteracoes, HashAlgorithmName.SHA256, hashArmazenado.Length);
+
+            return CryptographicOperations.FixedTimeEquals(hashDigitado, hashArmazenado);
+        }
+
+        // Fallback para hashes legados em SHA-256 (compatibilidade com seed do MySQL existente)
+        using var sha256 = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(senhaDigitada);
+        var hashBytes = sha256.ComputeHash(bytes);
+        var hashHex = Convert.ToHexString(hashBytes);
+        return string.Equals(hashHex, SenhaHash, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -62,10 +86,14 @@ public abstract class Usuario
         Ativo = ativo;
     }
 
-    private static string GerarHashSenha(string senha){
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(senha);
-        var hashBytes = sha256.ComputeHash(bytes);
-        return Convert.ToHexString(hashBytes);
+    /// <summary>
+    /// RQ08: PBKDF2-SHA256 com salt aleatório por usuário (210.000 iterações).
+    /// Formato armazenado: "iteracoes.saltHex.hashHex".
+    /// </summary>
+    private static string GerarHashSenha(string senha)
+    {
+        var salt = RandomNumberGenerator.GetBytes(TamanhoSalt);
+        var hash = Rfc2898DeriveBytes.Pbkdf2(senha, salt, IteracoesPbkdf2, HashAlgorithmName.SHA256, TamanhoHash);
+        return $"{IteracoesPbkdf2}.{Convert.ToHexString(salt)}.{Convert.ToHexString(hash)}";
     }
 }

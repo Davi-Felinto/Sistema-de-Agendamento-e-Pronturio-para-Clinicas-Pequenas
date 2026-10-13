@@ -29,6 +29,10 @@ public class AgendaService
         DateTime dataHoraFim,
         string? observacoes = null)
     {
+        // Não é permitido agendar consulta em data/hora que já passou
+        if (dataHoraInicio < DateTime.Now)
+            throw new ArgumentException("Não é possível agendar consulta no passado.");
+
         // 1. Valida se o paciente existe e está ativo (RN16)
         var paciente = _pacienteRepository.ObterPorId(pacienteId);
         if (paciente == null || !paciente.Ativo)

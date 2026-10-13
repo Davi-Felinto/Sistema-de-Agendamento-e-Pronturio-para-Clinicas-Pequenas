@@ -121,4 +121,5 @@ Sempre que uma ação falhar, a API retornará um erro padrão. O Miguel deve de
 |---|---|---|---|
 | 08/10/2026 | Antigravity AI (a pedido do Davi) | Criada a memória pessoal do Miguel. Escopo definido: apenas telas; integração com API fica com o Davi. | Primeira sessão: preencher perfil e levantar melhorias das telas do `index.html`. |
 | 10/10/2026 | Antigravity AI (a pedido do Davi) | Preparado ambiente Docker (MySQL 8.0 com seed completo de outubro/2026, API C# e phpMyAdmin) e criado guia detalhado em `docs/guias/GUIA_DOCKER_MIGUEL.md`. | Subir ambiente com `docker compose up -d`, testar sistema com dados reais e listar melhorias de UI/UX. |
+| 12/10/2026 | Antigravity AI (a pedido do Davi) | Pull Request #1 revisado e integrado cirurgicamente na branch main pelo Davi: todas as melhorias visuais, máscaras de CPF/telefone, validações e propostas de segurança (JWT/Rate Limit) foram incorporadas, harmonizadas com a persistência MySQL 8.4 em nuvem e contas da equipe. | Rodar `git pull origin main` para sincronizar o repositório local com as atualizações integradas. |
 

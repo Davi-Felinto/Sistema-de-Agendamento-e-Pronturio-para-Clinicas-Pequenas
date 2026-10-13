@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ClinicaApp.Domain.Interfaces;
 using ClinicaApp.Infrastructure.MySQL;
@@ -6,6 +7,7 @@ namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class StatusController : ControllerBase
 {
     private readonly IPacienteRepository _pacienteRepository;

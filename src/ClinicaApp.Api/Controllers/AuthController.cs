@@ -1,4 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using ClinicaApp.Api.Seguranca;
 using ClinicaApp.Services;
 
 namespace ClinicaApp.Api.Controllers;
@@ -8,15 +12,22 @@ namespace ClinicaApp.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
+    private readonly TokenService _tokenService;
 
-    public AuthController(AuthService authService)
+    public AuthController(AuthService authService, TokenService tokenService)
     {
         _authService = authService;
+        _tokenService = tokenService;
     }
 
-    public record LoginRequest(string Login, string Senha);
+    public record LoginRequest(
+        [Required, StringLength(100)] string Login,
+        [Required, StringLength(200)] string Senha);
 
+    // POST: api/auth/login
     [HttpPost("login")]
+    [AllowAnonymous]
+    [EnableRateLimiting("login")] // Limita tentativas por IP para dificultar força bruta
     public IActionResult Login([FromBody] LoginRequest request)
     {
         var usuario = _authService.Autenticar(request.Login, request.Senha);
@@ -25,13 +36,12 @@ public class AuthController : ControllerBase
             return Unauthorized(new { erro = "Login ou senha inválidos." });
         }
 
-        // Em uma API real, devolveríamos um token JWT aqui.
-        // No MVP, vamos apenas devolver os dados do usuário.
+        // RF26: Emissão do token JWT com claims de identidade e perfil
         return Ok(new {
             id = usuario.Id,
             nome = usuario.Nome,
-            perfil = usuario.Perfil.ToString()
+            perfil = usuario.Perfil.ToString(),
+            token = _tokenService.GerarToken(usuario)
         });
     }
 }
-

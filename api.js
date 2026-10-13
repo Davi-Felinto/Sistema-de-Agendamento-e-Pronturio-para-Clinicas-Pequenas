@@ -37,11 +37,26 @@ const getApiBase = () => {
 };
 const API_BASE = getApiBase();
 
-
 export const api = {
   isConnected: false,
   storage: 'offline', // 'mysql' | 'memoria' | 'offline'
   storageLabel: 'Modo Standalone (Offline)',
+
+  // RF26 - Token JWT devolvido pelo login. Fica em sessionStorage (some ao fechar a aba)
+  // e é enviado no cabeçalho Authorization de todas as chamadas protegidas.
+  token: (() => { try { return sessionStorage.getItem('clinix_token'); } catch { return null; } })(),
+
+  setToken(token) {
+    this.token = token || null;
+    try {
+      if (this.token) sessionStorage.setItem('clinix_token', this.token);
+      else sessionStorage.removeItem('clinix_token');
+    } catch { /* sessionStorage indisponível */ }
+  },
+
+  authHeaders(extra = {}) {
+    return this.token ? { ...extra, 'Authorization': `Bearer ${this.token}` } : extra;
+  },
 
   async checkHealth() {
     try {
@@ -53,11 +68,11 @@ export const api = {
         this.storageLabel = data.storageLabel || 'Banco: Memória (Mock)';
         return { ok: true, storage: this.storage, storageLabel: this.storageLabel };
       }
-      const resPac = await fetch(`${API_BASE}/api/pacientes`, { method: 'GET', headers: { 'Accept': 'application/json' } });
-      this.isConnected = resPac.ok;
-      this.storage = resPac.ok ? 'memoria' : 'offline';
-      this.storageLabel = resPac.ok ? 'Banco: Memória (Mock)' : 'Modo Standalone (Offline)';
-      return { ok: resPac.ok, storage: this.storage, storageLabel: this.storageLabel };
+      const resHealth = await fetch(`${API_BASE}/api/health`, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      this.isConnected = resHealth.ok;
+      this.storage = resHealth.ok ? 'memoria' : 'offline';
+      this.storageLabel = resHealth.ok ? 'API Conectada' : 'Modo Standalone (Offline)';
+      return { ok: resHealth.ok, storage: this.storage, storageLabel: this.storageLabel };
     } catch {
       this.isConnected = false;
       this.storage = 'offline';
@@ -69,7 +84,7 @@ export const api = {
   // --- PACIENTES (RF01-RF05, RN16) ---
   async listarPacientes() {
     try {
-      const res = await fetch(`${API_BASE}/api/pacientes`);
+      const res = await fetch(`${API_BASE}/api/pacientes`, { headers: this.authHeaders() });
       if (!res.ok) throw new Error('Falha ao listar pacientes');
       const data = await res.json();
       this.isConnected = true;
@@ -98,7 +113,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/api/pacientes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           nome: dados.nome,
           documentoIdentificacao: dados.cpf,
@@ -112,7 +127,8 @@ export const api = {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cadastrar paciente' };
+        const validacao = err.errors ? Object.values(err.errors).flat()[0] : null;
+        return { sucesso: false, erro: err.erro || err.mensagem || validacao || 'Erro ao cadastrar paciente' };
       }
       const p = await res.json();
       return {
@@ -140,7 +156,10 @@ export const api = {
     try {
       const numId = Number(id);
       if (!isNaN(numId)) {
-        const res = await fetch(`${API_BASE}/api/pacientes/${numId}/inativar`, { method: 'PUT' });
+        const res = await fetch(`${API_BASE}/api/pacientes/${numId}/inativar`, {
+          method: 'PUT',
+          headers: this.authHeaders()
+        });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao inativar paciente' };
@@ -155,7 +174,7 @@ export const api = {
   // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
   async listarAgendamentos() {
     try {
-      const res = await fetch(`${API_BASE}/api/agendamentos`);
+      const res = await fetch(`${API_BASE}/api/agendamentos`, { headers: this.authHeaders() });
       if (!res.ok) throw new Error('Falha ao listar agendamentos');
       const data = await res.json();
       this.isConnected = true;
@@ -170,8 +189,9 @@ export const api = {
             ? Math.round((new Date(fimStr) - new Date(inicioStr)) / 60000)
             : 60;
           let statusStr = 'confirmado';
-          if (a.status === 2 || a.status === 'Cancelado') statusStr = 'cancelado';
-          else if (a.status === 0 || a.status === 'Pendente') statusStr = 'pendente';
+          if (a.status === 2 || a.status === 4 || a.status === 'Cancelado') statusStr = 'cancelado';
+          else if (a.status === 3 || a.status === 'Remarcado') statusStr = 'remarcado';
+          else if (a.status === 0 || a.status === 1 || a.status === 'Pendente') statusStr = 'pendente';
 
           return {
             id: a.id,
@@ -215,7 +235,7 @@ export const api = {
 
       const res = await fetch(`${API_BASE}/api/agendamentos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           pacienteId: pacienteIdNum,
           profissionalId: profissionalIdNum,
@@ -227,7 +247,6 @@ export const api = {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        // Mensagem de bloqueio de RN01/RN02 devolvida pelo AgendaService C#
         return {
           sucesso: false,
           erro: err.erro || err.mensagem || 'Horário indisponível: conflito de horário identificado (RN01, RN02).'
@@ -264,7 +283,10 @@ export const api = {
     try {
       const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
       if (!isNaN(numId)) {
-        const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, { method: 'PUT' });
+        const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, {
+          method: 'PUT',
+          headers: this.authHeaders()
+        });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
@@ -291,6 +313,9 @@ export const api = {
         return { sucesso: false, erro: err.erro || 'Login ou senha inválidos.' };
       }
       const user = await res.json();
+      if (user.token) {
+        this.setToken(user.token);
+      }
       return { sucesso: true, dados: user };
     } catch (e) {
       return { sucesso: false, erro: e.message };
