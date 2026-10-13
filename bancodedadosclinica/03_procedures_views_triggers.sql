@@ -9,6 +9,10 @@
 
 USE clinix_db;
 
+-- Garante codificação UTF-8 completa durante importação e conexões
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 -- ============================================================================
 -- 1. VIEWS ANALÍTICAS E OPERACIONAIS
 -- ============================================================================

@@ -494,6 +494,33 @@
       }
     };
 
+    // Higienização automática contra caracteres double-encoded (Latin1 -> UTF-8)
+    function sanitizeData(obj) {
+      if (typeof obj === 'string') {
+        if (/[ÃÂ]/.test(obj)) {
+          try { return decodeURIComponent(escape(obj)); } catch { return obj; }
+        }
+        return obj;
+      }
+      if (Array.isArray(obj)) return obj.map(sanitizeData);
+      if (obj && typeof obj === 'object') {
+        const res = {};
+        for (const k in obj) res[k] = sanitizeData(obj[k]);
+        return res;
+      }
+      return obj;
+    }
+
+    // Auto-higienização preventiva de dados em cache no localStorage
+    try {
+      ['clinix_patients', 'clinix_appointments', 'clinix_records', 'clinix_logs'].forEach(key => {
+        const val = localStorage.getItem(key);
+        if (val && /[ÃÂ]/.test(val)) {
+          localStorage.setItem(key, JSON.stringify(sanitizeData(JSON.parse(val))));
+        }
+      });
+    } catch {}
+
     function App() {
       const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return localStorage.getItem('clinix_auth') === 'true';
@@ -506,22 +533,22 @@
 
       const [patients, setPatients] = useState(() => {
         const saved = localStorage.getItem('clinix_patients');
-        return saved ? JSON.parse(saved) : INITIAL_PATIENTS;
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_PATIENTS;
       });
 
       const [appointments, setAppointments] = useState(() => {
         const saved = localStorage.getItem('clinix_appointments');
-        return saved ? JSON.parse(saved) : INITIAL_APPOINTMENTS;
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_APPOINTMENTS;
       });
 
       const [records, setRecords] = useState(() => {
         const saved = localStorage.getItem('clinix_records');
-        return saved ? JSON.parse(saved) : INITIAL_RECORDS;
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_RECORDS;
       });
 
       const [logs, setLogs] = useState(() => {
         const saved = localStorage.getItem('clinix_logs');
-        return saved ? JSON.parse(saved) : INITIAL_LOGS;
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_LOGS;
       });
 
       // Conexão em tempo real com a Web API ASP.NET Core
@@ -547,11 +574,11 @@
             return;
           }
           if (resPac.dados.length > 0) {
-            setPatients(resPac.dados);
+            setPatients(sanitizeData(resPac.dados));
           }
           const resAppt = await api.listarAgendamentos();
           if (resAppt.sucesso) {
-            setAppointments(resAppt.dados);
+            setAppointments(sanitizeData(resAppt.dados));
           }
         }
         conectarBackend();

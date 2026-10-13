@@ -39,7 +39,7 @@ services:
       - "5055:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__ClinixDb=Server=mysql;Port=3306;Database=clinix_db;Uid=root;Pwd=root;
+      - ConnectionStrings__ClinixDb=Server=mysql;Port=3306;Database=clinix_db;Uid=root;Pwd=root;CharSet=utf8mb4;
     volumes:
       - ./src/ClinicaApp.Api/wwwroot:/app/wwwroot:ro
     depends_on:
