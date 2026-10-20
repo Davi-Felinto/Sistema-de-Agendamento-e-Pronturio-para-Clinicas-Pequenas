@@ -28,5 +28,6 @@ Thumbs.db
 # Logs
 *.log
 
-# Antigrafity
+# Antigravity & Scratch
 .antigravity/
+scratch/

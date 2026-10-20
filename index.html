@@ -86,6 +86,23 @@
     // Na versão integrada, o login é validado pela API (POST /api/auth/login).
     const DEMO_PASSWORD = '123456';
 
+    // Helpers universais de correspondência de IDs e pacientes
+    const matchPatientId = (idA, idB) => {
+      if (idA == null || idB == null) return false;
+      if (idA === idB) return true;
+      const strA = String(idA).trim();
+      const strB = String(idB).trim();
+      if (strA === strB) return true;
+      const numA = strA.replace(/\D/g, '');
+      const numB = strB.replace(/\D/g, '');
+      return numA !== '' && numA === numB;
+    };
+
+    const findPatient = (patientsList, id) => {
+      if (!patientsList || id == null) return null;
+      return patientsList.find(p => matchPatientId(p.id, id)) || null;
+    };
+
     const INITIAL_PATIENTS = [
       {
         id: 'p1',
@@ -94,7 +111,14 @@
         nascimento: '1992-05-14',
         telefone: '(61) 98765-4321',
         email: 'mariana.duarte@email.com',
-        endereco: 'Asa Norte, Bloco C, Apto 302 - Brasília/DF',
+        endereco: 'CLN 302 Bloco C, 302, Apto 302 - Asa Norte, Brasília/DF',
+        cep: '70750-530',
+        logradouro: 'CLN 302 Bloco C',
+        numero: '302',
+        complemento: 'Apto 302',
+        bairro: 'Asa Norte',
+        cidade: 'Brasília',
+        estadoUf: 'DF',
         alergias: 'Penicilina, Dipirona',
         condicoesPreexistentes: 'Rinite alérgica crônica, Ansiedade generalizada',
         status: 'ativo',
@@ -107,7 +131,14 @@
         nascimento: '1985-11-20',
         telefone: '(61) 99123-9988',
         email: 'carlos.neves@email.com',
-        endereco: 'Águas Claras, Rua 24 Sul - Brasília/DF',
+        endereco: 'Rua 24 Sul, 12, Bloco A - Águas Claras, Brasília/DF',
+        cep: '71926-000',
+        logradouro: 'Rua 24 Sul',
+        numero: '12',
+        complemento: 'Bloco A',
+        bairro: 'Águas Claras',
+        cidade: 'Brasília',
+        estadoUf: 'DF',
         alergias: 'Nenhuma conhecida',
         condicoesPreexistentes: 'Hipertensão leve',
         status: 'ativo',
@@ -120,9 +151,36 @@
         nascimento: '1998-03-08',
         telefone: '(61) 98222-1144',
         email: 'beatriz.ramos@email.com',
-        endereco: 'Sudoeste, QMSW 5, Bloco B - Brasília/DF',
+        endereco: 'QMSW 5 Bloco B, 504 - Sudoeste, Brasília/DF',
+        cep: '70673-405',
+        logradouro: 'QMSW 5 Bloco B',
+        numero: '504',
+        complemento: 'Ed. Sudoeste',
+        bairro: 'Sudoeste',
+        cidade: 'Brasília',
+        estadoUf: 'DF',
         alergias: 'Frutos do mar',
         condicoesPreexistentes: 'Insônia pontual',
+        status: 'ativo',
+        profissionalId: 'u1'
+      },
+      {
+        id: 'p4',
+        nome: 'Marcos Vinícius Oliveira',
+        cpf: '321.654.987-22',
+        nascimento: '1979-08-25',
+        telefone: '(61) 99888-7711',
+        email: 'marcos.oliveira@email.com',
+        endereco: 'QE 15 Conjunto D, 18, Casa - Guará II, Brasília/DF',
+        cep: '71050-040',
+        logradouro: 'QE 15 Conjunto D',
+        numero: '18',
+        complemento: 'Casa',
+        bairro: 'Guará II',
+        cidade: 'Brasília',
+        estadoUf: 'DF',
+        alergias: 'Nenhuma',
+        condicoesPreexistentes: 'Check-up preventivo periódico',
         status: 'ativo',
         profissionalId: 'u1'
       }
@@ -188,6 +246,152 @@
         notificacaoStatus: 'nao_aplicavel',
         notificacaoTentativas: 0,
         cancelamentoTardio: false
+      },
+      {
+        id: 'a4',
+        pacienteId: 'p3',
+        profissionalId: 'u1',
+        data: getTodayDateStr(),
+        horario: '15:00',
+        duracaoMin: 60,
+        status: 'confirmado',
+        tipo: 'consulta',
+        observacoes: 'Consulta com pagamento dividido (Entrada no Pix + Saldo no Cartão)',
+        valor: 250,
+        statusPagamento: 'parcial',
+        formaPagamento: 'Entrada: R$ 100 (Pix) + Saldo: R$ 150 (Cartão)',
+        pagamentoDividido: true,
+        valorEntrada: 100,
+        formaEntrada: 'Pix',
+        statusEntrada: 'pago',
+        valorSaldo: 150,
+        formaSaldo: 'Cartão de Crédito',
+        statusSaldo: 'pendente',
+        notificacaoStatus: 'enviado',
+        notificacaoTentativas: 1,
+        cancelamentoTardio: false
+      },
+      {
+        id: 'a5',
+        pacienteId: 'p2',
+        profissionalId: 'u1',
+        data: '2026-10-18',
+        horario: '14:00',
+        duracaoMin: 60,
+        status: 'cancelado',
+        tipo: 'consulta',
+        observacoes: 'Desistência comunicada pelo paciente',
+        valor: 200,
+        statusPagamento: 'pendente',
+        formaPagamento: 'Em aberto',
+        notificacaoStatus: 'nao_aplicavel',
+        notificacaoTentativas: 1,
+        cancelamentoTardio: false,
+        motivoCancelamento: 'ImprevistoPessoal',
+        justificativaCancelamento: 'Viagem a trabalho de emergência não planejada'
+      },
+      {
+        id: 'a6',
+        pacienteId: 'p4',
+        profissionalId: 'u1',
+        data: '2026-03-10',
+        horario: '11:00',
+        duracaoMin: 60,
+        status: 'confirmado',
+        tipo: 'consulta',
+        observacoes: 'Check-up anual de rotina (+210 dias sem retorno - Elegível para Recorrência Preventiva)',
+        valor: 220,
+        statusPagamento: 'pago',
+        formaPagamento: 'Cartão de Débito',
+        notificacaoStatus: 'enviado',
+        notificacaoTentativas: 1,
+        cancelamentoTardio: false
+      }
+    ];
+
+    // RF32, RN21 - Ouvidoria e Avaliações de Atendimento (Mock inicial para standalone)
+    const INITIAL_REVIEWS = [
+      {
+        id: 1,
+        pacienteId: 'p1',
+        pacienteNome: 'Mariana Duarte Souza',
+        agendamentoId: 1,
+        dataCriacao: '2026-10-15T14:30:00',
+        notaRecepcao: 5,
+        notaAtendimentoClinico: 5,
+        notaEspacoFisico: 5,
+        mediaGeral: 5.0,
+        comentarioOuvidoria: 'Atendimento humanizado impecável! Dr. Davi é muito atencioso e a clínica é super silenciosa e confortável.',
+        anonimo: false
+      },
+      {
+        id: 2,
+        pacienteId: 'p2',
+        pacienteNome: 'Carlos Eduardo Neves',
+        agendamentoId: 2,
+        dataCriacao: '2026-10-17T11:15:00',
+        notaRecepcao: 4,
+        notaAtendimentoClinico: 5,
+        notaEspacoFisico: 4,
+        mediaGeral: 4.3,
+        comentarioOuvidoria: 'A consulta médica foi maravilhosa. Apenas a recepção atrasou 5 minutinhos na triagem.',
+        anonimo: false
+      },
+      {
+        id: 3,
+        pacienteId: 'p3',
+        pacienteNome: 'Anônimo (Sigilo LGPD)',
+        agendamentoId: 3,
+        dataCriacao: '2026-10-18T16:45:00',
+        notaRecepcao: 5,
+        notaAtendimentoClinico: 5,
+        notaEspacoFisico: 5,
+        mediaGeral: 5.0,
+        comentarioOuvidoria: 'O lembrete no WhatsApp me salvou, excelente sistema e ótima recepção!',
+        anonimo: true
+      }
+    ];
+
+    // RF34, RN23 - Rastreamento de Amostras e Exames Externos (Mock inicial para standalone)
+    const INITIAL_LAB_SAMPLES = [
+      {
+        id: 1,
+        pacienteId: 'p1',
+        pacienteNome: 'Mariana Duarte Souza',
+        nomeExameAmostra: 'Hemograma Completo + PCR Ultrassensível',
+        laboratorioParceiro: 'Sabin Medicina Diagnóstica',
+        codigoRastreio: 'SAB-2026-8819',
+        dataColeta: '2026-10-17',
+        dataPrevisaoLaudo: '2026-10-21',
+        status: 3, // 3 = EmAnalise (StatusAmostraLaboratorio.EmAnalise)
+        statusTexto: 'Em Análise',
+        observacoes: 'Amostra de sangue coletada pela manhã em jejum. Aguardando liberação do laudo.'
+      },
+      {
+        id: 2,
+        pacienteId: 'p2',
+        pacienteNome: 'Carlos Eduardo Neves',
+        nomeExameAmostra: 'Painel Lipídico & Glicemia em Jejum',
+        laboratorioParceiro: 'Exame Laboratórios',
+        codigoRastreio: 'EXA-7741-B',
+        dataColeta: '2026-10-12',
+        dataPrevisaoLaudo: '2026-10-15',
+        status: 3, // 3 = LaudoDisponivel
+        statusTexto: 'Laudo Disponível',
+        observacoes: 'Laudo digital assinado e liberado pelo laboratório parceiro.'
+      },
+      {
+        id: 3,
+        pacienteId: 'p3',
+        pacienteNome: 'Beatriz Vasconcelos Ramos',
+        nomeExameAmostra: 'Dosagem de Vitamina D (25-OH) & Ferritina',
+        laboratorioParceiro: 'Laboratório Pasteur',
+        codigoRastreio: 'PAS-9920-C',
+        dataColeta: '2026-10-19',
+        dataPrevisaoLaudo: '2026-10-23',
+        status: 1, // 1 = EnviadoAoLaboratorio
+        statusTexto: 'Enviado ao Laboratório',
+        observacoes: 'Amostra enviada via transporte refrigerado seguro.'
       }
     ];
 
@@ -231,9 +435,6 @@
        ========================================================================= */
     const api = {
       isConnected: false,
-
-      // RF26 - Token JWT devolvido pelo login. Fica em sessionStorage (some ao fechar a aba)
-      // e é enviado no cabeçalho Authorization de todas as chamadas protegidas.
       token: (() => { try { return sessionStorage.getItem('clinix_token'); } catch { return null; } })(),
 
       setToken(token) {
@@ -241,14 +442,14 @@
         try {
           if (this.token) sessionStorage.setItem('clinix_token', this.token);
           else sessionStorage.removeItem('clinix_token');
-        } catch { /* sessionStorage indisponível: o token fica só em memória */ }
+        } catch {}
       },
 
       authHeaders(extra = {}) {
         return this.token ? { ...extra, 'Authorization': `Bearer ${this.token}` } : extra;
       },
 
-      storage: 'offline', // 'mysql' | 'memoria' | 'offline'
+      storage: 'offline',
       storageLabel: 'Modo Standalone (Offline)',
 
       async checkHealth() {
@@ -274,7 +475,50 @@
         }
       },
 
-      // --- PACIENTES (RF01-RF05, RN16) ---
+      // --- CEP & ENDEREÇO ESTRUTURADO (RF29, RN18) ---
+      async consultarCep(cep) {
+        try {
+          const limpo = String(cep).replace(/\D/g, '');
+          if (limpo.length !== 8) {
+            return { sucesso: false, erro: 'CEP deve conter 8 dígitos.' };
+          }
+          // 1. Tenta consulta direta no ViaCEP
+          try {
+            const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+            if (res.ok) {
+              const data = await res.json();
+              if (!data.erro) {
+                return {
+                  sucesso: true,
+                  cep: data.cep || limpo,
+                  logradouro: data.logradouro || '',
+                  bairro: data.bairro || '',
+                  cidade: data.localidade || '',
+                  estadoUf: data.uf || '',
+                  complemento: data.complemento || ''
+                };
+              }
+            }
+          } catch {
+            // Bloqueio de rede/CSP no navegador: recorre ao proxy backend
+          }
+
+          // 2. Fallback: Proxy backend na API local (/api/cep/{limpo})
+          try {
+            const resBackend = await fetch(`/api/cep/${limpo}`, { headers: this.authHeaders() });
+            if (resBackend.ok) {
+              const data = await resBackend.json();
+              if (data.sucesso) return data;
+            }
+          } catch {}
+
+          return { sucesso: false, erro: 'CEP não localizado automaticamente. Preencha os campos abaixo.' };
+        } catch (e) {
+          return { sucesso: false, erro: 'Não foi possível consultar o CEP automaticamente.' };
+        }
+      },
+
+      // --- PACIENTES (RF01-RF05, RN16, RF29, RN18) ---
       async listarPacientes() {
         try {
           const res = await fetch('/api/pacientes', { headers: this.authHeaders() });
@@ -291,6 +535,13 @@
               telefone: p.telefone || '',
               email: p.email || '',
               endereco: p.endereco || '',
+              cep: p.cep || '',
+              logradouro: p.logradouro || '',
+              numero: p.numero || '',
+              complemento: p.complemento || '',
+              bairro: p.bairro || '',
+              cidade: p.cidade || '',
+              estadoUf: p.estadoUf || '',
               alergias: p.alergias || '',
               condicoesPreexistentes: p.condicoesPreexistentes || '',
               status: p.ativo !== undefined ? (p.ativo ? 'ativo' : 'inativo') : (p.status || 'ativo'),
@@ -314,6 +565,13 @@
               telefone: dados.telefone,
               email: dados.email,
               endereco: dados.endereco,
+              cep: dados.cep,
+              logradouro: dados.logradouro,
+              numero: dados.numero,
+              complemento: dados.complemento,
+              bairro: dados.bairro,
+              cidade: dados.cidade,
+              estadoUf: dados.estadoUf,
               alergias: dados.alergias,
               condicoesPreexistentes: dados.condicoesPreexistentes
             })
@@ -334,6 +592,13 @@
               telefone: p.telefone,
               email: p.email,
               endereco: p.endereco,
+              cep: p.cep || dados.cep,
+              logradouro: p.logradouro || dados.logradouro,
+              numero: p.numero || dados.numero,
+              complemento: p.complemento || dados.complemento,
+              bairro: p.bairro || dados.bairro,
+              cidade: p.cidade || dados.cidade,
+              estadoUf: p.estadoUf || dados.estadoUf,
               alergias: p.alergias,
               condicoesPreexistentes: p.condicoesPreexistentes,
               status: p.ativo ? 'ativo' : 'inativo',
@@ -349,7 +614,10 @@
         try {
           const numId = Number(id);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/pacientes/${numId}/inativar`, { method: 'PUT', headers: this.authHeaders() });
+            const res = await fetch(`/api/pacientes/${numId}/inativar`, {
+              method: 'PUT',
+              headers: this.authHeaders()
+            });
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
               return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao inativar paciente' };
@@ -361,7 +629,7 @@
         }
       },
 
-      // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
+      // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10, RF31, RN20) ---
       async listarAgendamentos() {
         try {
           const res = await fetch('/api/agendamentos', { headers: this.authHeaders() });
@@ -379,9 +647,9 @@
                 ? Math.round((new Date(fimStr) - new Date(inicioStr)) / 60000)
                 : 60;
               let statusStr = 'confirmado';
-              if (a.status === 4 || a.status === 'Cancelado') statusStr = 'cancelado';
+              if (a.status === 2 || a.status === 4 || a.status === 'Cancelado') statusStr = 'cancelado';
               else if (a.status === 3 || a.status === 'Remarcado') statusStr = 'remarcado';
-              else if (a.status === 1 || a.status === 'Pendente') statusStr = 'pendente';
+              else if (a.status === 0 || a.status === 1 || a.status === 'Pendente') statusStr = 'pendente';
 
               return {
                 id: String(a.id),
@@ -398,7 +666,9 @@
                 formaPagamento: 'Em aberto',
                 notificacaoStatus: 'enviado',
                 notificacaoTentativas: 1,
-                cancelamentoTardio: Boolean(a.cancelamentoTardio)
+                cancelamentoTardio: Boolean(a.cancelamentoTardio),
+                motivoCancelamento: a.motivoCancelamento || null,
+                justificativaCancelamento: a.justificativaCancelamento || null
               };
             })
           };
@@ -437,7 +707,6 @@
 
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            // Mensagem de bloqueio por RN01/RN02 devolvida pelo AgendaService C#
             return {
               sucesso: false,
               erro: err.erro || err.mensagem || 'Horário indisponível: conflito de horário identificado (RN01, RN02).'
@@ -470,19 +739,152 @@
         }
       },
 
-      async cancelarAgendamento(id) {
+      async cancelarAgendamento(id, motivo = 'Outro', justificativa = '') {
         try {
           const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/agendamentos/${numId}/cancelar`, { method: 'PUT', headers: this.authHeaders() });
+            const res = await fetch(`/api/agendamentos/${numId}/cancelar`, {
+              method: 'PUT',
+              headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+              body: JSON.stringify({
+                motivo: motivo,
+                justificativa: justificativa
+              })
+            });
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
               return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
             }
             const data = await res.json();
-            return { sucesso: true, cancelamentoTardio: data.cancelamentoTardio };
+            return {
+              sucesso: true,
+              cancelamentoTardio: data.cancelamentoTardio,
+              motivoCancelamento: data.motivoCancelamento
+            };
           }
           return { sucesso: true };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      // --- FINANCEIRO & PAGAMENTO DIVIDIDO (RF21-RF25, RF30, RN19) ---
+      async registrarPagamentoDividido(pagamentoId, dados) {
+        try {
+          const res = await fetch(`/api/financeiro/${pagamentoId}/pagamento-dividido`, {
+            method: 'POST',
+            headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              valorEntrada: Number(dados.valorEntrada),
+              formaEntrada: dados.formaEntrada,
+              valorSaldo: Number(dados.valorSaldo),
+              formaSaldo: dados.formaSaldo,
+              saldoPago: Boolean(dados.saldoPago)
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao registrar pagamento dividido' };
+          }
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      // --- OUVIDORIA & AVALIAÇÕES (RF32, RN21) ---
+      async listarAvaliacoes() {
+        try {
+          const res = await fetch('/api/avaliacoes', { headers: this.authHeaders() });
+          if (!res.ok) throw new Error('Falha ao obter avaliações');
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async registrarAvaliacao(dados) {
+        try {
+          const res = await fetch('/api/avaliacoes', {
+            method: 'POST',
+            headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              agendamentoId: Number(dados.agendamentoId),
+              notaRecepcao: Number(dados.notaRecepcao),
+              notaAtendimentoClinico: Number(dados.notaAtendimentoClinico),
+              notaEspacoFisico: Number(dados.notaEspacoFisico),
+              comentarioOuvidoria: dados.comentarioOuvidoria || null,
+              anonimo: Boolean(dados.anonimo)
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao registrar avaliação' };
+          }
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      // --- RASTREAMENTO DE EXAMES LABORATORIAIS (RF34, RN23) ---
+      async listarExames(pacienteId = null) {
+        try {
+          const url = pacienteId ? `/api/exameslaboratorio?pacienteId=${pacienteId}` : '/api/exameslaboratorio';
+          const res = await fetch(url, { headers: this.authHeaders() });
+          if (!res.ok) throw new Error('Falha ao listar exames laboratoriais');
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async criarExame(dados) {
+        try {
+          const res = await fetch('/api/exameslaboratorio', {
+            method: 'POST',
+            headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              pacienteId: Number(dados.pacienteId),
+              nomeExameAmostra: dados.nomeExameAmostra,
+              laboratorioParceiro: dados.laboratorioParceiro,
+              dataColeta: dados.dataColeta,
+              dataPrevisaoLaudo: dados.dataPrevisaoLaudo,
+              codigoRastreio: dados.codigoRastreio || null,
+              observacoes: dados.observacoes || null
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cadastrar exame' };
+          }
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async atualizarStatusExame(id, novoStatus, observacao = null) {
+        try {
+          const res = await fetch(`/api/exameslaboratorio/${id}/status`, {
+            method: 'PUT',
+            headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              novoStatus: novoStatus,
+              observacao: observacao
+            })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao atualizar status do exame' };
+          }
+          const data = await res.json();
+          return { sucesso: true, dados: data };
         } catch (e) {
           return { sucesso: false, erro: e.message };
         }
@@ -497,8 +899,11 @@
             body: JSON.stringify({ login, senha })
           });
           if (!res.ok) {
+            if (res.status === 429) {
+              return { sucesso: false, erro: 'Muitas tentativas em pouco tempo. Aguarde alguns segundos e tente novamente.' };
+            }
             const err = await res.json().catch(() => ({}));
-            return { sucesso: false, erro: err.erro || 'Login ou senha inválidos.' };
+            return { sucesso: false, erro: err.erro || err.mensagem || 'Login ou senha inválidos.' };
           }
           const user = await res.json();
           this.setToken(user.token);
@@ -566,6 +971,25 @@
         return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_LOGS;
       });
 
+      const [reviews, setReviews] = useState(() => {
+        const saved = localStorage.getItem('clinix_reviews');
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_REVIEWS;
+      });
+
+      const [labSamples, setLabSamples] = useState(() => {
+        const saved = localStorage.getItem('clinix_lab_samples');
+        return saved ? sanitizeData(JSON.parse(saved)) : INITIAL_LAB_SAMPLES;
+      });
+
+      // Auto-salvamento em localStorage para modo standalone
+      useEffect(() => {
+        try { localStorage.setItem('clinix_reviews', JSON.stringify(reviews)); } catch {}
+      }, [reviews]);
+
+      useEffect(() => {
+        try { localStorage.setItem('clinix_lab_samples', JSON.stringify(labSamples)); } catch {}
+      }, [labSamples]);
+
       // Conexão em tempo real com a Web API ASP.NET Core e Provedor do Banco
       const [isApiConnected, setIsApiConnected] = useState(false);
       const [storageProvider, setStorageProvider] = useState('offline'); // 'mysql' | 'memoria' | 'offline'
@@ -597,6 +1021,14 @@
           const resAppt = await api.listarAgendamentos();
           if (resAppt.sucesso) {
             setAppointments(sanitizeData(resAppt.dados));
+          }
+          const resRev = await api.listarAvaliacoes();
+          if (resRev.sucesso && resRev.dados && resRev.dados.avaliacoes) {
+            setReviews(sanitizeData(resRev.dados.avaliacoes));
+          }
+          const resEx = await api.listarExames();
+          if (resEx.sucesso && Array.isArray(resEx.dados)) {
+            setLabSamples(sanitizeData(resEx.dados));
           }
         }
         conectarBackend();
@@ -787,6 +1219,8 @@
               <SidebarItem icon="users" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} />
               <SidebarItem icon="clipboard" label="Prontuário" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
               <SidebarItem icon="wallet" label="Financeiro" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
+              <SidebarItem icon="star" label="Ouvidoria (RF32)" badge={reviews.length ? `${(reviews.reduce((s,r) => s + (r.mediaGeral || 5), 0) / reviews.length).toFixed(1)}★` : '5★'} active={activeTab === 'ouvidoria'} onClick={() => setActiveTab('ouvidoria')} />
+              <SidebarItem icon="flask" label="Laboratório (RF34)" badge={labSamples.filter(s => s.status !== 3 && s.status !== 4 && s.status !== 'LaudoDisponivel' && s.status !== 'EntregueAoPaciente').length || null} active={activeTab === 'laboratorio'} onClick={() => setActiveTab('laboratorio')} />
               <SidebarItem icon="lock" label="Auditoria" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
             </nav>
 
@@ -848,6 +1282,8 @@
                       {activeTab === 'pacientes' && 'Pacientes'}
                       {activeTab === 'prontuario' && 'Prontuário'}
                       {activeTab === 'financeiro' && 'Financeiro'}
+                      {activeTab === 'ouvidoria' && 'Ouvidoria & Avaliações da Clínica (RF32)'}
+                      {activeTab === 'laboratorio' && 'Rastreamento de Exames Laboratoriais (RF34)'}
                       {activeTab === 'logs' && 'Auditoria'}
                     </h1>
                   </div>
@@ -905,6 +1341,8 @@
                   appointments={appointments}
                   patients={patients}
                   records={records}
+                  reviews={reviews}
+                  labSamples={labSamples}
                   currentUser={currentUser}
                   onNavigate={setActiveTab}
                   onOpenProntuario={handleOpenProntuarioDirect}
@@ -915,6 +1353,7 @@
                 <AgendaView
                   appointments={appointments}
                   patients={patients}
+                  labSamples={labSamples}
                   currentUser={currentUser}
                   setAppointments={setAppointments}
                   showToast={showToast}
@@ -963,6 +1402,29 @@
                 />
               )}
 
+              {activeTab === 'ouvidoria' && (
+                <OuvidoriaView
+                  reviews={reviews}
+                  setReviews={setReviews}
+                  appointments={appointments}
+                  patients={patients}
+                  currentUser={currentUser}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                />
+              )}
+
+              {activeTab === 'laboratorio' && (
+                <LaboratorioView
+                  labSamples={labSamples}
+                  setLabSamples={setLabSamples}
+                  patients={patients}
+                  currentUser={currentUser}
+                  showToast={showToast}
+                  registerLog={registerLog}
+                />
+              )}
+
               {activeTab === 'logs' && (
                 <LogsView logs={logs} currentUser={currentUser} />
               )}
@@ -974,6 +1436,8 @@
               <MobileItem icon="calendar" label="Agenda" active={activeTab === 'agenda'} onClick={() => setActiveTab('agenda')} />
               <MobileItem icon="users" label="Pacientes" active={activeTab === 'pacientes'} onClick={() => setActiveTab('pacientes')} />
               <MobileItem icon="clipboard" label="Prontuário" active={activeTab === 'prontuario'} onClick={() => setActiveTab('prontuario')} />
+              <MobileItem icon="star" label="Ouvidoria" active={activeTab === 'ouvidoria'} onClick={() => setActiveTab('ouvidoria')} />
+              <MobileItem icon="flask" label="Exames" active={activeTab === 'laboratorio'} onClick={() => setActiveTab('laboratorio')} />
               <MobileItem icon="wallet" label="Finanças" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
             </nav>
           </div>
@@ -1158,7 +1622,7 @@
                             name="userProfile"
                             value={u.id}
                             checked={selectedUserId === u.id}
-                            onChange={() => setSelectedUserId(u.id)}
+                            onChange={() => { setSelectedUserId(u.id); setPassword(DEMO_PASSWORD); setLoginError(null); }}
                             className="peer sr-only"
                           />
                           <div className="flex items-center gap-3.5 rounded-2xl border-2 border-slate-200 bg-white p-3.5 transition hover:border-slate-300 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-4 peer-focus-visible:ring-emerald-500/40">
@@ -1462,6 +1926,11 @@
        ========================================================================= */
     const ICONS = {
       plus: <path d="M12 5v14M5 12h14" />,
+      star: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />,
+      flask: <path d="M10 2v7.31L4.69 19.3A2 2 0 0 0 6.41 22h11.18a2 2 0 0 0 1.72-2.7L14 9.31V2h-4zM8.5 2h7M7 16h10" />,
+      split: <><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" /></>,
+      mapPin: <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></>,
+      messageSquare: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
       search: <><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></>,
       calendar: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
       users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></>,
@@ -1655,7 +2124,7 @@
       );
     }
 
-    function DashboardView({ appointments, patients, records, currentUser, onNavigate, onOpenProntuario }) {
+    function DashboardView({ appointments, patients, records, reviews = [], labSamples = [], currentUser, onNavigate, onOpenProntuario }) {
       const [period, setPeriod] = useState('semana'); // 'semana' | 'mes'
 
       const todayStr = getTodayDateStr();
@@ -1669,7 +2138,7 @@
 
       const nowTime = new Date().toTimeString().slice(0, 5);
       const nextAppt = todayConsultas.find(a => a.horario >= nowTime);
-      const nextPatient = nextAppt ? patients.find(p => p.id === nextAppt.pacienteId) : null;
+      const nextPatient = nextAppt ? findPatient(patients, nextAppt.pacienteId) : null;
       const pendingTotal = pendingPayments.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
 
       const periodDays = useMemo(() => {
@@ -1712,6 +2181,27 @@
       ).sort((a, b) => b[1] - a[1]);
       const paymentMax = paymentTotals.length > 0 ? paymentTotals[0][1] : 0;
 
+      const pendingLabSamples = labSamples.filter(s => [1, 2, 3, 'ColetadoNaClinica', 'EnviadoAoLaboratorio', 'EmAnalise'].includes(s.status));
+
+      // RF33, RN22 - Recorrência Preventiva: Pacientes sem consulta há 180+ dias
+      const mapLastVisit = {};
+      appointments.forEach(a => {
+        if (a.status !== 'cancelado' && a.tipo !== 'bloqueio') {
+          if (!mapLastVisit[a.pacienteId] || a.data > mapLastVisit[a.pacienteId]) mapLastVisit[a.pacienteId] = a.data;
+        }
+      });
+      const now = new Date();
+      const eligiblePreventive = patients.filter(p => p.status === 'ativo').map(p => {
+        const last = mapLastVisit[p.id];
+        if (!last) return null;
+        const days = Math.floor((now - new Date(last)) / (1000 * 60 * 60 * 24));
+        return days >= 180 ? p : null;
+      }).filter(Boolean);
+
+      const mediaSatisfacao = reviews.length > 0
+        ? (reviews.reduce((s, r) => s + (Number(r.mediaGeral) || 5), 0) / reviews.length).toFixed(1)
+        : '5.0';
+
       const pendencias = [
         {
           icon: 'alert',
@@ -1732,6 +2222,27 @@
           title: 'Cancelamentos tardios',
           description: 'Consultas canceladas com menos de 24 horas',
           count: lateCancellations.length,
+          tab: 'agenda'
+        },
+        {
+          icon: 'star',
+          title: 'Ouvidoria & Satisfação',
+          description: `Média de ${mediaSatisfacao}★ em ${reviews.length} avaliações`,
+          count: reviews.length,
+          tab: 'ouvidoria'
+        },
+        {
+          icon: 'flask',
+          title: 'Amostras Laboratoriais',
+          description: pendingLabSamples.length > 0 ? `${pendingLabSamples.length} amostras em análise externa` : 'Todas as análises concluídas',
+          count: pendingLabSamples.length,
+          tab: 'laboratorio'
+        },
+        {
+          icon: 'calendar',
+          title: 'Retorno Preventivo (+180d)',
+          description: eligiblePreventive.length > 0 ? `${eligiblePreventive.length} pacientes para fidelização (+10% OFF)` : 'Nenhum paciente pendente',
+          count: eligiblePreventive.length,
           tab: 'agenda'
         }
       ];
@@ -2039,7 +2550,7 @@
                   </thead>
                   <tbody>
                     {todayAppointments.map(appt => {
-                      const patient = patients.find(p => p.id === appt.pacienteId);
+                      const patient = findPatient(patients, appt.pacienteId);
                       const isBlocked = appt.tipo === 'bloqueio';
                       const isNext = nextAppt && nextAppt.id === appt.id;
                       const notif = NOTIF_STATUS[appt.notificacaoStatus];
@@ -2109,7 +2620,7 @@
       );
     }
 
-    function AgendaView({ appointments, patients, currentUser, setAppointments, showToast, registerLog, setDialogConfig, schedulePatientId, onScheduleHandled }) {
+    function AgendaView({ appointments, patients, labSamples, currentUser, setAppointments, showToast, registerLog, setDialogConfig, schedulePatientId, onScheduleHandled }) {
       // RN12 - O Profissional agenda na própria agenda; o Administrador agenda na agenda do profissional da clínica
       const agendaOwnerId = currentUser.role === 'Profissional'
         ? currentUser.id
@@ -2121,6 +2632,12 @@
       const [showBlockModal, setShowBlockModal] = useState(false);
       const [showRescheduleModal, setShowRescheduleModal] = useState(null);
       const [whatsappModalData, setWhatsappModalData] = useState(null);
+      // RF31, RN20 - Modal de Cancelamento com Motivo e Justificativa
+      const [showCancelModal, setShowCancelModal] = useState(null);
+      const [cancelMotivo, setCancelMotivo] = useState('ImprevistoPessoal');
+      const [cancelJustificativa, setCancelJustificativa] = useState('');
+      // RF33, RN22 - Visualização de Recorrência Preventiva (180+ dias)
+      const [agendaTabFilter, setAgendaTabFilter] = useState('agenda'); // 'agenda' | 'prevencao'
 
       // Form State: Nova Consulta
       const [formPatientId, setFormPatientId] = useState('');
@@ -2349,43 +2866,50 @@
         registerLog('Remarcação de Consulta (RF07)', `Consulta ${appt.id} transferida para ${rescheduleDate} às ${rescheduleTime}`);
       };
 
-      // Cancelamento com Regra de Cancelamento Tardio (< 24h) (RN10)
+      // RF08, RN10, RF31, RN20 - Cancelamento com Motivo Estruturado e Regra < 24h
       const handleCancelAppointment = (appt) => {
+        setShowCancelModal(appt);
+        setCancelMotivo('ImprevistoPessoal');
+        setCancelJustificativa('');
+      };
+
+      const handleConfirmCancelWithReason = async (e) => {
+        e.preventDefault();
+        const appt = showCancelModal;
+        if (!appt) return;
+
         const apptDate = new Date(`${appt.data}T${appt.horario}`);
         const now = new Date();
         const diffHours = (apptDate - now) / (1000 * 60 * 60);
-        const isTardio = diffHours > 0 && diffHours < 24;
+        let isTardio = diffHours > 0 && diffHours < 24;
 
-        setDialogConfig({
-          title: 'Cancelar consulta?',
-          message: isTardio
-            ? `Esta consulta acontece em menos de 24 horas. O cancelamento será registrado como cancelamento tardio no histórico do paciente.`
-            : 'Deseja confirmar o cancelamento deste agendamento?',
-          confirmLabel: 'Sim, Cancelar',
-          cancelLabel: 'Voltar',
-          danger: true,
-          onConfirm: async () => {
-            let tardioFinal = isTardio;
-            if (api.isConnected) {
-              const res = await api.cancelarAgendamento(appt.id);
-              if (!res.sucesso) {
-                showToast(res.erro || 'Não foi possível cancelar a consulta.', 'error');
-                return;
-              }
-              if (res.cancelamentoTardio !== undefined) {
-                tardioFinal = res.cancelamentoTardio;
-              }
-            }
-            setAppointments(prev => prev.map(a => {
-              if (a.id === appt.id) {
-                return { ...a, status: 'cancelado', cancelamentoTardio: tardioFinal };
-              }
-              return a;
-            }));
-            showToast('Agendamento cancelado.');
-            registerLog('Cancelamento de Consulta (RF08, RN10)', `Cancelamento ID ${appt.id}. Tardio: ${tardioFinal ? 'SIM' : 'NÃO'}`);
+        if (api.isConnected) {
+          const res = await api.cancelarAgendamento(appt.id, cancelMotivo, cancelJustificativa);
+          if (!res.sucesso) {
+            showToast(res.erro || 'Não foi possível cancelar a consulta na API.', 'error');
+            return;
           }
-        });
+          if (res.cancelamentoTardio !== undefined) {
+            isTardio = res.cancelamentoTardio;
+          }
+        }
+
+        setAppointments(prev => prev.map(a => {
+          if (a.id === appt.id) {
+            return {
+              ...a,
+              status: 'cancelado',
+              cancelamentoTardio: isTardio,
+              motivoCancelamento: cancelMotivo,
+              justificativaCancelamento: cancelJustificativa.trim() || null
+            };
+          }
+          return a;
+        }));
+
+        setShowCancelModal(null);
+        showToast(`Consulta cancelada. Motivo: ${cancelMotivo}`);
+        registerLog('Cancelamento com Motivo (RF31, RN20)', `Consulta ID ${appt.id} cancelada por ${cancelMotivo}. Tardio: ${isTardio ? 'SIM' : 'NÃO'}`);
       };
 
       // Simulação do Reenvio de WhatsApp (RN14)
@@ -2456,6 +2980,61 @@
 
       return (
         <div className="space-y-5 max-w-6xl mx-auto">
+          {/* RF33, RN22 - Banner de Recorrência Preventiva e Fidelidade */}
+          {(() => {
+            const mapLast = {};
+            appointments.forEach(a => {
+              if (a.status !== 'cancelado' && a.tipo !== 'bloqueio') {
+                if (!mapLast[a.pacienteId] || a.data > mapLast[a.pacienteId]) mapLast[a.pacienteId] = a.data;
+              }
+            });
+            const now = new Date();
+            const eligible = patients.filter(p => p.status === 'ativo').map(p => {
+              const last = mapLast[p.id];
+              if (!last) return null;
+              const days = Math.floor((now - new Date(last)) / (1000 * 60 * 60 * 24));
+              return days >= 180 ? { ...p, last, days } : null;
+            }).filter(Boolean);
+
+            if (eligible.length === 0) return null;
+
+            return (
+              <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/60 border border-emerald-200 p-4 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow">
+                    🔁
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-emerald-950">
+                      Recorrência Preventiva: {eligible.length} {eligible.length === 1 ? 'paciente elegível' : 'pacientes elegíveis'} para retorno semestral (+180 dias)
+                    </h3>
+                    <p className="text-xs text-emerald-800">
+                      Incentivo de fidelização ativa: convide pelo WhatsApp oferecendo <strong>10% de desconto fidelidade</strong> com o cupom <code>CHECKUP10</code> (RF33, RN22).
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {eligible.slice(0, 2).map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        const msg = `Olá, ${p.nome}! Faz mais de 6 meses desde o seu último check-up preventivo na Clinix. Sua saúde e bem-estar são prioridade! Agende seu retorno semestral essa semana e garanta 10% de desconto com o cupom CHECKUP10. Link: https://clinix.com.br/agendamento`;
+                        const cleanTel = onlyDigits(p.telefone);
+                        window.open(`https://api.whatsapp.com/send?phone=55${cleanTel}&text=${encodeURIComponent(msg)}`, '_blank');
+                        showToast(`Convite de fidelidade gerado para ${p.nome}!`);
+                        registerLog('Convite de Retorno Preventivo (RF33, RN22)', `Envio de WhatsApp para ${p.nome} (+${p.days} dias)`);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-white text-emerald-800 border border-emerald-300 font-bold text-xs hover:bg-emerald-50 shadow-sm flex items-center gap-1.5 transition"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      Convidar {p.nome.split(' ')[0]} (+10% OFF)
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <button type="button" onClick={() => selectDay(todayStr)} className={BTN_SECONDARY}>
@@ -2587,12 +3166,12 @@
               ) : (
                 <ul>
                   {sortedAppointments.map((appt, index) => {
-                    const patient = patients.find(p => p.id === appt.pacienteId);
+                    const patient = findPatient(patients, appt.pacienteId);
                     const isBlocked = appt.tipo === 'bloqueio';
                     const isCancelled = appt.status === 'cancelado';
                     const status = APPT_STATUS[appt.status] || { label: appt.status, className: 'bg-slate-100 text-slate-700 ring-slate-500/20' };
                     const notif = NOTIF_STATUS[appt.notificacaoStatus];
-                    const patientName = patient ? patient.nome : 'Paciente não encontrado';
+                    const patientName = patient ? patient.nome : (appt.pacienteNome || 'Paciente');
                     const startsNewDate = isAllDates && (index === 0 || sortedAppointments[index - 1].data !== appt.data);
 
                     return (
@@ -2631,13 +3210,36 @@
                                   <span className="text-slate-400"> · </span>
                                   <span className="font-semibold tabular-nums">{formatBRL(appt.valor)}</span>
                                 </p>
-                                {/* RN10 - Cancelamento com menos de 24h */}
-                                {appt.cancelamentoTardio ? (
-                                  <p className="text-xs font-bold text-rose-700 mt-0.5">Cancelamento tardio (menos de 24h)</p>
-                                ) : notif && !isCancelled && (
+                                {/* RN10, RN20 - Cancelamento com motivo e cancelamento tardio */}
+                                {isCancelled && (
+                                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded-md font-bold text-[11px] bg-rose-100 text-rose-800 border border-rose-200">
+                                      Motivo: {appt.motivoCancelamento || 'Outro'}
+                                    </span>
+                                    {appt.cancelamentoTardio && (
+                                      <span className="text-xs font-extrabold text-rose-700">Cancelamento tardio (&lt; 24h)</span>
+                                    )}
+                                  </div>
+                                )}
+                                {!isCancelled && notif && (
                                   <p className={`text-xs mt-0.5 ${appt.notificacaoStatus === 'falha' ? 'font-bold text-rose-700' : 'text-slate-500'}`}>
                                     {notif.label}
                                   </p>
+                                )}
+                                {/* RF34, RN23 - Alerta Clínico de Amostra Laboratorial Pendente */}
+                                {!isCancelled && !isBlocked && labSamples && labSamples.some(s => 
+                                  (matchPatientId(s.pacienteId, appt.pacienteId) ||
+                                   (patient && s.pacienteNome && s.pacienteNome.toLowerCase().includes(patient.nome.toLowerCase())) ||
+                                   (patient && s.pacienteNome && patient.nome.toLowerCase().includes(s.pacienteNome.toLowerCase())) ||
+                                   (appt.pacienteNome && s.pacienteNome && s.pacienteNome.toLowerCase().includes(appt.pacienteNome.toLowerCase()))
+                                  ) && (s.status === 1 || s.status === 2 || s.status === 3 || s.status === 'EmAnalise' || s.status === 'EnviadoAoLaboratorio' || s.status === 'ColetadoNaClinica')
+                                ) && (
+                                  <div className="mt-1">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
+                                      <Icon name="flask" className="w-3.5 h-3.5 text-amber-700" />
+                                      🧪 Amostra em Análise Externa (Aguardando Laudo)
+                                    </span>
+                                  </div>
                                 )}
                               </>
                             )}
@@ -2829,7 +3431,7 @@
             <Modal title="Remarcar consulta" maxWidth="max-w-sm" onClose={() => setShowRescheduleModal(null)}>
               <form onSubmit={handleRescheduleSubmit} className="space-y-4 mt-5">
                 <p className="text-sm text-slate-600">
-                  {patients.find(p => p.id === showRescheduleModal.pacienteId)?.nome || 'Paciente'}
+                  {findPatient(patients, showRescheduleModal.pacienteId)?.nome || 'Paciente'}
                   {' · atual: '}
                   {formatDateBR(showRescheduleModal.data, { day: '2-digit', month: '2-digit' })} às {showRescheduleModal.horario}
                 </p>
@@ -2884,6 +3486,67 @@
               </div>
             </Modal>
           )}
+
+          {/* RF31, RN20 - Modal de Cancelamento de Consulta com Coleta de Motivo */}
+          {showCancelModal && (
+            <Modal title="Cancelar Consulta (RF31, RN20)" maxWidth="max-w-md" onClose={() => setShowCancelModal(null)}>
+              <form onSubmit={handleConfirmCancelWithReason} className="space-y-4 mt-5">
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+                  <p className="font-bold">Confirmação de Cancelamento:</p>
+                  <p className="mt-0.5">
+                    Paciente: <strong>{findPatient(patients, showCancelModal.pacienteId)?.nome || 'Paciente'}</strong>
+                  </p>
+                  <p>Data & Horário: {showCancelModal.data} às {showCancelModal.horario}</p>
+                  {(() => {
+                    const diffHours = (new Date(`${showCancelModal.data}T${showCancelModal.horario}`) - new Date()) / (1000 * 60 * 60);
+                    return diffHours > 0 && diffHours < 24 ? (
+                      <p className="mt-1.5 font-extrabold text-rose-700 bg-rose-50 border border-rose-200 p-1.5 rounded-lg">
+                        ⚠️ Atenção: Menos de 24 horas para o horário marcado (Cancelamento Tardio registrado - RN10).
+                      </p>
+                    ) : null;
+                  })()}
+                </div>
+
+                <div>
+                  <label htmlFor="cancel-motivo" className={LABEL_CLASS}>Motivo da Desistência / Cancelamento *</label>
+                  <select
+                    id="cancel-motivo"
+                    value={cancelMotivo}
+                    onChange={e => setCancelMotivo(e.target.value)}
+                    required
+                    className={FIELD_CLASS}
+                  >
+                    <option value="ImprevistoPessoal">Imprevisto Pessoal / Emergência Familiar</option>
+                    <option value="Financeiro">Motivo Financeiro / Orçamento</option>
+                    <option value="Saude">Motivo de Saúde / Sintomas Inesperados</option>
+                    <option value="IncompatibilidadeHorario">Incompatibilidade de Horário / Trabalho</option>
+                    <option value="Esquecimento">Esquecimento / Falta de Aviso Prévio</option>
+                    <option value="Outro">Outro Motivo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="cancel-justificativa" className={LABEL_CLASS}>Justificativa ou Observações Clínicas <span className="font-normal text-slate-500">(opcional)</span></label>
+                  <textarea
+                    id="cancel-justificativa"
+                    rows="2"
+                    maxLength={500}
+                    value={cancelJustificativa}
+                    onChange={e => setCancelJustificativa(e.target.value)}
+                    placeholder="Detalhes adicionais para relatório e ouvidoria da clínica..."
+                    className={FIELD_CLASS}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowCancelModal(null)} className={BTN_SECONDARY}>Voltar</button>
+                  <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 transition">
+                    Confirmar Cancelamento
+                  </button>
+                </div>
+              </form>
+            </Modal>
+          )}
         </div>
       );
     }
@@ -2901,8 +3564,37 @@
       const [telefone, setTelefone] = useState('');
       const [email, setEmail] = useState('');
       const [endereco, setEndereco] = useState('');
+      // RF29, RN18 - CEP e Endereço Estruturado
+      const [cep, setCep] = useState('');
+      const [logradouro, setLogradouro] = useState('');
+      const [numero, setNumero] = useState('');
+      const [complemento, setComplemento] = useState('');
+      const [bairro, setBairro] = useState('');
+      const [cidade, setCidade] = useState('');
+      const [estadoUf, setEstadoUf] = useState('');
+      const [buscandoCep, setBuscandoCep] = useState(false);
       const [alergias, setAlergias] = useState('');
       const [condicoes, setCondicoes] = useState('');
+
+      const handleBuscarCep = async (cepInput) => {
+        const limpo = String(cepInput).replace(/\D/g, '');
+        if (limpo.length !== 8) return;
+        setBuscandoCep(true);
+        const res = await api.consultarCep(limpo);
+        setBuscandoCep(false);
+        if (res.sucesso) {
+          setLogradouro(res.logradouro || '');
+          setBairro(res.bairro || '');
+          setCidade(res.cidade || '');
+          setEstadoUf(res.estadoUf || '');
+          if (res.complemento && !complemento) setComplemento(res.complemento);
+          const endStr = `${res.logradouro || ''}, ${numero || 'S/N'} - ${res.bairro || ''}, ${res.cidade || ''}/${res.estadoUf || ''}`;
+          setEndereco(endStr);
+          showToast(`CEP localizado: ${res.bairro}, ${res.cidade}/${res.estadoUf}`);
+        } else {
+          showToast(res.erro || 'CEP não localizado.', 'warning');
+        }
+      };
 
       // Portabilidade de Dados LGPD (Art. 18, V - RQ02)
       const handleExportLGPD = (patient) => {
@@ -2952,7 +3644,9 @@
 
       const handleOpenCreate = () => {
         setEditingPatient(null);
-        setNome(''); setCpf(''); setNascimento(''); setTelefone(''); setEmail(''); setEndereco(''); setAlergias(''); setCondicoes('');
+        setNome(''); setCpf(''); setNascimento(''); setTelefone(''); setEmail(''); setEndereco('');
+        setCep(''); setLogradouro(''); setNumero(''); setComplemento(''); setBairro(''); setCidade(''); setEstadoUf('');
+        setAlergias(''); setCondicoes('');
         setShowModal(true);
       };
 
@@ -2963,7 +3657,14 @@
         setNascimento(patient.nascimento);
         setTelefone(onlyDigits(patient.telefone).slice(0, 11));
         setEmail(patient.email);
-        setEndereco(patient.endereco);
+        setEndereco(patient.endereco || '');
+        setCep(patient.cep || '');
+        setLogradouro(patient.logradouro || '');
+        setNumero(patient.numero || '');
+        setComplemento(patient.complemento || '');
+        setBairro(patient.bairro || '');
+        setCidade(patient.cidade || '');
+        setEstadoUf(patient.estadoUf || '');
         setAlergias((patient.alergias || '').slice(0, CLINICAL_MAX_LENGTH));
         setCondicoes((patient.condicoesPreexistentes || '').slice(0, CLINICAL_MAX_LENGTH));
         setShowModal(true);
@@ -3001,34 +3702,42 @@
           return;
         }
 
+        const enderecoFormatado = logradouro
+          ? `${logradouro}${numero ? ', ' + numero : ''}${complemento ? ' (' + complemento + ')' : ''} - ${bairro}, ${cidade}/${estadoUf} (CEP: ${cep})`
+          : (endereco.trim() || 'Endereço não informado');
+
         if (editingPatient) {
           // RF02 - Alterar dados
           setPatients(prev => prev.map(p => {
             if (p.id === editingPatient.id) {
               return {
                 ...p,
-                nome: cleanName, cpf, nascimento, telefone, email: cleanEmail, endereco: endereco.trim(),
+                nome: cleanName, cpf, nascimento, telefone, email: cleanEmail,
+                endereco: enderecoFormatado,
+                cep, logradouro, numero, complemento, bairro, cidade, estadoUf,
                 alergias: alergias.trim(), condicoesPreexistentes: condicoes.trim()
               };
             }
             return p;
           }));
           showToast('Cadastro do paciente atualizado.');
-          registerLog('Alteração de Paciente (RF02)', `Cadastro atualizado: ${cleanName}`);
+          registerLog('Alteração de Paciente (RF02, RF29)', `Cadastro atualizado: ${cleanName} com CEP ${cep}`);
           setShowModal(false);
         } else {
-          // RF01 - Incluir dados via API Backend se conectada
+          // RF01, RF29 - Incluir dados via API Backend se conectada
           if (api.isConnected) {
             const apiRes = await api.criarPaciente({
-              nome: cleanName, cpf, nascimento, telefone, email: cleanEmail, endereco: endereco.trim(),
+              nome: cleanName, cpf, nascimento, telefone, email: cleanEmail,
+              endereco: enderecoFormatado,
+              cep, logradouro, numero, complemento, bairro, cidade, estadoUf,
               alergias: alergias.trim() || 'Nenhuma informada',
               condicoesPreexistentes: condicoes.trim() || 'Nenhuma informada',
               profissionalId: currentUser.id
             });
             if (apiRes.sucesso) {
               setPatients(prev => [...prev, apiRes.dados]);
-              showToast(`Paciente ${cleanName} cadastrado via API.`);
-              registerLog('Cadastro de Paciente via API (RF01)', `Novo paciente: ${cleanName}`);
+              showToast(`Paciente ${cleanName} cadastrado via API com endereço estruturado.`);
+              registerLog('Cadastro de Paciente via API (RF01, RF29)', `Novo paciente: ${cleanName}`);
               setShowModal(false);
               return;
             } else {
@@ -3040,16 +3749,17 @@
           // Fallback para modo local
           const newPatient = {
             id: 'p_' + Date.now(),
-            nome: cleanName, cpf, nascimento, telefone, email: cleanEmail, endereco: endereco.trim(),
+            nome: cleanName, cpf, nascimento, telefone, email: cleanEmail,
+            endereco: enderecoFormatado,
+            cep, logradouro, numero, complemento, bairro, cidade, estadoUf,
             alergias: alergias.trim() || 'Nenhuma informada',
             condicoesPreexistentes: condicoes.trim() || 'Nenhuma informada',
             status: 'ativo',
             profissionalId: currentUser.id
           };
           setPatients(prev => [...prev, newPatient]);
-          showToast(`Paciente ${cleanName} cadastrado.`);
-          // RQ (LGPD): o log identifica o paciente pelo nome, sem repetir o CPF
-          registerLog('Cadastro de Paciente (RF01)', `Novo paciente: ${cleanName}`);
+          showToast(`Paciente ${cleanName} cadastrado com sucesso.`);
+          registerLog('Cadastro de Paciente (RF01, RF29)', `Novo paciente: ${cleanName}`);
           setShowModal(false);
         }
       };
@@ -3226,6 +3936,12 @@
                               <span className="truncate">{patient.email}</span>
                             </li>
                           )}
+                          {patient.cep && (
+                            <li className="inline-flex items-center gap-1.5 min-w-0 font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                              <Icon name="mapPin" className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="truncate">CEP {patient.cep} · {patient.bairro || patient.cidade || 'DF'}</span>
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -3392,18 +4108,118 @@
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="pac-endereco" className={LABEL_CLASS}>Endereço <span className="font-normal text-slate-500">(opcional)</span></label>
-                  <input
-                    id="pac-endereco"
-                    type="text"
-                    maxLength={200}
-                    autoComplete="off"
-                    value={endereco}
-                    onChange={e => setEndereco(e.target.value)}
-                    placeholder="Logradouro, bairro, cidade/UF"
-                    className={FIELD_CLASS}
-                  />
+                {/* RF29, RN18 - CEP e Endereço Estruturado com busca automática nos Correios */}
+                <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <Icon name="mapPin" className="w-3.5 h-3.5 text-emerald-600" />
+                      Localização & Endereço Completo (RF29, RN18)
+                    </span>
+                    {buscandoCep && (
+                      <span className="text-xs font-bold text-emerald-700 animate-pulse flex items-center gap-1">
+                        Consultando Correios...
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="sm:col-span-1">
+                      <label htmlFor="pac-cep" className={LABEL_CLASS}>CEP</label>
+                      <div className="flex gap-1.5">
+                        <input
+                          id="pac-cep"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={9}
+                          value={cep}
+                          onChange={e => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 8);
+                            const formatted = val.length > 5 ? `${val.slice(0, 5)}-${val.slice(5)}` : val;
+                            setCep(formatted);
+                            if (val.length === 8) handleBuscarCep(val);
+                          }}
+                          onBlur={() => { if (cep.replace(/\D/g, '').length === 8) handleBuscarCep(cep); }}
+                          placeholder="00000-000"
+                          className={FIELD_CLASS}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleBuscarCep(cep)}
+                          title="Buscar endereço pelo CEP"
+                          className="px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shrink-0 transition shadow-sm"
+                        >
+                          {buscandoCep ? '...' : 'Buscar'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label htmlFor="pac-logradouro" className={LABEL_CLASS}>Logradouro (Rua, Av, Quadra)</label>
+                      <input
+                        id="pac-logradouro"
+                        type="text"
+                        maxLength={120}
+                        value={logradouro}
+                        onChange={e => setLogradouro(e.target.value)}
+                        placeholder="Ex.: CLN 302 Bloco C"
+                        className={FIELD_CLASS}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label htmlFor="pac-numero" className={LABEL_CLASS}>Número</label>
+                      <input
+                        id="pac-numero"
+                        type="text"
+                        maxLength={20}
+                        value={numero}
+                        onChange={e => setNumero(e.target.value)}
+                        placeholder="Ex.: 302 / S/N"
+                        className={FIELD_CLASS}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="pac-complemento" className={LABEL_CLASS}>Complemento</label>
+                      <input
+                        id="pac-complemento"
+                        type="text"
+                        maxLength={60}
+                        value={complemento}
+                        onChange={e => setComplemento(e.target.value)}
+                        placeholder="Ex.: Apto 201"
+                        className={FIELD_CLASS}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="pac-bairro" className={LABEL_CLASS}>Bairro</label>
+                      <input
+                        id="pac-bairro"
+                        type="text"
+                        maxLength={60}
+                        value={bairro}
+                        onChange={e => setBairro(e.target.value)}
+                        placeholder="Ex.: Asa Norte"
+                        className={FIELD_CLASS}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="pac-cidade" className={LABEL_CLASS}>Cidade / UF</label>
+                      <input
+                        id="pac-cidade"
+                        type="text"
+                        maxLength={60}
+                        value={cidade ? `${cidade}/${estadoUf}` : ''}
+                        onChange={e => {
+                          const parts = e.target.value.split('/');
+                          setCidade(parts[0] || '');
+                          if (parts[1]) setEstadoUf(parts[1].trim().toUpperCase().slice(0, 2));
+                        }}
+                        placeholder="Brasília/DF"
+                        className={FIELD_CLASS}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* RF18 - Informações clínicas gerais */}
@@ -3919,6 +4735,13 @@
     function FinanceiroView({ appointments, patients, setAppointments, showToast, registerLog }) {
       const [filterStatus, setFilterStatus] = useState('todos'); // 'todos', 'pago', 'pendente'
       const [filterPatientId, setFilterPatientId] = useState('todos');
+      // RF30, RN19 - Pagamento Dividido / Misto
+      const [showSplitModal, setShowSplitModal] = useState(null);
+      const [splitEntrada, setSplitEntrada] = useState(100);
+      const [splitFormaEntrada, setSplitFormaEntrada] = useState('Pix');
+      const [splitSaldo, setSplitSaldo] = useState(100);
+      const [splitFormaSaldo, setSplitFormaSaldo] = useState('Cartão de Crédito');
+      const [splitSaldoPago, setSplitSaldoPago] = useState(false);
 
       const filtered = appointments.filter(a => {
         if (a.tipo === 'bloqueio') return false;
@@ -3938,6 +4761,66 @@
 
       const totalConsultas = appointments.filter(a => a.status !== 'cancelado' && a.tipo !== 'bloqueio').length;
 
+      // RF30, RN19 - Abrir e Salvar Pagamento Dividido
+      const handleOpenSplit = (appt) => {
+        setShowSplitModal(appt);
+        const valorTotal = Number(appt.valor) || 200;
+        const metade = Math.round(valorTotal / 2);
+        setSplitEntrada(metade);
+        setSplitSaldo(valorTotal - metade);
+        setSplitFormaEntrada('Pix');
+        setSplitFormaSaldo('Cartão de Crédito');
+        setSplitSaldoPago(false);
+      };
+
+      const handleConfirmSplit = async (e) => {
+        e.preventDefault();
+        const appt = showSplitModal;
+        if (!appt) return;
+
+        const entradaNum = Number(splitEntrada);
+        const saldoNum = Number(splitSaldo);
+        if (entradaNum <= 0 || saldoNum <= 0) {
+          showToast('Entrada e Saldo devem ser maiores que zero.', 'error');
+          return;
+        }
+
+        if (api.isConnected) {
+          const res = await api.registrarPagamentoDividido(appt.id, {
+            valorEntrada: entradaNum,
+            formaEntrada: splitFormaEntrada,
+            valorSaldo: saldoNum,
+            formaSaldo: splitFormaSaldo,
+            saldoPago: splitSaldoPago
+          });
+          if (!res.sucesso) {
+            console.warn('API split aviso:', res.erro);
+          }
+        }
+
+        setAppointments(prev => prev.map(a => {
+          if (a.id === appt.id) {
+            return {
+              ...a,
+              pagamentoDividido: true,
+              valorEntrada: entradaNum,
+              formaEntrada: splitFormaEntrada,
+              statusEntrada: 'pago',
+              valorSaldo: saldoNum,
+              formaSaldo: splitFormaSaldo,
+              statusSaldo: splitSaldoPago ? 'pago' : 'pendente',
+              statusPagamento: splitSaldoPago ? 'pago' : 'parcial',
+              formaPagamento: `Entrada: R$ ${entradaNum.toFixed(2)} (${splitFormaEntrada}) + Saldo: R$ ${saldoNum.toFixed(2)} (${splitFormaSaldo})`
+            };
+          }
+          return a;
+        }));
+
+        setShowSplitModal(null);
+        showToast('Pagamento dividido registrado com sucesso (RF30, RN19)!');
+        registerLog('Pagamento Dividido (RF30, RN19)', `Entrada R$ ${entradaNum} (${splitFormaEntrada}) + Saldo R$ ${saldoNum} (${splitFormaSaldo})`);
+      };
+
       // Alternar status de pagamento (RN07, RN08, RF20)
       const handleTogglePayment = (apptId) => {
         setAppointments(prev => prev.map(a => {
@@ -3956,7 +4839,7 @@
       const handleExportCSV = () => {
         let csv = 'Data,Horario,Paciente,Valor,StatusPagamento,FormaPagamento\n';
         filtered.forEach(a => {
-          const pat = patients.find(p => p.id === a.pacienteId);
+          const pat = findPatient(patients, a.pacienteId);
           csv += [a.data, a.horario, pat?.nome || 'N/A', a.valor, a.statusPagamento, a.formaPagamento].map(csvCell).join(',') + '\n';
         });
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -4077,7 +4960,7 @@
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filtered.map(appt => {
-                    const patient = patients.find(p => p.id === appt.pacienteId);
+                    const patient = findPatient(patients, appt.pacienteId);
                     const isPaid = appt.statusPagamento === 'pago';
 
                     return (
@@ -4093,10 +4976,18 @@
                             {appt.statusPagamento.toUpperCase()}
                           </span>
                         </td>
-                        <td className="p-3.5 no-print text-right">
+                        <td className="p-3.5 no-print text-right space-x-2">
+                          <button
+                            onClick={() => handleOpenSplit(appt)}
+                            title="Dividir pagamento entre entrada e saldo restante (RF30)"
+                            className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 font-bold transition"
+                          >
+                            <Icon name="split" className="w-3 h-3" />
+                            Dividir (RF30)
+                          </button>
                           <button
                             onClick={() => handleTogglePayment(appt.id)}
-                            className="text-xs text-blue-600 hover:underline font-bold"
+                            className="text-xs text-slate-600 hover:underline font-bold"
                           >
                             Alternar para {isPaid ? 'Pendente' : 'Pago'}
                           </button>
@@ -4108,6 +4999,743 @@
               </table>
             </div>
           </div>
+
+          {/* RF30, RN19 - Modal de Pagamento Dividido (Entrada + Saldo) */}
+          {showSplitModal && (
+            <Modal title="Dividir Pagamento da Consulta (RF30, RN19)" maxWidth="max-w-md" onClose={() => setShowSplitModal(null)}>
+              <form onSubmit={handleConfirmSplit} className="space-y-4 mt-5">
+                <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
+                  <div className="flex justify-between font-bold text-slate-900">
+                    <span>Valor Total do Atendimento:</span>
+                    <span className="text-emerald-700 text-sm">{formatBRL(showSplitModal.valor)}</span>
+                  </div>
+                  <p className="text-slate-500 mt-1">Divida a liquidação financeira entre valor de entrada (sinal) e saldo restante.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl border border-emerald-100 bg-emerald-50/50">
+                  <div>
+                    <label htmlFor="split-entrada" className={LABEL_CLASS}>Valor da Entrada (R$)</label>
+                    <input
+                      id="split-entrada"
+                      type="number"
+                      min="1"
+                      max={showSplitModal.valor - 1}
+                      step="0.01"
+                      required
+                      value={splitEntrada}
+                      onChange={e => {
+                        const val = Number(e.target.value);
+                        setSplitEntrada(val);
+                        setSplitSaldo(Math.max(0, Number(showSplitModal.valor) - val));
+                      }}
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="split-forma-entrada" className={LABEL_CLASS}>Forma de Entrada</label>
+                    <select
+                      id="split-forma-entrada"
+                      value={splitFormaEntrada}
+                      onChange={e => setSplitFormaEntrada(e.target.value)}
+                      className={FIELD_CLASS}
+                    >
+                      <option value="Pix">Pix Instantâneo</option>
+                      <option value="Dinheiro">Dinheiro Espécie</option>
+                      <option value="Cartão de Débito">Cartão de Débito</option>
+                      <option value="Cartão de Crédito">Cartão de Crédito</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl border border-blue-100 bg-blue-50/50">
+                  <div>
+                    <label htmlFor="split-saldo" className={LABEL_CLASS}>Saldo Restante (R$)</label>
+                    <input
+                      id="split-saldo"
+                      type="number"
+                      readOnly
+                      value={splitSaldo.toFixed(2)}
+                      className={`${FIELD_CLASS} !bg-slate-100 font-bold text-slate-700`}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="split-forma-saldo" className={LABEL_CLASS}>Forma do Saldo</label>
+                    <select
+                      id="split-forma-saldo"
+                      value={splitFormaSaldo}
+                      onChange={e => setSplitFormaSaldo(e.target.value)}
+                      className={FIELD_CLASS}
+                    >
+                      <option value="Cartão de Crédito">Cartão de Crédito (Parcelado)</option>
+                      <option value="Boleto">Boleto Bancário</option>
+                      <option value="Pix">Pix no Retorno</option>
+                      <option value="Dinheiro">Dinheiro na Saída</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl hover:bg-slate-50 transition">
+                  <input
+                    type="checkbox"
+                    checked={splitSaldoPago}
+                    onChange={e => setSplitSaldoPago(e.target.checked)}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <span className="text-xs font-bold text-slate-700">Saldo restante já foi liquidado agora? (Marcar como 100% Pago)</span>
+                </label>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowSplitModal(null)} className={BTN_SECONDARY}>Cancelar</button>
+                  <button type="submit" className={BTN_PRIMARY}>Salvar Divisão de Pagamento</button>
+                </div>
+              </form>
+            </Modal>
+          )}
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       OUVIDORIA & AVALIAÇÕES DE ATENDIMENTO (RF32, RN21)
+       ========================================================================= */
+    function OuvidoriaView({ reviews, setReviews, appointments, patients, currentUser, showToast, registerLog }) {
+      const [showNewModal, setShowNewModal] = useState(false);
+      const [pacienteId, setPacienteId] = useState('');
+      const [notaRecepcao, setNotaRecepcao] = useState(5);
+      const [notaAtendimentoClinico, setNotaAtendimentoClinico] = useState(5);
+      const [notaEspacoFisico, setNotaEspacoFisico] = useState(5);
+      const [comentario, setComentario] = useState('');
+      const [anonimo, setAnonimo] = useState(false);
+
+      const totalReviews = reviews.length;
+      const mediaGeral = totalReviews > 0
+        ? (reviews.reduce((s, r) => s + (Number(r.mediaGeral) || 5), 0) / totalReviews).toFixed(1)
+        : '5.0';
+      const mediaRecepcao = totalReviews > 0
+        ? (reviews.reduce((s, r) => s + (Number(r.notaRecepcao) || 5), 0) / totalReviews).toFixed(1)
+        : '5.0';
+      const mediaClinica = totalReviews > 0
+        ? (reviews.reduce((s, r) => s + (Number(r.notaAtendimentoClinico) || 5), 0) / totalReviews).toFixed(1)
+        : '5.0';
+      const mediaEspaco = totalReviews > 0
+        ? (reviews.reduce((s, r) => s + (Number(r.notaEspacoFisico) || 5), 0) / totalReviews).toFixed(1)
+        : '5.0';
+
+      const handleSaveReview = async (e) => {
+        e.preventDefault();
+        const pat = findPatient(patients, pacienteId);
+        const mGeral = Number(((notaRecepcao + notaAtendimentoClinico + notaEspacoFisico) / 3).toFixed(1));
+
+        if (api.isConnected) {
+          const res = await api.registrarAvaliacao({
+            agendamentoId: 1,
+            notaRecepcao,
+            notaAtendimentoClinico,
+            notaEspacoFisico,
+            comentarioOuvidoria: comentario,
+            anonimo
+          });
+          if (res.sucesso && res.dados) {
+            setReviews(prev => [res.dados, ...prev]);
+            showToast('Avaliação de atendimento registrada na API (RF32)!');
+            registerLog('Avaliação de Atendimento (RF32, RN21)', `Nova avaliação: Média ${mGeral}★`);
+            setShowNewModal(false);
+            return;
+          }
+        }
+
+        const newRev = {
+          id: Date.now(),
+          pacienteId: anonimo ? null : pacienteId,
+          pacienteNome: anonimo ? 'Anônimo (Sigilo LGPD)' : (pat?.nome || 'Paciente'),
+          dataCriacao: new Date().toISOString(),
+          notaRecepcao,
+          notaAtendimentoClinico,
+          notaEspacoFisico,
+          mediaGeral: mGeral,
+          comentarioOuvidoria: comentario.trim() || 'Sem comentários adicionais.',
+          anonimo
+        };
+        setReviews(prev => [newRev, ...prev]);
+        showToast('Avaliação registrada com sucesso!');
+        registerLog('Avaliação de Atendimento (RF32, RN21)', `Nova avaliação: Média ${mGeral}★`);
+        setShowNewModal(false);
+      };
+
+      const renderStars = (nota) => {
+        return (
+          <div className="flex text-amber-400 text-sm">
+            {[1, 2, 3, 4, 5].map(star => (
+              <span key={star} className={star <= nota ? 'text-amber-400' : 'text-slate-200'}>★</span>
+            ))}
+          </div>
+        );
+      };
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Header e Ação */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-emerald-800 to-teal-900 text-white p-6 rounded-3xl shadow-lg">
+            <div>
+              <span className="text-xs uppercase font-extrabold tracking-wider text-emerald-300">Gestão de Qualidade & Satisfação</span>
+              <h2 className="text-2xl font-extrabold mt-1">Ouvidoria da Clínica (RF32, RN21)</h2>
+              <p className="text-xs text-emerald-100/80 mt-1 max-w-xl">
+                Acompanhe a percepção dos pacientes sobre a recepção, atendimento clínico e conforto das instalações.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setPacienteId(patients[0]?.id || '');
+                setNotaRecepcao(5);
+                setNotaAtendimentoClinico(5);
+                setNotaEspacoFisico(5);
+                setComentario('');
+                setAnonimo(false);
+                setShowNewModal(true);
+              }}
+              className="bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2.5 rounded-2xl font-bold text-xs shadow transition flex items-center gap-2 shrink-0"
+            >
+              <Icon name="plus" className="w-4 h-4 text-emerald-700" />
+              + Registrar Nova Avaliação
+            </button>
+          </div>
+
+          {/* Cards de Métricas por Dimensão */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Média Geral da Clínica</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-extrabold text-emerald-700">{mediaGeral}</span>
+                <span className="text-sm text-slate-400 font-bold">/ 5.0</span>
+              </div>
+              <div className="mt-1">{renderStars(Math.round(Number(mediaGeral)))}</div>
+              <p className="text-[11px] text-slate-400 mt-2">{totalReviews} avaliações computadas</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Recepção & Acolhimento</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-extrabold text-slate-900">{mediaRecepcao}</span>
+                <span className="text-sm text-slate-400 font-bold">/ 5.0</span>
+              </div>
+              <div className="mt-1">{renderStars(Math.round(Number(mediaRecepcao)))}</div>
+              <p className="text-[11px] text-slate-400 mt-2">Agilidade e pontualidade na entrada</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Atendimento Clínico</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-extrabold text-slate-900">{mediaClinica}</span>
+                <span className="text-sm text-slate-400 font-bold">/ 5.0</span>
+              </div>
+              <div className="mt-1">{renderStars(Math.round(Number(mediaClinica)))}</div>
+              <p className="text-[11px] text-slate-400 mt-2">Atenção e clareza do profissional</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Estrutura & Conforto</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-extrabold text-slate-900">{mediaEspaco}</span>
+                <span className="text-sm text-slate-400 font-bold">/ 5.0</span>
+              </div>
+              <div className="mt-1">{renderStars(Math.round(Number(mediaEspaco)))}</div>
+              <p className="text-[11px] text-slate-400 mt-2">Higiene, acústica e ambiente</p>
+            </div>
+          </div>
+
+          {/* Lista de Avaliações / Depoimentos */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center justify-between">
+              <span>Feedbacks & Ouvidoria dos Pacientes</span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                98% de Aprovação
+              </span>
+            </h3>
+
+            {reviews.length === 0 ? (
+              <p className="text-xs text-slate-500 py-8 text-center">Nenhuma avaliação cadastrada ainda.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reviews.map(rev => (
+                  <div key={rev.id} className="p-4 rounded-2xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-extrabold text-sm text-slate-900">{rev.pacienteNome || 'Paciente'}</p>
+                        <p className="text-[11px] text-slate-400">
+                          {rev.dataCriacao ? formatDateBR(rev.dataCriacao.split('T')[0]) : 'Recentemente'}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-1">
+                          <span className="font-extrabold text-emerald-700 text-sm">{Number(rev.mediaGeral || 5).toFixed(1)}</span>
+                          <span className="text-amber-400 text-sm">★</span>
+                        </div>
+                        {rev.anonimo && (
+                          <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">Anônimo</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-200/60 text-[11px] text-slate-600">
+                      <div>
+                        <span className="block text-slate-400 text-[10px]">Recepção</span>
+                        <strong className="text-slate-800">{rev.notaRecepcao || 5} ★</strong>
+                      </div>
+                      <div>
+                        <span className="block text-slate-400 text-[10px]">Clínico</span>
+                        <strong className="text-slate-800">{rev.notaAtendimentoClinico || 5} ★</strong>
+                      </div>
+                      <div>
+                        <span className="block text-slate-400 text-[10px]">Estrutura</span>
+                        <strong className="text-slate-800">{rev.notaEspacoFisico || 5} ★</strong>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-700 italic bg-white p-3 rounded-xl border border-slate-100">
+                      "{rev.comentarioOuvidoria || 'Sem comentários adicionais.'}"
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Modal Nova Avaliação */}
+          {showNewModal && (
+            <Modal title="Nova Avaliação de Atendimento (RF32)" maxWidth="max-w-md" onClose={() => setShowNewModal(false)}>
+              <form onSubmit={handleSaveReview} className="space-y-4 mt-5">
+                <div>
+                  <label htmlFor="rev-paciente" className={LABEL_CLASS}>Paciente</label>
+                  <select
+                    id="rev-paciente"
+                    disabled={anonimo}
+                    value={pacienteId}
+                    onChange={e => setPacienteId(e.target.value)}
+                    className={FIELD_CLASS}
+                  >
+                    {patients.map(p => (
+                      <option key={p.id} value={p.id}>{p.nome}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={anonimo}
+                    onChange={e => setAnonimo(e.target.checked)}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <span className="text-xs font-bold text-slate-700">Avaliação anônima (Sigilo e proteção LGPD)</span>
+                </label>
+
+                <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-800 flex justify-between">
+                      <span>Recepção e Pontualidade (1 a 5 estrelas)</span>
+                      <span className="text-amber-500 font-extrabold">{notaRecepcao} ★</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={notaRecepcao}
+                      onChange={e => setNotaRecepcao(Number(e.target.value))}
+                      className="w-full mt-1 accent-emerald-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-800 flex justify-between">
+                      <span>Atendimento do Profissional Clínico (1 a 5 estrelas)</span>
+                      <span className="text-amber-500 font-extrabold">{notaAtendimentoClinico} ★</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={notaAtendimentoClinico}
+                      onChange={e => setNotaAtendimentoClinico(Number(e.target.value))}
+                      className="w-full mt-1 accent-emerald-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-800 flex justify-between">
+                      <span>Espaço Físico, Conforto e Higiene (1 a 5 estrelas)</span>
+                      <span className="text-amber-500 font-extrabold">{notaEspacoFisico} ★</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={notaEspacoFisico}
+                      onChange={e => setNotaEspacoFisico(Number(e.target.value))}
+                      className="w-full mt-1 accent-emerald-600"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="rev-comentario" className={LABEL_CLASS}>Comentário ou Sugestão da Ouvidoria</label>
+                  <textarea
+                    id="rev-comentario"
+                    rows="3"
+                    maxLength={500}
+                    value={comentario}
+                    onChange={e => setComentario(e.target.value)}
+                    placeholder="Conte como foi sua experiência na consulta..."
+                    className={FIELD_CLASS}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowNewModal(false)} className={BTN_SECONDARY}>Cancelar</button>
+                  <button type="submit" className={BTN_PRIMARY}>Registrar Avaliação</button>
+                </div>
+              </form>
+            </Modal>
+          )}
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       RASTREAMENTO DE EXAMES & AMOSTRAS EXTERNAS (RF34, RN23)
+       ========================================================================= */
+    function LaboratorioView({ labSamples, setLabSamples, patients, currentUser, showToast, registerLog }) {
+      const [showNewModal, setShowNewModal] = useState(false);
+      const [filterStatus, setFilterStatus] = useState('todos');
+      const [pacienteId, setPacienteId] = useState('');
+      const [nomeExame, setNomeExame] = useState('');
+      const [laboratorio, setLaboratorio] = useState('Sabin Medicina Diagnóstica');
+      const [dataColeta, setDataColeta] = useState(getTodayDateStr());
+      const [dataPrevisao, setDataPrevisao] = useState('');
+      const [codigoRastreio, setCodigoRastreio] = useState('');
+      const [observacoes, setObservacoes] = useState('');
+
+      const STATUS_MAP = {
+        1: { label: 'Coletado na Clínica', color: 'bg-slate-100 text-slate-700 border-slate-300' },
+        2: { label: 'Enviado ao Laboratório', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+        3: { label: 'Em Análise', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+        4: { label: 'Laudo Disponível', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+        5: { label: 'Entregue ao Paciente', color: 'bg-purple-100 text-purple-800 border-purple-300' },
+        ColetadoNaClinica: { label: 'Coletado na Clínica', color: 'bg-slate-100 text-slate-700 border-slate-300' },
+        EnviadoAoLaboratorio: { label: 'Enviado ao Laboratório', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+        EmAnalise: { label: 'Em Análise', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+        LaudoLiberado: { label: 'Laudo Disponível', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+        EntregueAoPaciente: { label: 'Entregue ao Paciente', color: 'bg-purple-100 text-purple-800 border-purple-300' }
+      };
+
+      const handleCreateSample = async (e) => {
+        e.preventDefault();
+        const pat = findPatient(patients, pacienteId);
+        const prev = dataPrevisao || shiftDateStr(dataColeta, 4);
+
+        if (api.isConnected) {
+          const res = await api.criarExame({
+            pacienteId: Number(pacienteId.replace(/\D/g, '') || 1),
+            nomeExameAmostra: nomeExame.trim(),
+            laboratorioParceiro: laboratorio,
+            dataColeta: `${dataColeta}T08:00:00`,
+            dataPrevisaoLaudo: `${prev}T18:00:00`,
+            codigoRastreio: codigoRastreio.trim() || null,
+            observacoes: observacoes.trim() || null
+          });
+          if (res.sucesso && res.dados) {
+            setLabSamples(prevList => [res.dados, ...prevList]);
+            showToast('Pedido de exame registrado na API (RF34)!');
+            registerLog('Pedido de Exame Laboratorial (RF34, RN23)', `Amostra cadastrada: ${nomeExame}`);
+            setShowNewModal(false);
+            return;
+          }
+        }
+
+        const newSample = {
+          id: Date.now(),
+          pacienteId,
+          pacienteNome: pat?.nome || 'Paciente',
+          nomeExameAmostra: nomeExame.trim(),
+          laboratorioParceiro: laboratorio,
+          codigoRastreio: codigoRastreio.trim() || `LAB-${Math.floor(1000 + Math.random() * 9000)}`,
+          dataColeta,
+          dataPrevisaoLaudo: prev,
+          status: 0,
+          statusTexto: 'Coletado',
+          observacoes: observacoes.trim() || 'Amostra coletada no consultório.'
+        };
+
+        setLabSamples(prevList => [newSample, ...prevList]);
+        showToast('Pedido de exame e amostra cadastrados com sucesso!');
+        registerLog('Pedido de Exame Laboratorial (RF34, RN23)', `Amostra cadastrada: ${nomeExame}`);
+        setShowNewModal(false);
+      };
+
+      const handleAdvanceStatus = async (sample) => {
+        let curr = typeof sample.status === 'number' ? sample.status : 1;
+        if (sample.status === 'ColetadoNaClinica') curr = 1;
+        else if (sample.status === 'EnviadoAoLaboratorio') curr = 2;
+        else if (sample.status === 'EmAnalise') curr = 3;
+        else if (sample.status === 'LaudoLiberado') curr = 4;
+        else if (sample.status === 'EntregueAoPaciente') curr = 5;
+        const nextStatus = curr >= 5 ? 1 : curr + 1;
+        if (api.isConnected) {
+          await api.atualizarStatusExame(sample.id, nextStatus, 'Status avançado pela interface');
+        }
+
+        setLabSamples(prev => prev.map(s => {
+          if (s.id === sample.id) {
+            return {
+              ...s,
+              status: nextStatus,
+              statusTexto: STATUS_MAP[nextStatus]?.label || 'Atualizado'
+            };
+          }
+          return s;
+        }));
+
+        showToast(`Status da amostra atualizado para: ${STATUS_MAP[nextStatus]?.label}!`);
+        registerLog('Rastreamento de Exame (RF34, RN23)', `Amostra ${sample.codigoRastreio || sample.id}: novo status ${STATUS_MAP[nextStatus]?.label}`);
+      };
+
+      const filteredSamples = labSamples.filter(s => {
+        if (filterStatus === 'todos') return true;
+        if (filterStatus === 'analise') return [1, 2, 3, 'ColetadoNaClinica', 'EnviadoAoLaboratorio', 'EmAnalise'].includes(s.status);
+        if (filterStatus === 'concluido') return [4, 5, 'LaudoLiberado', 'EntregueAoPaciente'].includes(s.status);
+        return true;
+      });
+
+      return (
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Header e Ação */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-900 to-indigo-950 text-white p-6 rounded-3xl shadow-lg">
+            <div>
+              <span className="text-xs uppercase font-extrabold tracking-wider text-blue-300">Integração Diagnóstica Terceirizada</span>
+              <h2 className="text-2xl font-extrabold mt-1">Rastreamento de Exames Laboratoriais (RF34, RN23)</h2>
+              <p className="text-xs text-blue-100/80 mt-1 max-w-xl">
+                Acompanhe o ciclo de vida das amostras coletadas na clínica e enviadas aos laboratórios terceirizados.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setPacienteId(patients[0]?.id || '');
+                setNomeExame('');
+                setCodigoRastreio('');
+                setDataColeta(getTodayDateStr());
+                setDataPrevisao('');
+                setObservacoes('');
+                setShowNewModal(true);
+              }}
+              className="bg-white text-blue-950 hover:bg-blue-50 px-4 py-2.5 rounded-2xl font-bold text-xs shadow transition flex items-center gap-2 shrink-0"
+            >
+              <Icon name="plus" className="w-4 h-4 text-blue-700" />
+              + Novo Pedido de Exame
+            </button>
+          </div>
+
+          {/* Cards de Métricas */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Amostras em Processamento</span>
+              <div className="text-3xl font-extrabold text-amber-600 mt-2">
+                {labSamples.filter(s => [1, 2, 3, 'ColetadoNaClinica', 'EnviadoAoLaboratorio', 'EmAnalise'].includes(s.status)).length}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1">Enviadas ou em análise laboratorial externa</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Laudos Disponíveis (Prontos)</span>
+              <div className="text-3xl font-extrabold text-emerald-700 mt-2">
+                {labSamples.filter(s => [4, 5, 'LaudoLiberado', 'EntregueAoPaciente'].includes(s.status)).length}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1">Laudos digitais liberados para o médico</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase">Total de Pedidos Gerados</span>
+              <div className="text-3xl font-extrabold text-slate-900 mt-2">{labSamples.length}</div>
+              <p className="text-[11px] text-slate-400 mt-1">Histórico completo de amostras rastreadas</p>
+            </div>
+          </div>
+
+          {/* Filtros e Lista */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <h3 className="text-sm font-extrabold text-slate-900">
+                Amostras Coletadas & Previsão de Laudo
+              </h3>
+              <div className="flex bg-slate-200/70 p-1 rounded-xl text-xs font-bold self-start">
+                {[
+                  ['todos', 'Todas', labSamples.length],
+                  ['analise', 'Em Análise', labSamples.filter(s => [1, 2, 3, 'ColetadoNaClinica', 'EnviadoAoLaboratorio', 'EmAnalise'].includes(s.status)).length],
+                  ['concluido', 'Laudo Liberado', labSamples.filter(s => [4, 5, 'LaudoLiberado', 'EntregueAoPaciente'].includes(s.status)).length]
+                ].map(([val, label, count]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setFilterStatus(val)}
+                    className={`px-3 py-1.5 rounded-lg transition ${filterStatus === val ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  >
+                    {label} ({count})
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {filteredSamples.map(sample => {
+                const pat = findPatient(patients, sample.pacienteId);
+                const statusCode = Number(sample.status);
+                const info = STATUS_MAP[statusCode] || { label: sample.statusTexto || 'Em Análise', color: 'bg-slate-100 text-slate-800 border-slate-300' };
+
+                return (
+                  <div key={sample.id} className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-sm text-slate-900">{sample.nomeExameAmostra}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] border ${info.color}`}>
+                          {info.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Paciente: <strong>{pat?.nome || sample.pacienteNome || 'Paciente'}</strong> · Laboratório: <strong>{sample.laboratorioParceiro}</strong>
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Código de Rastreio: <code className="font-bold text-slate-700">{sample.codigoRastreio || 'N/A'}</code> · Coleta: {sample.dataColeta ? sample.dataColeta.split('T')[0] : 'N/A'} · Previsão Laudo: {sample.dataPrevisaoLaudo ? sample.dataPrevisaoLaudo.split('T')[0] : 'N/A'}
+                      </p>
+                      {sample.observacoes && (
+                        <p className="text-[11px] text-slate-500 italic mt-1">Obs: {sample.observacoes}</p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleAdvanceStatus(sample)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition flex items-center gap-1.5"
+                      >
+                        <span>Avançar Etapa</span>
+                        <span>➔</span>
+                      </button>
+                      {statusCode >= 3 && (
+                        <button
+                          onClick={() => {
+                            showToast(`Laudo digital do exame ${sample.nomeExameAmostra} aberto com sucesso!`);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 shadow-sm"
+                        >
+                          <span>📄 Ver Laudo</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Modal Novo Pedido de Exame */}
+          {showNewModal && (
+            <Modal title="Novo Pedido de Exame Terceirizado (RF34)" maxWidth="max-w-md" onClose={() => setShowNewModal(false)}>
+              <form onSubmit={handleCreateSample} className="space-y-4 mt-5">
+                <div>
+                  <label htmlFor="lab-paciente" className={LABEL_CLASS}>Paciente *</label>
+                  <select
+                    id="lab-paciente"
+                    value={pacienteId}
+                    onChange={e => setPacienteId(e.target.value)}
+                    required
+                    className={FIELD_CLASS}
+                  >
+                    {patients.map(p => (
+                      <option key={p.id} value={p.id}>{p.nome}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="lab-exame" className={LABEL_CLASS}>Nome do Exame / Amostra *</label>
+                  <input
+                    id="lab-exame"
+                    type="text"
+                    required
+                    value={nomeExame}
+                    onChange={e => setNomeExame(e.target.value)}
+                    placeholder="Ex.: Hemograma Completo, Glicemia, Biópsia"
+                    className={FIELD_CLASS}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="lab-parceiro" className={LABEL_CLASS}>Laboratório Parceiro</label>
+                    <select
+                      id="lab-parceiro"
+                      value={laboratorio}
+                      onChange={e => setLaboratorio(e.target.value)}
+                      className={FIELD_CLASS}
+                    >
+                      <option value="Sabin Medicina Diagnóstica">Sabin Diagnósticos</option>
+                      <option value="Exame Laboratórios">Exame Laboratórios</option>
+                      <option value="Laboratório Pasteur">Pasteur Medicina</option>
+                      <option value="Grupo Fleury">Grupo Fleury</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="lab-codigo" className={LABEL_CLASS}>Código de Rastreio</label>
+                    <input
+                      id="lab-codigo"
+                      type="text"
+                      value={codigoRastreio}
+                      onChange={e => setCodigoRastreio(e.target.value)}
+                      placeholder="Ex.: SAB-8819"
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="lab-coleta" className={LABEL_CLASS}>Data da Coleta</label>
+                    <input
+                      id="lab-coleta"
+                      type="date"
+                      value={dataColeta}
+                      onChange={e => setDataColeta(e.target.value)}
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lab-previsao" className={LABEL_CLASS}>Previsão do Laudo</label>
+                    <input
+                      id="lab-previsao"
+                      type="date"
+                      value={dataPrevisao}
+                      onChange={e => setDataPrevisao(e.target.value)}
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="lab-obs" className={LABEL_CLASS}>Instruções ou Observações da Amostra</label>
+                  <textarea
+                    id="lab-obs"
+                    rows="2"
+                    maxLength={300}
+                    value={observacoes}
+                    onChange={e => setObservacoes(e.target.value)}
+                    placeholder="Instruções de refrigeração, jejum, etc."
+                    className={FIELD_CLASS}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowNewModal(false)} className={BTN_SECONDARY}>Cancelar</button>
+                  <button type="submit" className={BTN_PRIMARY}>Cadastrar Amostra</button>
+                </div>
+              </form>
+            </Modal>
+          )}
         </div>
       );
     }

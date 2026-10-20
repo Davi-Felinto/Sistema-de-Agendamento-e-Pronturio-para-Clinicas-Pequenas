@@ -212,4 +212,31 @@ public class AgendaServiceTests
 
         Assert.Equal("Agendamento não encontrado.", ex.Message);
     }
+
+    [Fact]
+    public void Deve_Salvar_Motivo_E_Justificativa_Ao_Cancelar_Consulta()
+    {
+        // Arrange (RF31, RN20)
+        var paciente = CriarPacienteValido();
+        _pacienteRepository.Adicionar(paciente);
+
+        var inicio = DateTime.Today.AddDays(3).AddHours(10);
+        var fim = inicio.AddHours(1);
+        _agendaService.AgendarConsulta(1, paciente.Id, 10, inicio, fim);
+
+        // Act
+        _agendaService.CancelarConsulta(
+            agendamentoId: 1,
+            momentoCancelamento: DateTime.Today,
+            motivo: MotivoCancelamento.IncompatibilidadeHorario,
+            justificativa: "Paciente transferido de turno no trabalho"
+        );
+
+        // Assert
+        var agendamento = _agendamentoRepository.ObterPorId(1);
+        Assert.NotNull(agendamento);
+        Assert.Equal(StatusAgendamento.Cancelado, agendamento.Status);
+        Assert.Equal(MotivoCancelamento.IncompatibilidadeHorario, agendamento.MotivoCancelamento);
+        Assert.Equal("Paciente transferido de turno no trabalho", agendamento.JustificativaCancelamento);
+    }
 }

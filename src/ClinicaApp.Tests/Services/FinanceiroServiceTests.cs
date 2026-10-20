@@ -188,5 +188,56 @@ public class FinanceiroServiceTests
         Assert.Throws<ArgumentOutOfRangeException>(() => _financeiroService.GerarResumoMensal(0, 2026));
         Assert.Throws<ArgumentOutOfRangeException>(() => _financeiroService.GerarResumoMensal(13, 2026));
     }
+
+    [Fact]
+    public void Deve_Registrar_Pagamento_Dividido_Com_Sucesso()
+    {
+        // Arrange (RF30, RN19)
+        var agendamento = CriarAgendamentoValido(id: 10);
+        _agendamentoRepository.Adicionar(agendamento);
+        var cobranca = _financeiroService.GerarCobranca(1, agendamento.Id, 500.00m);
+
+        // Act - Entrada de R$ 150 no Pix e Saldo de R$ 350 no CartaoCredito
+        var (entrada, saldo) = _financeiroService.RegistrarPagamentoDividido(
+            pagamentoOriginalId: cobranca.Id,
+            valorEntrada: 150.00m,
+            formaEntrada: FormaPagamento.Pix,
+            valorSaldo: 350.00m,
+            formaSaldo: FormaPagamento.CartaoCredito,
+            saldoPago: true
+        );
+
+        // Assert
+        Assert.Equal(StatusPagamento.Pago, entrada.Status);
+        Assert.Equal(150.00m, entrada.Valor);
+        Assert.Equal(FormaPagamento.Pix, entrada.Forma);
+
+        Assert.Equal(StatusPagamento.Pago, saldo.Status);
+        Assert.Equal(350.00m, saldo.Valor);
+        Assert.Equal(FormaPagamento.CartaoCredito, saldo.Forma);
+        Assert.Equal("SaldoRestante", saldo.TipoLancamento);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Se_Soma_Da_Entrada_E_Saldo_Diferir_Do_Valor_Original()
+    {
+        // Arrange (RN19)
+        var agendamento = CriarAgendamentoValido(id: 11);
+        _agendamentoRepository.Adicionar(agendamento);
+        var cobranca = _financeiroService.GerarCobranca(2, agendamento.Id, 500.00m);
+
+        // Act & Assert (150 + 300 = 450 != 500)
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            _financeiroService.RegistrarPagamentoDividido(
+                pagamentoOriginalId: cobranca.Id,
+                valorEntrada: 150.00m,
+                formaEntrada: FormaPagamento.Pix,
+                valorSaldo: 300.00m,
+                formaSaldo: FormaPagamento.CartaoCredito
+            )
+        );
+
+        Assert.Contains("deve ser igual ao valor total", ex.Message);
+    }
 }
 

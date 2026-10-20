@@ -19,6 +19,11 @@ public class InMemoryPagamentoRepository : IPagamentoRepository
         return _pagamentos.FirstOrDefault(p => p.AgendamentoId == agendamentoId);
     }
 
+    public IEnumerable<Pagamento> ListarPorAgendamentoId(int agendamentoId)
+    {
+        return _pagamentos.Where(p => p.AgendamentoId == agendamentoId).ToList();
+    }
+
     public IEnumerable<Pagamento> ListarTodos()
     {
         return _pagamentos.ToList();

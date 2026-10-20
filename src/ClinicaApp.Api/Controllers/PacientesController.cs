@@ -29,7 +29,15 @@ public class PacientesController : ControllerBase
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$", ErrorMessage = "E-mail inválido."), StringLength(120)] string? Email,
         [StringLength(200)] string? Endereco,
         [StringLength(70, ErrorMessage = "Alergias: máximo de 70 caracteres.")] string? Alergias,
-        [StringLength(70, ErrorMessage = "Condições preexistentes: máximo de 70 caracteres.")] string? CondicoesPreexistentes);
+        [StringLength(70, ErrorMessage = "Condições preexistentes: máximo de 70 caracteres.")] string? CondicoesPreexistentes,
+        // RF29, RN18: Campos de endereço com CEP
+        [RegularExpression(@"^(\d{8}|\d{5}-?\d{3})$", ErrorMessage = "CEP deve ter 8 dígitos.")] string? Cep = null,
+        string? Logradouro = null,
+        string? Numero = null,
+        string? Complemento = null,
+        string? Bairro = null,
+        string? Cidade = null,
+        string? EstadoUf = null);
 
     private static string ApenasDigitos(string valor) => new(valor.Where(char.IsDigit).ToArray());
 
@@ -70,6 +78,10 @@ public class PacientesController : ControllerBase
             ? _pacienteRepository.ListarTodos(false).Max(p => p.Id) + 1
             : 1;
 
+        string enderecoFinal = !string.IsNullOrWhiteSpace(request.Logradouro)
+            ? $"{request.Logradouro}, {request.Numero ?? "S/N"}{(string.IsNullOrWhiteSpace(request.Complemento) ? "" : " - " + request.Complemento)}, {request.Bairro}, {request.Cidade} - {request.EstadoUf}, CEP: {request.Cep}"
+            : (request.Endereco?.Trim() ?? string.Empty);
+
         var paciente = new Paciente(
             id: novoId,
             nome: request.Nome.Trim(),
@@ -77,9 +89,17 @@ public class PacientesController : ControllerBase
             dataNascimento: request.DataNascimento.Date,
             telefone: ApenasDigitos(request.Telefone),
             email: request.Email?.Trim() ?? string.Empty,
-            endereco: request.Endereco?.Trim() ?? string.Empty,
+            endereco: enderecoFinal,
             alergias: request.Alergias?.Trim(),
-            condicoesPreexistentes: request.CondicoesPreexistentes?.Trim()
+            condicoesPreexistentes: request.CondicoesPreexistentes?.Trim(),
+            ativo: true,
+            cep: request.Cep != null ? ApenasDigitos(request.Cep) : null,
+            logradouro: request.Logradouro?.Trim(),
+            numero: request.Numero?.Trim(),
+            complemento: request.Complemento?.Trim(),
+            bairro: request.Bairro?.Trim(),
+            cidade: request.Cidade?.Trim(),
+            estadoUf: request.EstadoUf?.Trim()?.ToUpper()
         );
 
         _pacienteRepository.Adicionar(paciente);

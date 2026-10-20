@@ -81,5 +81,42 @@ public class PacienteTests
         // Histórico clínico deve permanecer intacto para o prontuário
         Assert.Equal("Penicilina", paciente.Alergias);
         Assert.Equal("Nenhuma", paciente.CondicoesPreexistentes);
+        Assert.Equal("00000000", paciente.Cep);
+    }
+
+    [Fact]
+    public void AtualizarEndereco_Deve_Atualizar_Campos_Estruturados_E_Cep_Corretamente()
+    {
+        // Arrange (RF29, RN18)
+        var paciente = new Paciente(
+            id: 1,
+            nome: "Maria Oliveira",
+            documentoIdentificacao: "987.654.321-11",
+            dataNascimento: new DateTime(1985, 10, 20),
+            telefone: "(61) 99999-1111",
+            email: "maria@email.com",
+            endereco: "Endereço Provisório"
+        );
+
+        // Act
+        paciente.AtualizarEndereco(
+            cep: "70842020",
+            logradouro: "SQN 204 Bloco B",
+            numero: "302",
+            complemento: "Apto 302",
+            bairro: "Asa Norte",
+            cidade: "Brasília",
+            estadoUf: "DF"
+        );
+
+        // Assert
+        Assert.Equal("70842020", paciente.Cep);
+        Assert.Equal("SQN 204 Bloco B", paciente.Logradouro);
+        Assert.Equal("302", paciente.Numero);
+        Assert.Equal("Apto 302", paciente.Complemento);
+        Assert.Equal("Asa Norte", paciente.Bairro);
+        Assert.Equal("Brasília", paciente.Cidade);
+        Assert.Equal("DF", paciente.EstadoUf);
+        Assert.Contains("CEP: 70842020", paciente.Endereco);
     }
 }

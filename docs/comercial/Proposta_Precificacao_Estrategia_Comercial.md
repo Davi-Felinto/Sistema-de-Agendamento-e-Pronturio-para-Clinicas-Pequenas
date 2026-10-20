@@ -22,7 +22,7 @@ Na prática de negociação com consultórios e clínicas de saúde, existem doi
 
 ### 💡 O Poder da Ancoragem Comercial (A Técnica das Duas Portas):
 Apresentar os dois formatos na mesa coloca você em uma posição estratégica de alta vantagem:
-* Se a cliente achar o **Projeto Fechado (R$ 2.400)** um valor alto para desembolsar à vista, a **Assinatura (R$ 119/mês)** parecerá extremamente barata e irresistível;
+* Se a cliente achar o **Projeto Fechado (R$ 2.400)** um valor alto para desembolsar à vista, a **Assinatura (R$ 179/mês)** com taxa de adesão acessível parecerá extremamente prática e irresistível;
 * Se a cliente declarar que **não quer pagar mensalidades fixas para o resto da vida**, você não perde a venda: fecha imediatamente o **Projeto Fechado** com entrada e parcelas por entrega.
 
 ---
@@ -31,13 +31,13 @@ Apresentar os dois formatos na mesa coloca você em uma posição estratégica d
 
 | Critério | Modelo A: Assinatura (SaaS) | Modelo B: Projeto Dedicado (Não-SaaS) |
 | :--- | :--- | :--- |
-| **Investimento Inicial** | **R$ 0,00** (30 dias de piloto gratuito) | **R$ 2.000,00 a R$ 2.800,00** (valor sugerido: **R$ 2.400,00**) |
-| **Custo Recorrente Mensal** | **R$ 97,00 a R$ 127,00 / mês** (ideal: **R$ 119,00**) | **R$ 0,00** (ou suporte opcional de R$ 80 a R$ 120/mês) |
+| **Investimento Inicial** | **R$ 290,00** (Taxa única de Adesão / Setup e Treinamento) | **R$ 2.000,00 a R$ 2.800,00** (valor sugerido: **R$ 2.400,00**) |
+| **Custo Recorrente Mensal** | **R$ 179,00 / mês** (1ª mensalidade só após 30 dias de uso) | **R$ 0,00** (ou suporte opcional de R$ 80 a R$ 120/mês) |
 | **Infraestrutura & Nuvem** | Hospedagem gerenciada sob sua responsabilidade | Servidor/banco configurado no nome/cartão da clínica |
 | **Garantia & Suporte** | Suporte contínuo incluso na mensalidade | **90 dias de garantia técnica total** contra bugs inclusa |
 | **Pós-Garantia** | Contínuo enquanto durar a assinatura | Manutenção opcional ou banco de horas para novas funções |
 | **Evolução do Sistema** | Recebe automaticamente todas as novas atualizações | Escopo entregue fechado (novas demandas orçadas à parte) |
-| **Perfil Típico de Cliente** | Psicólogos, nutricionistas e autônomos | Clínicas médicas, odontológicas ou sociedades estruturadas |
+| **Perfil Típico de Cliente** | Psicólogos, nutricionistas e autônomos que buscam baixo custo inicial | Clínicas médicas, odontológicas ou sociedades estruturadas |
 
 ### Retorno sobre o Investimento (ROI) para a Clínica:
 * O valor de uma única consulta particular varia entre **R$ 150,00 e R$ 300,00**.
@@ -82,14 +82,23 @@ Após o término dos 90 dias de garantia, você mantém duas fontes saudáveis d
 
 ## 4. Detalhamento do Modelo SaaS (Assinatura Recorrente — Clinix Cloud)
 
-Para o cliente que busca previsibilidade e zero desembolso inicial:
+Para o cliente que busca previsibilidade, suporte contínuo e custo mensal diluído:
 
-* **Fase 1 — Piloto de Validação (30 dias gratuitos):**  
-  Investimento de R$ 0,00. A cliente testa o sistema no dia a dia do consultório em troca de feedback quinzenal e depoimento formal.
-* **Fase 2 — Mensalidade de Parceiro Fundador:**  
-  **R$ 97,00 a R$ 127,00 / mês** (ideal: **R$ 119,00/mês**, fixado por contrato por 12 meses).
+* **Taxa de Adesão & Implantação (Setup Único):**  
+  **R$ 290,00** (pagamento único na formalização/início do setup).  
+  *O que está 100% incluso na Taxa de Adesão:*
+  - Parametrização completa da clínica (dados cadastrais, regras de horários de funcionamento, intervalos e catálogo de procedimentos/valores);
+  - Importação e saneamento da base inicial de pacientes existentes (planilha Excel ou fichas);
+  - Configuração do banco de dados dedicado na nuvem com isolamento e criptografia;
+  - Sessão de Onboarding e Treinamento prático da equipe (profissional e secretária);
+  - Acompanhamento assistido durante a primeira semana de operação.
+
+* **Mensalidade de Parceiro Fundador:**  
+  **R$ 179,00 / mês** (fixado por contrato por 12 meses).  
+  *Carência da Mensalidade:* A **primeira mensalidade só vence 30 dias após a implantação**, permitindo que o consultório utilize o sistema no primeiro mês completo antes da primeira cobrança recorrente.
+
 * **Benefícios da Assinatura:**  
-  Cobre 100% da hospedagem em nuvem, rotinas de backup diário, suporte direto via WhatsApp e todas as melhorias e novos módulos lançados ao longo do ano sem cobranças extras.
+  Cobre 100% da hospedagem em nuvem, rotinas diárias de backup automatizado, suporte prioritário via WhatsApp direto com o desenvolvedor e todas as melhorias e novos módulos lançados ao longo do ano sem cobranças adicionais.
 
 ---
 
@@ -106,7 +115,7 @@ Etapas da Negociação na Reunião:
                                                                  │
 ┌─────────────────────┐    ┌─────────────────────┐               │
 │ 5. Formalização     │ <- │ 4. Tratativa de     │ <-------------┘
-│ (Piloto ou Entrada) │    │ Hesitações e Dúvidas│
+│ (Adesão ou Entrada) │    │ Hesitações e Dúvidas│
 └─────────────────────┘    └─────────────────────┘
 ```
 
@@ -124,11 +133,11 @@ Etapas da Negociação na Reunião:
 
 > *"Para que você tenha total conforto financeiro e escolha o que melhor se adapta à gestão da sua clínica hoje, nós trabalhamos com **dois formatos de contratação**:*
 >
-> ***Opção 1 — Assinatura Leve (Plano Parceiro Fundador):***  
-> *Você não paga nenhuma taxa de desenvolvimento ou implantação. Nós liberamos **30 dias de uso piloto gratuito** no seu consultório para você e sua secretária testarem na rotina real. Se você aprovar os resultados, você mantém uma mensalidade especial fixada de apenas **R$ 119,00 por mês** [ou R$ 97,00], que já cobre os servidores na nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações que lançarmos, sem qualquer taxa de fidelidade ou cancelamento.*
+> ***Opção 1 — Assinatura Inteligente (Plano Parceiro Fundador):***  
+> *Para você ter todo o suporte sem dor de cabeça, nós temos uma taxa única de adesão e implantação de apenas **R$ 290,00**. Eu cuido de tudo para você: configuro a sua agenda, importo seus pacientes atuais e faço o treinamento completo da sua secretária. E a sua mensalidade é travada em **R$ 179,00 por mês**, sendo que a primeira mensalidade só vence daqui a 30 dias — ou seja, você tem o primeiro mês inteiro para operar e colher os resultados antes de pagar a primeira fatura recorrente. Cobre servidores em nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações.*
 >
 > ***Opção 2 — Projeto Dedicado do Consultório (Sem Mensalidades):***  
-> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento próprio do consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00**. Nós dividimos esse valor em etapas conforme as entregas: 40% de entrada, 30% na validação dos seus dados e 30% após o treinamento da sua equipe. Essa opção inclui a instalação exclusiva, importação dos seus pacientes e **90 dias de garantia técnica total**, sem mensalidades obrigatórias."*
+> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento próprio do consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00**. Nós dividimos esse valor em etapas conforme as entregas: 40% de entrada (R$ 960,00), 30% na validação dos dados reais (R$ 720,00) e 30% após o treinamento da sua equipe (R$ 720,00). Essa opção inclui a instalação exclusiva, importação dos seus pacientes e **90 dias de garantia técnica total**, sem mensalidades obrigatórias."*
 
 ---
 
@@ -141,14 +150,14 @@ Etapas da Negociação na Reunião:
 
 ### Momento 4: Como Conduzir as Respostas da Cliente
 
-#### Cenário A: Se ela escolher a Opção 1 (Assinatura / Piloto):
-> *"Excelente escolha! O piloto de 30 dias é a melhor forma de você sentir o ganho de tempo sem nenhum risco. Vamos combinar o seguinte: hoje mesmo eu coleto seus horários de atendimento e a lista de serviços para parametrizar o sistema, e na [Dia da semana, ex.: terça-feira] nós fazemos uma chamada rápida de 15 minutos para você começar a usar. Combinado?"*
+#### Cenário A: Se ela escolher a Opção 1 (Assinatura / Adesão):
+> *"Excelente escolha! Com a adesão, eu já começo hoje mesmo a preparar a sua base e a configurar os seus horários. Vamos agendar nosso treinamento para [Dia da semana] e a sua primeira mensalidade só começará daqui a 30 dias, quando o sistema já estiver rodando perfeitamente na sua rotina. Combinado?"*
 
 #### Cenário B: Se ela escolher a Opção 2 (Projeto Fechado):
 > *"Perfeito! Essa opção é excelente para quem quer ter a ferramenta como um patrimônio da clínica. Eu vou emitir o nosso termo de projeto com o cronograma das três entregas e o detalhamento da garantia de 90 dias para formalizarmos. Podemos programar a entrada para [data de preferência dela] para iniciarmos a configuração?"*
 
 #### Cenário C: Se ela hesitar e disser: *"Preciso pensar um pouco..."*:
-> *"Compreendo perfeitamente, Dra. [Nome]! Decisões sobre o consultório devem ser tomadas com tranquilidade. Para você não precisar tomar nenhuma decisão financeira hoje, o que acha de aproveitarmos os 30 dias de piloto gratuito da Opção 1? Você usa o sistema na prática durante este mês, vê como ele reduz as faltas e, no final dos 30 dias, você decide com calma se prefere continuar na assinatura ou converter para o projeto fechado. O que acha?"*
+> *"Compreendo perfeitamente, Dra. [Nome]! Decisões sobre o consultório devem ser tomadas com tranquilidade. Para facilitar e você não adiar a organização da clínica, o que acha de começarmos pela Opção 1? Você só investe a taxa de adesão de R$ 290 para deixarmos tudo configurado e a equipe treinada, tem 30 dias completos de uso antes da primeira mensalidade e, se no final desses 30 dias você preferir converter para o projeto definitivo de R$ 2.400, eu abato os R$ 290 do valor total! O que acha?"*
 
 ---
 
@@ -156,10 +165,12 @@ Etapas da Negociação na Reunião:
 
 | Situação / Objeção da Cliente | Como Responder com Segurança e Firmeza |
 | :--- | :--- |
-| **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Você não desembolsa absolutamente nada agora, ganha 30 dias de piloto gratuito e depois mantém apenas R$ 119,00 por mês, que é menos que o valor de uma única consulta particular da sua clínica."* |
+| **No Modelo SaaS: "Por que existe uma taxa de adesão no plano mensal?"** | *"A taxa de adesão de R$ 290 cobre o trabalho técnico especializado inicial: nós importamos toda a sua base atual de pacientes, configuramos horários, serviços e realizamos o treinamento prático da sua equipe. Além disso, a sua primeira mensalidade de R$ 179 só vence daqui a 30 dias. Na prática, você ganha o primeiro mês de mensalidade livre enquanto parametrizamos e estruturamos a sua clínica."* |
+| **No Modelo SaaS: "Achei a mensalidade de R$ 179 salgada"** | *"Se você analisar, R$ 179 por mês equivale a menos de R$ 6,00 por dia — menos que um cafezinho na padaria. Uma única consulta que a secretária deixa de perder por desorganização ou falta de confirmação já cobre o investimento do mês inteiro e gera lucro líquido."* |
+| **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Com uma taxa de adesão de apenas R$ 290 para setup e treinamento, você só começa a pagar a mensalidade de R$ 179 após 30 dias de uso."* |
 | **No Modelo Fechado: "E se eu quiser colocar mais telas ou recursos depois?"** | *"O sistema já entrega todo o fluxo essencial validado. Caso você queira módulos customizados específicos no futuro (como teleconsulta ou convênios), podemos orçar por hora de desenvolvimento (R$ 70/h) ou incluir em um pacote opcional de sustentação mensal."* |
 | **No Modelo SaaS: "Não gosto da ideia de pagar mensalidade pra sempre"** | *"Sem problemas! A grande vantagem do nosso projeto é a flexibilidade. Nós podemos formalizar a entrega como Projeto Fechado por R$ 2.400,00 (divididos em 3 etapas de entrega), com 90 dias de garantia técnica inclusa e sem qualquer cobrança mensal obrigatória."* |
-| **Em Qualquer Modelo: "Por que não é de graça se é projeto da faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 23 testes automatizados e aprovação técnica. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup na nuvem e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam seguros e em total conformidade com a LGPD."* |
+| **Em Qualquer Modelo: "Por que não é de graça se é projeto da faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 56 testes automatizados e aprovação técnica. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup na nuvem e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam seguros e em total conformidade com a LGPD."* |
 | **"Achei um sistema grátis na internet"** | *"Sistemas gratuitos geralmente não oferecem suporte humano, não garantem backup diário dos seus dados e costumam limitar o número de pacientes cadastrados quando você mais precisa. O Clinix oferece canal direto de suporte comigo e garantia de integridade jurídica nas anotações do prontuário."* |
 | **"E se der algum problema ou bug no sistema?"** | *"No modelo de projeto fechado, você conta com 90 dias de garantia técnica total com correção prioritária sem nenhum custo. No modelo de assinatura, essa garantia e suporte são permanentes enquanto você mantiver o plano ativo."* |
 
@@ -185,8 +196,8 @@ Utilize este modelo de documento para formalizar o acordo com a cliente assim qu
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │ 3. OPÇÃO DE CONTRATAÇÃO SELECIONADA (Marcar uma opção):                                │
 │ [ ] OPÇÃO A — ASSINATURA RECORRENTE (SAAS):                                            │
-│     • Período Piloto: 30 dias gratuitos a partir da data de parametrização.           │
-│     • Mensalidade Pós-Piloto: R$ 119,00 / mês (fixado por 12 meses).                   │
+│     • Taxa Única de Adesão e Implantação: R$ 290,00 (paga no ato da contratação).     │
+│     • Mensalidade Pós-Implantação: R$ 179,00 / mês (1º vencimento 30 dias pós-setup). │
 │     • Serviços Inclusos: Hospedagem em nuvem, backup diário, suporte WhatsApp e updates│
 │                                                                                        │
 │ [ ] OPÇÃO B — PROJETO DEDICADO DO CONSULTÓRIO (NÃO-SAAS):                              │

@@ -1,11 +1,11 @@
 # Software Design Document (SDD)
 ## Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)
 
-> **Documento de Arquitetura e Design de Software (Versão 2.0 — Integração Full-Stack)**  
+> **Documento de Arquitetura e Design de Software (Versão 2.5 — Demandas de Feedback Real e Homologação)**  
 > **Autor:** Davi Felinto — Engenharia de Software (CEUB)  
 > **Referência de Requisitos:** [`docs/requisitos/README.md`](../requisitos/README.md)  
 > **Modelagem Visual:** [`diagrama_classes.svg`](../diagramas/diagrama_classes.svg)  
-> **Data:** Outubro / 2026 — Versão: 2.0 (POO C# + Banco de Dados II MySQL + API REST + Web MVP)
+> **Data:** Outubro / 2026 — Versão: 2.5 (POO C# + Banco de Dados II MySQL + API REST + Demandas Clínicas Reais + 66 Testes xUnit)
 
 ---
 
@@ -14,7 +14,7 @@
 ### 1.1 Propósito
 Este **Software Design Document (SDD)** especifica a arquitetura técnica, o design orientado a objetos, a modelagem relacional e os padrões de projeto que regem a implementação do **Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)**.
 
-O documento formaliza como os requisitos levantados (`RF01–RF28`, `RN01–RN17`, `RQ01–RQ16`) foram consolidados em uma solução de software robusta, desacoplada, segura e em estrita conformidade com a LGPD.
+O documento formaliza como os requisitos levantados (`RF01–RF34`, `RN01–RN23`, `RQ01–RQ16`) foram consolidados em uma solução de software robusta, desacoplada, segura e em estrita conformidade com a LGPD.
 
 ### 1.2 O Papel no Projeto Integrador Multidisciplinar
 O projeto integra harmonicamente as competências de quatro disciplinas da graduação em Engenharia de Software do CEUB:
@@ -22,14 +22,14 @@ O projeto integra harmonicamente as competências de quatro disciplinas da gradu
 ```
   ┌─────────────────────────────────────────────────────────────┐
   │                 1. Engenharia de Requisitos                │
-  │     (Documento de Requisitos: 28 RFs, 17 RNs, 16 RQs)       │
+  │     (Documento de Requisitos: 34 RFs, 23 RNs, 16 RQs)       │
   │                       [✅ CONCLUÍDO]                        │
   └──────────────────────────────┬──────────────────────────────┘
                                  │
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
   │         2. Programação Orientada a Objetos (C# / .NET 8)    │
-  │       (Domínio Rico, 4 Pilares, TDD xUnit - 52 testes)      │
+  │       (Domínio Rico, 4 Pilares, TDD xUnit - 66 testes)      │
   │                       [✅ CONCLUÍDO]                        │
   └──────────────────────────────┬──────────────────────────────┘
                                  │
@@ -389,6 +389,12 @@ A tabela a seguir comprova como cada Requisito Funcional (RF), Regra de Negócio
 | **RF15–RF18** | Prontuário e histórico | `SessaoProntuario`, `VersaoAnotacao` | `RegistrarSessao()`, `AlterarAnotacao()` |
 | **RF19–RF22** | Financeiro e pendências | `Pagamento`, `FinanceiroService` | `RegistrarPagamento()`, `GerarResumoMensal()` |
 | **RF26–RF28** | Autenticação, perfis e logs | `Usuario`, `LogAcesso`, `AuthService` | `Autenticar()`, `RegistrarLog()` |
+| **RF29, RN18** | Endereço com CEP e ViaCEP | `Paciente`, `CepController` | `AtualizarEndereco(cep, logr, ...)` |
+| **RF30, RN19** | Pagamento dividido Entrada + Saldo | `Pagamento`, `FinanceiroService` | `RegistrarPagamentoDividido(...)` |
+| **RF31, RN20** | Cancelamento com categoria e motivo | `Agendamento`, `AgendaService` | `CancelarConsulta(id, motivo, justificativa)` |
+| **RF32, RN21** | Ouvidoria e avaliação 1 a 5 estrelas | `AvaliacaoAtendimento`, `IAvaliacaoRepository` | `Adicionar()`, `CalcularMediaGeral()` |
+| **RF33, RN22** | Recorrência preventiva 180+ dias | `AgendaService`, Dashboard UI | Detecção semestral e cupom `CHECKUP10` |
+| **RF34, RN23** | Rastreamento de amostras laboratoriais | `PedidoExameLaboratorio`, `IExameLaboratorioRepository` | `AtualizarStatus(...)`, Alerta na Agenda |
 | **RN01, RN02** | Verificação de conflito de horário | `Agendamento` | `TemConflito(DateTime inicio, DateTime fim)` |
 | **RN03, RN04** | Confirmação e lembrete automático 24h | `AgendaService` | `ProgramarNotificacoes(Agendamento ag)` |
 | **RN05, RN06** | Prontuário registrado pós-atendimento | `ProntuarioService` | `RegistrarAtendimento(sessao)` |
@@ -400,6 +406,12 @@ A tabela a seguir comprova como cada Requisito Funcional (RF), Regra de Negócio
 | **RN14, RN15**| Retentativa de notificação (1x após 15 min) | `Notificacao` | `PodeReenviar()`, `RegistrarFalha()` |
 | **RN16, RQ03**| Inativação lógica com anonimização (LGPD) | `Paciente` | `InativarComAnonimizacao()` |
 | **RN17** | Histórico imutável de edições no prontuário | `SessaoProntuario` | `AlterarAnotacao(novoTexto, motivo)` |
+| **RN18** | Consistência e validação de CEP | `Paciente`, `CepController` | Validação de 8 dígitos numéricos |
+| **RN19** | Consistência na soma do pagamento dividido | `FinanceiroService` | Validação `entrada + saldo == valorTotal` |
+| **RN20** | Obrigatoriedade de categoria no cancelamento | `Agendamento`, `AgendaService` | Enum `MotivoCancelamento` e justificativa |
+| **RN21** | Integridade das notas de ouvidoria | `AvaliacaoAtendimento` | Notas no intervalo fechado de 1 a 5 |
+| **RN22** | Elegibilidade de fidelidade preventiva | Frontend / Agenda | Filtro de 180+ dias sem atendimento |
+| **RN23** | Alerta visual de laudo pendente | Frontend / `ExamesLaboratorioController` | Badge dinâmico de amostra em análise |
 | **RQ08** | Senha armazenada com Hash seguro | `Usuario` / `CriptografiaUtil` | `CriptografiaUtil.GerarHash(senha)` |
 
 ---
@@ -490,8 +502,8 @@ src/
 │   ├── Program.cs                      # Injeção híbrida, CORS, Swagger e estáticos
 │   └── wwwroot/                        # Interface Web distribuída diretamente com a API
 ├── ClinicaApp.Tests/                   # Suíte de Testes Automatizados (xUnit / TDD)
-│   ├── Domain/                         # 23 testes unitários focados nas entidades
-│   └── Services/                       # 29 testes unitários dos fluxos de regras de negócio
+│   ├── Domain/                         # 33 testes unitários focados nas entidades
+│   └── Services/                       # 33 testes unitários dos fluxos de regras de negócio
 └── README.md                           # Documentação técnica do código-fonte
 ```
 
@@ -499,13 +511,13 @@ src/
 
 ## 9. Metodologia de Desenvolvimento: TDD (Test-Driven Development)
 
-Para assegurar confiabilidade máxima e conformidade com os requisitos de qualidade (**RQ12, RQ13, RQ14**), a suíte automatizada conta com **52 testes unitários** desenvolvidos com **xUnit**:
+Para assegurar confiabilidade máxima e conformidade com os requisitos de qualidade (**RQ12, RQ13, RQ14**), a suíte automatizada conta com **66 testes unitários** desenvolvidos com **xUnit**:
 
 ```bash
 dotnet test src/
 ```
 ```text
-Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52 (100% de sucesso)
+Aprovado!  – Com falha: 0, Aprovado: 66, Ignorado: 0, Total: 66 (100% de sucesso)
 ```
 
 ### 9.1 Matriz de Cobertura de Testes Prioritários (TDD)
@@ -513,10 +525,15 @@ Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52 (100% de suces
 | Teste Automatizado | Regra / Requisito Coberto | Cenário Validado | Status |
 | :--- | :--- | :--- | :---: |
 | `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis são anonimizados. | ✅ Aprovado |
+| `PacienteTests.AtualizarEndereco_ComCepValido_DeveAtualizarPropriedades()` | RF29, RN18 | Atualiza dados estruturados de CEP e logradouro preservando consistência. | ✅ Aprovado |
 | `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se nova consulta coincidir com o intervalo de outra confirmada. | ✅ Aprovado |
 | `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando cancelada com menos de 24h. | ✅ Aprovado |
+| `AgendaServiceTests.CancelarConsulta_ComMotivoEJustificativa_DeveRegistrar()` | RF31, RN20 | Registra categoria (`MotivoCancelamento`) e justificativa detalhada. | ✅ Aprovado |
 | `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar anotação, versão anterior é salva no histórico imutável com justificativa. | ✅ Aprovado |
 | `PagamentoTests.RegistrarPagamento_DeveAtualizarStatusParaPagoEData()` | RN07, RN08 | Registra quitação, atualizando status para Pago e gravando forma e timestamp. | ✅ Aprovado |
+| `FinanceiroServiceTests.RegistrarPagamentoDividido_ValoresConsistentes_DeveRegistrar()` | RF30, RN19 | Divide pagamento em Entrada + Saldo com validação de soma e formas distintas. | ✅ Aprovado |
+| `AvaliacaoAtendimentoTests.Deve_Calcular_Media_Geral_Corretamente()` | RF32, RN21 | Valida cálculo de média aritmética de notas (1 a 5) e suporte a anonimato. | ✅ Aprovado |
+| `ExameLaboratorioTests.AtualizarStatus_FluxoCompleto_DeveTransicionarCorretamente()` | RF34, RN23 | Rastreia ciclo de vida de amostras desde a coleta até o laudo e entrega. | ✅ Aprovado |
 | `LogAcessoTests.Deve_Criar_Log_Com_Sucesso_E_DataHora_Atual()` | RF28, RN13, RQ07 | Valida criação de logs de auditoria imutáveis com rastreabilidade exigida pela LGPD. | ✅ Aprovado |
 | `UsuarioTests.Autenticar_ComSenhaIncorreta_DeveRetornarFalse()` | RF26, RQ08 | Garante validação segura com hash sem expor senhas em texto puro. | ✅ Aprovado |
 | `AgendaServiceTests.AgendarConsulta_ComConflito_DeveLancarExcecao()` | RN01, RN02 | AgendaService impede agendamento simultâneo para o mesmo médico. | ✅ Aprovado |
@@ -528,9 +545,10 @@ Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52 (100% de suces
 
 Todos os módulos planejados no ciclo do Projeto Integrador foram **100% implementados, testados e integrados**:
 
-* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído** (23 testes xUnit).
+* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído** (33 testes xUnit).
 * **Bloco 2 — Interfaces e Repositórios In-Memory:** ✅ **100% Concluído** (contratos DDD).
-* **Bloco 3 — Serviços de Aplicação e Casos de Uso:** ✅ **100% Concluído** (29 testes xUnit).
+* **Bloco 3 — Serviços de Aplicação e Casos de Uso:** ✅ **100% Concluído** (33 testes xUnit).
 * **Bloco 4 — Persistência Relacional MySQL 8.0 & Dapper:** ✅ **100% Concluído** (15 tabelas, 3FN, 6 repositórios concretos Dapper, segredos protegidos).
 * **Bloco 5 — ASP.NET Core Web API, Docker e Interface Web:** ✅ **100% Concluído** (Controllers REST, Swagger, modo híbrido, Docker Compose).
+* **Bloco 6 — Demandas Clínicas Reais & Inteligência de Gestão:** ✅ **100% Concluído** (CEP ViaCEP, Pagamento Dividido, Motivos de Cancelamento, Ouvidoria, Recorrência Preventiva 180d e Exames Laboratoriais).
 

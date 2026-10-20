@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ClinicaApp.Api.Seguranca;
 using ClinicaApp.Services;
 using ClinicaApp.Domain.Interfaces;
+using ClinicaApp.Domain.Enums;
 
 namespace ClinicaApp.Api.Controllers;
 
@@ -74,21 +75,29 @@ public class AgendamentosController : ControllerBase
         return CreatedAtAction(nameof(ListarTodos), new { id = consulta.Id }, consulta);
     }
 
-    // PUT: api/agendamentos/{id}/cancelar
+    public record CancelarAgendamentoRequest(
+        MotivoCancelamento? Motivo = null,
+        string? Justificativa = null);
+
+    // PUT: api/agendamentos/{id}/cancelar (RN10, RN20)
     [HttpPut("{id}/cancelar")]
-    public IActionResult Cancelar(int id)
+    public IActionResult Cancelar(int id, [FromBody] CancelarAgendamentoRequest? request = null)
     {
         // RN12: Profissional só cancela consultas da própria agenda
         var existente = _agendamentoRepository.ObterPorId(id);
         if (existente != null && !User.EhAdministrador() && existente.ProfissionalId != User.ObterId())
             return Forbid();
 
-        // RN10: O service avalia se o cancelamento foi feito com menos de 24h
-        _agendaService.CancelarConsulta(id, DateTime.Now);
+        var motivo = request?.Motivo ?? MotivoCancelamento.Outro;
+        var justificativa = request?.Justificativa;
+
+        // RN10, RN20: O service avalia cancelamento tardio e salva motivo
+        _agendaService.CancelarConsulta(id, DateTime.Now, motivo, justificativa);
         var agendamento = _agendamentoRepository.ObterPorId(id);
         return Ok(new { 
             mensagem = "Consulta cancelada com sucesso.",
-            cancelamentoTardio = agendamento?.CancelamentoTardio ?? false
+            cancelamentoTardio = agendamento?.CancelamentoTardio ?? false,
+            motivoCancelamento = agendamento?.MotivoCancelamento?.ToString() ?? "Outro"
         });
     }
 }

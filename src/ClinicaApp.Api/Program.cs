@@ -42,6 +42,10 @@ else
     builder.Services.AddSingleton<ILogAcessoRepository, InMemoryLogAcessoRepository>();
 }
 
+// Repositórios adicionais (RF32 Ouvidoria e RF34 Laboratório)
+builder.Services.AddSingleton<IAvaliacaoRepository, InMemoryAvaliacaoRepository>();
+builder.Services.AddSingleton<IExameLaboratorioRepository, InMemoryExameLaboratorioRepository>();
+
 builder.Services.AddSingleton<INotificador, NotificadorWhatsApp>();
 builder.Services.AddSingleton<TokenService>();
 
@@ -69,7 +73,7 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 
-// Proteção contra força bruta: no máximo 5 tentativas de login por minuto por IP
+// Proteção contra força bruta: limite de 30 tentativas por minuto por IP para testes e uso clínico
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -78,7 +82,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,
+                PermitLimit = 30,
                 Window = TimeSpan.FromMinutes(1)
             }));
 });
@@ -100,11 +104,10 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Popula dados mockados apenas em modo InMemory (no MySQL os dados vêm de 02_dados_iniciais.sql)
-if (!usarMySql)
+// Popula dados mockados em modo InMemory e repositórios adicionais de Ouvidoria e Laboratório
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    DadosIniciais.Popular(scope.ServiceProvider);
+    DadosIniciais.Popular(scope.ServiceProvider, apenasAdicionais: usarMySql);
 }
 
 if (app.Environment.IsDevelopment())
@@ -130,7 +133,7 @@ app.Use(async (context, next) =>
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com; " +
         "img-src 'self' data:; " +
-        "connect-src 'self' https://clinix-api-c58x.onrender.com; " +
+        "connect-src 'self' https://clinix-api-c58x.onrender.com https://viacep.com.br; " +
         "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
     await next();
 });

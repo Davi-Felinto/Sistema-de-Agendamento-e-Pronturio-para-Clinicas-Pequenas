@@ -76,12 +76,54 @@ export const api = {
     } catch {
       this.isConnected = false;
       this.storage = 'offline';
-      this.storageLabel = 'Modo Standalone (Offline)';
-      return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
+      this.storageLabel = 'Modo Standalon      return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
     }
   },
 
-  // --- PACIENTES (RF01-RF05, RN16) ---
+  // --- CEP & ENDEREÇO ESTRUTURADO (RF29, RN18) ---
+  async consultarCep(cep) {
+    try {
+      const limpo = String(cep).replace(/\D/g, '');
+      if (limpo.length !== 8) {
+        return { sucesso: false, erro: 'CEP deve conter 8 dígitos' };
+      }
+      // 1. Tenta consulta direta no ViaCEP
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.erro) {
+            return {
+              sucesso: true,
+              cep: data.cep || limpo,
+              logradouro: data.logradouro || '',
+              bairro: data.bairro || '',
+              cidade: data.localidade || '',
+              estadoUf: data.uf || '',
+              complemento: data.complemento || ''
+            };
+          }
+        }
+      } catch {
+        // Bloqueio de CSP ou offline do navegador: recorre ao proxy backend
+      }
+
+      // 2. Fallback: Proxy backend na API local (/api/cep/{limpo})
+      try {
+        const resBackend = await fetch(`${API_BASE}/api/cep/${limpo}`, { headers: this.authHeaders() });
+        if (resBackend.ok) {
+          const data = await resBackend.json();
+          if (data.sucesso) return data;
+        }
+      } catch {}
+
+      return { sucesso: false, erro: 'CEP não encontrado na base oficial. Preencha manualmente.' };
+    } catch (e) {
+      return { sucesso: false, erro: 'Não foi possível consultar o CEP: ' + e.message };
+    }
+  },
+
+  // --- PACIENTES (RF01-RF05, RN16, RF29, RN18) ---
   async listarPacientes() {
     try {
       const res = await fetch(`${API_BASE}/api/pacientes`, { headers: this.authHeaders() });
@@ -98,6 +140,13 @@ export const api = {
           telefone: p.telefone || '',
           email: p.email || '',
           endereco: p.endereco || '',
+          cep: p.cep || '',
+          logradouro: p.logradouro || '',
+          numero: p.numero || '',
+          complemento: p.complemento || '',
+          bairro: p.bairro || '',
+          cidade: p.cidade || '',
+          estadoUf: p.estadoUf || '',
           alergias: p.alergias || '',
           condicoesPreexistentes: p.condicoesPreexistentes || '',
           status: p.ativo !== undefined ? (p.ativo ? 'ativo' : 'inativo') : (p.status || 'ativo'),
@@ -121,6 +170,13 @@ export const api = {
           telefone: dados.telefone,
           email: dados.email,
           endereco: dados.endereco,
+          cep: dados.cep,
+          logradouro: dados.logradouro,
+          numero: dados.numero,
+          complemento: dados.complemento,
+          bairro: dados.bairro,
+          cidade: dados.cidade,
+          estadoUf: dados.estadoUf,
           alergias: dados.alergias,
           condicoesPreexistentes: dados.condicoesPreexistentes
         })
@@ -141,6 +197,13 @@ export const api = {
           telefone: p.telefone,
           email: p.email,
           endereco: p.endereco,
+          cep: p.cep || dados.cep,
+          logradouro: p.logradouro || dados.logradouro,
+          numero: p.numero || dados.numero,
+          complemento: p.complemento || dados.complemento,
+          bairro: p.bairro || dados.bairro,
+          cidade: p.cidade || dados.cidade,
+          estadoUf: p.estadoUf || dados.estadoUf,
           alergias: p.alergias,
           condicoesPreexistentes: p.condicoesPreexistentes,
           status: p.ativo ? 'ativo' : 'inativo',
@@ -171,7 +234,7 @@ export const api = {
     }
   },
 
-  // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10) ---
+  // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10, RF31, RN20) ---
   async listarAgendamentos() {
     try {
       const res = await fetch(`${API_BASE}/api/agendamentos`, { headers: this.authHeaders() });
@@ -208,7 +271,9 @@ export const api = {
             formaPagamento: 'Em aberto',
             notificacaoStatus: 'enviado',
             notificacaoTentativas: 1,
-            cancelamentoTardio: Boolean(a.cancelamentoTardio)
+            cancelamentoTardio: Boolean(a.cancelamentoTardio),
+            motivoCancelamento: a.motivoCancelamento || null,
+            justificativaCancelamento: a.justificativaCancelamento || null
           };
         })
       };
@@ -279,22 +344,153 @@ export const api = {
     }
   },
 
-  async cancelarAgendamento(id) {
+  async cancelarAgendamento(id, motivo = 'Outro', justificativa = '') {
     try {
       const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
       if (!isNaN(numId)) {
         const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, {
           method: 'PUT',
-          headers: this.authHeaders()
+          headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            motivo: motivo,
+            justificativa: justificativa
+          })
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cancelar consulta' };
         }
         const data = await res.json();
-        return { sucesso: true, cancelamentoTardio: data.cancelamentoTardio };
+        return {
+          sucesso: true,
+          cancelamentoTardio: data.cancelamentoTardio,
+          motivoCancelamento: data.motivoCancelamento
+        };
       }
       return { sucesso: true };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  // --- FINANCEIRO & PAGAMENTO DIVIDIDO (RF21-RF25, RF30, RN19) ---
+  async registrarPagamentoDividido(pagamentoId, dados) {
+    try {
+      const numId = typeof pagamentoId === 'number' ? pagamentoId : parseInt(String(pagamentoId).replace(/\D/g, ''), 10);
+      const res = await fetch(`${API_BASE}/api/financeiro/${numId || pagamentoId}/pagamento-dividido`, {
+        method: 'POST',
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          valorEntrada: Number(dados.valorEntrada),
+          formaEntrada: dados.formaEntrada,
+          valorSaldo: Number(dados.valorSaldo),
+          formaSaldo: dados.formaSaldo,
+          saldoPago: Boolean(dados.saldoPago)
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao registrar pagamento dividido' };
+      }
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  // --- OUVIDORIA & AVALIAÇÕES (RF32, RN21) ---
+  async listarAvaliacoes() {
+    try {
+      const res = await fetch(`${API_BASE}/api/avaliacoes`, { headers: this.authHeaders() });
+      if (!res.ok) throw new Error('Falha ao obter avaliações');
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  async registrarAvaliacao(dados) {
+    try {
+      const res = await fetch(`${API_BASE}/api/avaliacoes`, {
+        method: 'POST',
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          agendamentoId: Number(dados.agendamentoId),
+          notaRecepcao: Number(dados.notaRecepcao),
+          notaAtendimentoClinico: Number(dados.notaAtendimentoClinico),
+          notaEspacoFisico: Number(dados.notaEspacoFisico),
+          comentarioOuvidoria: dados.comentarioOuvidoria || null,
+          anonimo: Boolean(dados.anonimo)
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao registrar avaliação' };
+      }
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  // --- RASTREAMENTO DE EXAMES LABORATORIAIS (RF34, RN23) ---
+  async listarExames(pacienteId = null) {
+    try {
+      const url = pacienteId ? `${API_BASE}/api/exameslaboratorio?pacienteId=${pacienteId}` : `${API_BASE}/api/exameslaboratorio`;
+      const res = await fetch(url, { headers: this.authHeaders() });
+      if (!res.ok) throw new Error('Falha ao listar exames laboratoriais');
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  async criarExame(dados) {
+    try {
+      const res = await fetch(`${API_BASE}/api/exameslaboratorio`, {
+        method: 'POST',
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          pacienteId: Number(dados.pacienteId),
+          nomeExameAmostra: dados.nomeExameAmostra,
+          laboratorioParceiro: dados.laboratorioParceiro,
+          dataColeta: dados.dataColeta,
+          dataPrevisaoLaudo: dados.dataPrevisaoLaudo,
+          codigoRastreio: dados.codigoRastreio || null,
+          observacoes: dados.observacoes || null
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao cadastrar pedido de exame' };
+      }
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  async atualizarStatusExame(id, novoStatus, observacao = null) {
+    try {
+      const res = await fetch(`${API_BASE}/api/exameslaboratorio/${id}/status`, {
+        method: 'PUT',
+        headers: this.authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          novoStatus: novoStatus,
+          observacao: observacao
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Erro ao atualizar status do exame' };
+      }
+      const data = await res.json();
+      return { sucesso: true, dados: data };
     } catch (e) {
       return { sucesso: false, erro: e.message };
     }
@@ -309,8 +505,11 @@ export const api = {
         body: JSON.stringify({ login, senha })
       });
       if (!res.ok) {
+        if (res.status === 429) {
+          return { sucesso: false, erro: 'Muitas tentativas em pouco tempo. Aguarde alguns segundos e tente novamente.' };
+        }
         const err = await res.json().catch(() => ({}));
-        return { sucesso: false, erro: err.erro || 'Login ou senha inválidos.' };
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Login ou senha inválidos.' };
       }
       const user = await res.json();
       if (user.token) {

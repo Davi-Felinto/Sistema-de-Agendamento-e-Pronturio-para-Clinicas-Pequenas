@@ -69,6 +69,20 @@ public class MySqlPagamentoRepository : IPagamentoRepository
         return dto != null ? MapearParaEntidade(dto) : null;
     }
 
+    // RF30, RN19 - Listar todos os pagamentos vinculados a um agendamento (Pagamento Misto/Dividido)
+    public IEnumerable<Pagamento> ListarPorAgendamentoId(int agendamentoId)
+    {
+        using var conexao = CriarConexao();
+        const string sql = @"
+            SELECT 
+                id_pagamento, id_agendamento, valor, status, forma_pagamento, data_pagamento
+            FROM pagamentos
+            WHERE id_agendamento = @AgendamentoId;";
+
+        var dtos = conexao.Query<PagamentoDto>(sql, new { AgendamentoId = agendamentoId });
+        return dtos.Select(MapearParaEntidade).ToList();
+    }
+
     // RF21, RF22 - Listar todas as cobranças para resumo e conciliação
     public IEnumerable<Pagamento> ListarTodos()
     {
@@ -104,12 +118,13 @@ public class MySqlPagamentoRepository : IPagamentoRepository
         });
     }
 
-    // RF20, RN08 - Quitar cobrança com timestamp e forma de pagamento
+    // RF20, RN08, RF30, RN19 - Atualizar cobrança com valor, status, forma e data
     public void Atualizar(Pagamento pagamento)
     {
         using var conexao = CriarConexao();
         const string sql = @"
             UPDATE pagamentos SET
+                valor = @Valor,
                 status = @Status,
                 forma_pagamento = @FormaPagamento,
                 data_pagamento = @DataPagamento
@@ -117,6 +132,7 @@ public class MySqlPagamentoRepository : IPagamentoRepository
 
         conexao.Execute(sql, new {
             pagamento.Id,
+            pagamento.Valor,
             Status = pagamento.Status.ToString(),
             FormaPagamento = pagamento.Forma?.ToString(),
             pagamento.DataPagamento

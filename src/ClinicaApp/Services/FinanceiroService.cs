@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClinicaApp.Domain.Entities;
@@ -49,7 +49,8 @@ public class FinanceiroService
 
     public Pagamento QuitarPagamento(int pagamentoId, FormaPagamento forma, DateTime? dataPagamento = null)
     {
-        var pagamento = _pagamentoRepository.ObterPorId(pagamentoId);
+        var pagamento = _pagamentoRepository.ObterPorId(pagamentoId) 
+                     ?? _pagamentoRepository.ObterPorAgendamentoId(pagamentoId);
         if (pagamento == null)
             throw new InvalidOperationException("Pagamento não encontrado.");
 
@@ -61,6 +62,49 @@ public class FinanceiroService
         _pagamentoRepository.Atualizar(pagamento);
 
         return pagamento;
+    }
+
+    // RF30, RN19: Permite liquidar uma cobrança dividindo entre entrada e saldo restante
+    public (Pagamento Entrada, Pagamento Saldo) RegistrarPagamentoDividido(
+        int pagamentoOriginalId,
+        decimal valorEntrada,
+        FormaPagamento formaEntrada,
+        decimal valorSaldo,
+        FormaPagamento formaSaldo,
+        bool saldoPago = false,
+        DateTime? momento = null)
+    {
+        var pagamentoOriginal = _pagamentoRepository.ObterPorId(pagamentoOriginalId)
+                             ?? _pagamentoRepository.ObterPorAgendamentoId(pagamentoOriginalId);
+        if (pagamentoOriginal == null)
+            throw new InvalidOperationException("Cobrança original não encontrada.");
+
+        if (pagamentoOriginal.Status == StatusPagamento.Pago)
+            throw new InvalidOperationException("Esta cobrança já foi liquidada.");
+
+        if (valorEntrada <= 0 || valorSaldo <= 0)
+            throw new ArgumentException("Valores de entrada e saldo devem ser maiores que zero.");
+
+        if ((valorEntrada + valorSaldo) != pagamentoOriginal.Valor)
+            throw new InvalidOperationException($"A soma da entrada ({valorEntrada:C}) com o saldo ({valorSaldo:C}) deve ser igual ao valor total da consulta ({pagamentoOriginal.Valor:C}).");
+
+        var momentoEfetivo = momento ?? DateTime.Now;
+
+        // Atualiza a cobrança original para ser o lançamento da Entrada
+        pagamentoOriginal.AjustarValor(valorEntrada);
+        pagamentoOriginal.RegistrarPagamento(formaEntrada, momentoEfetivo, "Entrada de pagamento dividido");
+        _pagamentoRepository.Atualizar(pagamentoOriginal);
+
+        // Gera o lançamento do saldo restante vinculado ao mesmo agendamento
+        int novoId = _pagamentoRepository.ListarTodos().Any() ? _pagamentoRepository.ListarTodos().Max(p => p.Id) + 1 : 1;
+        var pagamentoSaldo = new Pagamento(novoId, pagamentoOriginal.AgendamentoId, valorSaldo, "SaldoRestante", "Saldo restante de pagamento dividido");
+        if (saldoPago)
+        {
+            pagamentoSaldo.RegistrarPagamento(formaSaldo, momentoEfetivo, "Saldo restante quitado");
+        }
+        _pagamentoRepository.Adicionar(pagamentoSaldo);
+
+        return (pagamentoOriginal, pagamentoSaldo);
     }
 
     public IEnumerable<Pagamento> ObterPagamentosPendentes()

@@ -183,22 +183,22 @@ Aqui você apresenta a proposta comercial alinhada com as **duas opções de con
 ### 🗣️ Script de Transição e Apresentação das Duas Opções:
 > *"Dra. [Nome], agora que você viu como o sistema funciona na prática, quero te apresentar como nós estruturamos a contratação. Para que você tenha total conforto financeiro, nós trabalhamos com **dois formatos**:*
 >
-> ***Opção 1 — Assinatura Leve (Plano Parceiro Fundador):***  
-> *Você não paga nada de taxa de desenvolvimento. Nós liberamos **30 dias de uso piloto gratuito** no seu consultório para você e sua equipe testarem na rotina real. Se você aprovar, você mantém uma mensalidade especial fixada de apenas **R$ 119,00 por mês** [ou R$ 97,00], com servidores em nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações inclusas, sem taxa de cancelamento.*
+> ***Opção 1 — Assinatura Inteligente (Plano Parceiro Fundador):***  
+> *Para você ter todo o suporte sem dor de cabeça, nós temos uma taxa única de adesão e implantação de apenas **R$ 290,00**. Eu cuido de tudo para você: configuro a sua agenda, importo seus pacientes atuais e faço o treinamento completo da sua secretária. E a sua mensalidade é travada em **R$ 179,00 por mês** (em vez do valor de tabela de R$ 249), sendo que a primeira mensalidade só vence daqui a 30 dias — ou seja, você tem o primeiro mês inteiro para operar e colher os resultados antes de pagar a primeira fatura recorrente. Cobre servidores em nuvem, backups diários de segurança, suporte direto comigo e todas as novas atualizações.*
 >
 > ***Opção 2 — Projeto Dedicado do Consultório (Sem Mensalidades):***  
-> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento próprio do consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00**. Dividimos esse valor em etapas conforme as entregas: 40% de entrada, 30% na validação dos dados reais e 30% após o treinamento da equipe. Essa opção inclui a instalação exclusiva, importação dos seus pacientes e **90 dias de garantia técnica total**, sem mensalidades obrigatórias."*
+> *Se você prefere não ter mensalidades fixas e quer que o sistema seja um investimento próprio do consultório, nós fazemos a entrega como um projeto fechado por **R$ 2.400,00**. Dividimos esse valor em 3 etapas de entrega: 40% de entrada (R$ 960,00), 30% na validação dos dados reais (R$ 720,00) e 30% após o treinamento da equipe (R$ 720,00). Essa opção inclui a instalação exclusiva, importação dos seus pacientes e **90 dias de garantia técnica total**, sem mensalidades obrigatórias."*
 
 ### ❓ Pergunta de Fechamento:
 > *"Dra. [Nome], considerando a rotina e o momento atual do seu consultório, **qual desses dois formatos faz mais sentido para você começar?**"*
 
 ### 🎯 Como Conduzir as Respostas:
-* **Se escolher a Opção 1 (SaaS / Piloto):**  
-  > *"Excelente! O piloto de 30 dias é a melhor forma de você sentir o ganho de tempo sem nenhum risco. Vou coletar seus horários e serviços para parametrizar o sistema e na próxima semana já liberamos o seu acesso para você começar a usar."*
+* **Se escolher a Opção 1 (SaaS / Adesão):**  
+  > *"Excelente! Com a taxa de adesão de R$ 290 já iniciamos a parametrização hoje mesmo, importamos seus pacientes e marcamos o treinamento da sua equipe para [Dia da semana]. E a sua primeira mensalidade de R$ 179 só começará daqui a 30 dias!"*
 * **Se escolher a Opção 2 (Projeto Fechado):**  
   > *"Perfeito! Vou emitir o nosso termo de projeto com o cronograma das três entregas e o detalhamento da garantia de 90 dias. Podemos programar a entrada para [data de preferência dela] para iniciarmos a configuração?"*
 * **Se ela hesitar ("Preciso pensar..."):**  
-  > *"Compreendo perfeitamente, Dra. [Nome]! Para você não precisar tomar nenhuma decisão financeira hoje, o que acha de aproveitarmos os 30 dias de piloto gratuito da Opção 1? Você usa o sistema no consultório neste mês e, no final dos 30 dias, você decide com calma se prefere continuar na assinatura ou converter para o projeto fechado. O que acha?"*
+  > *"Compreendo perfeitamente, Dra. [Nome]! Para facilitar e você não adiar a organização da clínica, o que acha de começarmos pela Opção 1? Você só investe a taxa de adesão de R$ 290 para deixarmos tudo configurado e a equipe treinada, tem 30 dias completos de uso antes da primeira mensalidade e, se no final desses 30 dias você preferir converter para o projeto definitivo de R$ 2.400, eu abato os R$ 290 do valor total! O que acha?"*
 
 ---
 
@@ -206,9 +206,11 @@ Aqui você apresenta a proposta comercial alinhada com as **duas opções de con
 
 | Objeção da Cliente | Resposta Estruturada Recomendada |
 | :--- | :--- |
-| **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Você não desembolsa absolutamente nada agora, ganha 30 dias de piloto gratuito e depois mantém apenas R$ 119,00 por mês, que é menos que o valor de uma única consulta particular da sua clínica."* |
+| **No Modelo SaaS: "Por que existe taxa de adesão no plano mensal?"** | *"A taxa de adesão de R$ 290 cobre o trabalho técnico especializado inicial: nós importamos toda a sua base atual de pacientes, configuramos horários, serviços e realizamos o treinamento prático da sua equipe. Além disso, a sua primeira mensalidade de R$ 179 só vence daqui a 30 dias. Na prática, você ganha o primeiro mês de mensalidade livre enquanto parametrizamos e estruturamos a sua clínica."* |
+| **No Modelo SaaS: "Achei a mensalidade de R$ 179 salgada"** | *"Se você analisar, R$ 179 por mês equivale a menos de R$ 6,00 por dia — menos que um cafezinho na padaria. Uma única consulta que a secretária deixa de perder por desorganização ou falta de confirmação já cobre o investimento do mês inteiro e gera lucro líquido."* |
+| **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Com uma taxa de adesão de apenas R$ 290 para setup e treinamento, você só começa a pagar a mensalidade de R$ 179 após 30 dias de uso."* |
 | **No Modelo SaaS: "Não gosto de pagar mensalidade pra sempre"** | *"Sem problemas! Nós podemos formalizar a entrega como Projeto Fechado por R$ 2.400,00 (divididos em 3 etapas de entrega), com 90 dias de garantia técnica inclusa e sem qualquer cobrança mensal obrigatória."* |
-| **Em Qualquer Modelo: "Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 23 testes automatizados. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam 100% seguros na LGPD."* |
+| **Em Qualquer Modelo: "Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 56 testes automatizados. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam 100% seguros na LGPD."* |
 | **"E se a internet cair durante o atendimento?"** | *"O sistema é leve e opera com cache local seguro no navegador. Em caso de oscilações breves, seus dados na tela permanecem preservados."* |
 | **"Consigo acessar pelo celular ou tablet?"** | *"Sim! A interface é 100% responsiva. Você pode consultar a agenda ou prontuários tanto no computador do consultório quanto no celular."* |
 | **"E se der algum problema ou bug no sistema?"** | *"No modelo de projeto fechado, você conta com 90 dias de garantia técnica com correção prioritária sem custo. No modelo de assinatura, essa garantia e suporte são permanentes enquanto o plano estiver ativo."* |
@@ -229,8 +231,8 @@ Mantenha esta tabela visível em uma segunda tela durante a apresentação:
 │ 12-16 │ Prontuário & Versionamento        │ Abrir paciente -> Editar anotação -> Histórico│
 │ 16-20 │ Financeiro & Relatórios           │ Baixar Pix/Cartão -> Resumo mensal em 1 clique│
 │ 20-24 │ Perfis, LGPD e Auditoria          │ Alternar Profissional/Admin -> Trilha de Logs │
-│ 24-28 │ Andamento & Engenharia C#         │ Citar os 23 testes TDD xUnit e maturidade     │
-│ 28-35 │ Apresentação das Duas Portas      │ Oferecer Opção 1 (R$ 119/mês) vs Opção 2      │
-│       │ & Fechamento Comercial            │ (Projeto R$ 2.400) -> Conduzir p/ Piloto 30d  │
+│ 24-28 │ Andamento & Engenharia C#         │ Citar os 56 testes TDD xUnit e maturidade     │
+│ 28-35 │ Apresentação das Duas Portas      │ Oferecer Opção 1 (Adesão R$ 290 + R$ 179/mês) │
+│       │ & Fechamento Comercial            │ vs Opção 2 (Projeto R$ 2.400 em 3x R$ 800)    │
 └───────┴───────────────────────────────────┴───────────────────────────────────────────────┘
 ```

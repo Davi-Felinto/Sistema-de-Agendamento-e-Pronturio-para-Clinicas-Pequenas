@@ -75,14 +75,18 @@ public class AgendaService
         return novoAgendamento;
     }
 
-    public void CancelarConsulta(int agendamentoId, DateTime momentoCancelamento)
+    // RN10, RN20: Cancelamento com verificação de antecedência e motivo categorizado
+    public void CancelarConsulta(
+        int agendamentoId,
+        DateTime momentoCancelamento,
+        MotivoCancelamento motivo = MotivoCancelamento.Outro,
+        string? justificativa = null)
     {
         var agendamento = _agendamentoRepository.ObterPorId(agendamentoId);
         if (agendamento == null)
             throw new InvalidOperationException("Agendamento não encontrado.");
 
-        // RN10: Valida se é cancelamento tardio (< 24h)
-        agendamento.Cancelar(momentoCancelamento);
+        agendamento.Cancelar(momentoCancelamento, motivo, justificativa);
         _agendamentoRepository.Atualizar(agendamento);
     }
 }

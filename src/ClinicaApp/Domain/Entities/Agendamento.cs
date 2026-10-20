@@ -13,6 +13,10 @@ public class Agendamento{
     public string? Observacoes  { get; private set; }
     public bool CancelamentoTardio { get; private set; }
 
+    // RF31, RN20: Motivo e justificativa do cancelamento
+    public MotivoCancelamento? MotivoCancelamento { get; private set; }
+    public string? JustificativaCancelamento { get; private set; }
+
     public Agendamento(
         int id,
         int pacienteId,
@@ -21,7 +25,9 @@ public class Agendamento{
         DateTime dataHoraFim,
         string? observacoes = null,
         StatusAgendamento status = StatusAgendamento.Pendente,
-        bool cancelamentoTardio = false)
+        bool cancelamentoTardio = false,
+        MotivoCancelamento? motivoCancelamento = null,
+        string? justificativaCancelamento = null)
     {    
         if (dataHoraFim <= dataHoraInicio)
             throw new ArgumentException("A data/hora de fim deve ser posterior ao início.");
@@ -34,6 +40,8 @@ public class Agendamento{
         Observacoes = observacoes;
         Status = status;
         CancelamentoTardio = cancelamentoTardio;
+        MotivoCancelamento = motivoCancelamento;
+        JustificativaCancelamento = justificativaCancelamento;
     }
 
     /// <summary>
@@ -55,11 +63,17 @@ public class Agendamento{
     }
 
     /// <summary>
-    /// RN10: Se o cancelamento for feito com menos de 24 horas de antecedência,
-    /// sinaliza como cancelamento tardio no histórico.
+    /// RN10, RN20: Se o cancelamento for feito com menos de 24 horas de antecedência,
+    /// sinaliza como cancelamento tardio no histórico e armazena o motivo categorizado.
     /// </summary>
-    public void Cancelar(DateTime momentoCancelamento){
+    public void Cancelar(
+        DateTime momentoCancelamento,
+        MotivoCancelamento motivo = Enums.MotivoCancelamento.Outro,
+        string? justificativa = null)
+    {
         Status = StatusAgendamento.Cancelado;
+        MotivoCancelamento = motivo;
+        JustificativaCancelamento = justificativa;
         var diferencaHoras = (DataHoraInicio - momentoCancelamento).TotalHours;
 
         if (diferencaHoras < 24){

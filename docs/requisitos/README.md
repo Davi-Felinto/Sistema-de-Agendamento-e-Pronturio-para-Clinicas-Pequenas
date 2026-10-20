@@ -52,9 +52,17 @@ O **Clinix** é uma plataforma integrada de gestão para clínicas de pequeno po
 - **RF27:** Controlar níveis de permissão baseados em perfil (RBAC: Profissional de Saúde vs. Administrador/Recepção).
 - **RF28:** Registrar log imutável de todas as operações sensíveis realizadas sobre prontuários e dados cadastrais.
 
+### Módulo 7: Demandas Clínicas & Inteligência de Gestão (Feedback Real)
+- **RF29 (CEP e Endereço Estruturado):** Buscar e preencher automaticamente logradouro, bairro, cidade e UF a partir do CEP via integração com ViaCEP / proxy backend, mantendo campos atômicos para contratos e relatórios.
+- **RF30 (Pagamento Misto / Dividido):** Permitir dividir a quitação de consultas em duas etapas e modalidades distintas (ex.: Entrada no Cartão de Débito e Saldo no PIX ou Boleto), com conciliação automática.
+- **RF31 (Motivos de Cancelamento & Métricas):** Registrar obrigatoriamente a categoria do cancelamento (Desistência, Conflito, Financeiro, Saúde, Satisfação, Outro) para cálculo da taxa de atrito (churn) e melhoria contínua.
+- **RF32 (Ouvidoria & Avaliação do Atendimento):** Coletar avaliações dos pacientes com notas de 1 a 5 para Recepção, Atendimento Clínico e Instalações, calculando média global e permitindo depoimentos anônimos.
+- **RF33 (Recorrência Preventiva 180+ Dias):** Identificar automaticamente pacientes sem consultas nos últimos 6 meses e disponibilizar ação em 1 clique para envio de convite via WhatsApp com cupom de 10% de desconto (`CHECKUP10`).
+- **RF34 (Rastreamento de Amostras Laboratoriais):** Acompanhar o ciclo de vida de exames externos (Coletado, Enviado, Em Análise, Laudo Disponível, Entregue) com alerta visual pulsante na Agenda do médico quando houver laudo pendente.
+
 ---
 
-## ⚖️ Regras de Negócio (RN01 – RN17)
+## ⚖️ Regras de Negócio (RN01 – RN23)
 
 | Código | Nome da Regra | Descrição & Comportamento Esperado |
 | :--- | :--- | :--- |
@@ -64,7 +72,7 @@ O **Clinix** é uma plataforma integrada de gestão para clínicas de pequeno po
 | **RN04** | Lembrete de 24 Horas | O sistema deve agendar o lembrete preventivo 24 horas antes do início da consulta. |
 | **RN05** | Sigilo do Prontuário | Somente profissionais de saúde autenticados podem visualizar e editar anotações clínicas. |
 | **RN06** | Vínculo Clínico | Toda anotação de prontuário deve estar vinculada a um paciente existente. |
-| **RN07** | Cobrança Única | Não pode haver mais de uma cobrança gerada para um mesmo agendamento. |
+| **RN07** | Cobrança Única | Não pode haver mais de uma cobrança gerada para um mesmo agendamento (exceto desdobramento por pagamento dividido). |
 | **RN08** | Quitação com Forma | Para marcar uma cobrança como Paga, a forma de pagamento e a data devem ser preenchidas. |
 | **RN09** | Conciliação Mensal | O fechamento financeiro mensal calcula estritamente as cobranças geradas ou pagas dentro daquele mês. |
 | **RN10** | Cancelamento Tardio | Cancelamentos efetuados com menos de 24 horas de antecedência da consulta devem ser marcados como tardios no histórico. |
@@ -75,6 +83,12 @@ O **Clinix** é uma plataforma integrada de gestão para clínicas de pequeno po
 | **RN15** | Preservação de Alergias | Alertas de alergias e condições preexistentes não podem ser apagados na anonimização cadastral. |
 | **RN16** | Inativação Lógica LGPD | A exclusão de paciente deve ser lógica (`ativo = 0`), anonimizando telefone, e-mail e endereço. |
 | **RN17** | Imutabilidade Clínica | Anotações anteriores do prontuário nunca são sobrescritas; uma nova versão é gravada com o motivo da edição. |
+| **RN18** | Consistência do Endereço | O CEP deve conter 8 dígitos válidos e os campos preenchidos devem corresponder à localização da clínica/paciente. |
+| **RN19** | Conciliação de Pagamento Dividido | A soma das parcelas (Entrada + Saldo) em pagamento dividido deve igualar o valor total estipulado para a consulta. |
+| **RN20** | Rastreabilidade do Cancelamento | Todo cancelamento deve registrar uma das categorias predefinidas e justificativa detalhada para fins de governança. |
+| **RN21** | Integridade da Avaliação | As notas da ouvidoria devem situar-se no intervalo fechado de 1 a 5 e permitir opção de anonimato para proteção do paciente. |
+| **RN22** | Janela de Retorno Preventivo | Pacientes com última consulta há mais de 180 dias são elegíveis à campanha de fidelização com cupom semestral. |
+| **RN23** | Alerta Clínico de Amostra Pendente | Consultas com exames em processamento externo exibem alerta de alta prioridade na Agenda até a entrega do laudo. |
 
 ---
 
@@ -98,3 +112,4 @@ Classificados conforme a norma internacional **ISO/IEC 25010** e diretrizes da *
 - **RQ14 (Escalabilidade Relacional):** Esquema relacional modelado em 3ª Forma Normal (3FN) com índices compostos para busca eficiente.
 - **RQ15 (Disponibilidade):** O frontend deve possuir fallback gracioso para funcionamento local caso a API esteja temporariamente indisponível.
 - **RQ16 (Auditoria Fiscal):** Preservação do histórico financeiro por prazo mínimo de 5 anos para cumprimento de obrigações contábeis.
+
