@@ -55,7 +55,8 @@ public class CepController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { sucesso = false, erro = $"Falha ao consultar CEP: {ex.Message}" });
+            Console.WriteLine($"[CepController] Erro interno ao consultar CEP: {ex.Message}");
+            return StatusCode(500, new { sucesso = false, erro = "Não foi possível consultar o CEP no momento. Verifique a conexão ou tente novamente mais tarde." });
         }
     }
 }

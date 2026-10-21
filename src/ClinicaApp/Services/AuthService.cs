@@ -24,9 +24,11 @@ public class AuthService{
         if (usuario.Autenticar(senha))
             return usuario;
 
-        // RQ08 - Suporte a atalho de senha '123' para facilitar testes da equipe
+#if DEBUG
+        // RQ08 - Suporte a atalho de senha '123' exclusivo para ambiente de desenvolvimento/testes
         if (senha == "123" && usuario.Autenticar("123456"))
             return usuario;
+#endif
 
         return null;
     }

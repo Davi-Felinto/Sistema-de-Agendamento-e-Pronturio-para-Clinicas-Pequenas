@@ -33,7 +33,8 @@ public class ProntuariosController : ControllerBase
     [HttpPost]
     public IActionResult RegistrarSessao([FromBody] RegistroSessaoRequest request)
     {
-        int novoId = new Random().Next(1000, 100000);
+        // Geração segura contra concorrência e colisão (CSPRNG)
+        int novoId = System.Security.Cryptography.RandomNumberGenerator.GetInt32(1000, 1_000_000);
 
         var sessao = _prontuarioService.RegistrarSessao(
             id: novoId,
