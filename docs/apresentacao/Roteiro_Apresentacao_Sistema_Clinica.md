@@ -210,7 +210,7 @@ Aqui você apresenta a proposta comercial alinhada com as **duas opções de con
 | **No Modelo SaaS: "Achei a mensalidade de R$ 179 salgada"** | *"Se você analisar, R$ 179 por mês equivale a menos de R$ 6,00 por dia — menos que um cafezinho na padaria. Uma única consulta que a secretária deixa de perder por desorganização ou falta de confirmação já cobre o investimento do mês inteiro e gera lucro líquido."* |
 | **No Modelo Fechado: "Achei R$ 2.400 pesado para pagar agora"** | *"Compreendo perfeitamente! É exatamente por isso que nós temos a Opção 1 de Assinatura. Com uma taxa de adesão de apenas R$ 290 para setup e treinamento, você só começa a pagar a mensalidade de R$ 179 após 30 dias de uso."* |
 | **No Modelo SaaS: "Não gosto de pagar mensalidade pra sempre"** | *"Sem problemas! Nós podemos formalizar a entrega como Projeto Fechado por R$ 2.400,00 (divididos em 3 etapas de entrega), com 90 dias de garantia técnica inclusa e sem qualquer cobrança mensal obrigatória."* |
-| **Em Qualquer Modelo: "Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 56 testes automatizados. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam 100% seguros na LGPD."* |
+| **Em Qualquer Modelo: "Por que não é de graça se é projeto de faculdade?"** | *"O projeto acadêmico serviu para validar o rigor de engenharia com 66 testes automatizados. Para operar no seu consultório, o sistema consome servidores profissionais, rotinas diárias de backup e suporte técnico dedicado, garantindo que os dados dos seus pacientes estejam 100% seguros na LGPD."* |
 | **"E se a internet cair durante o atendimento?"** | *"O sistema é leve e opera com cache local seguro no navegador. Em caso de oscilações breves, seus dados na tela permanecem preservados."* |
 | **"Consigo acessar pelo celular ou tablet?"** | *"Sim! A interface é 100% responsiva. Você pode consultar a agenda ou prontuários tanto no computador do consultório quanto no celular."* |
 | **"E se der algum problema ou bug no sistema?"** | *"No modelo de projeto fechado, você conta com 90 dias de garantia técnica com correção prioritária sem custo. No modelo de assinatura, essa garantia e suporte são permanentes enquanto o plano estiver ativo."* |
@@ -231,7 +231,7 @@ Mantenha esta tabela visível em uma segunda tela durante a apresentação:
 │ 12-16 │ Prontuário & Versionamento        │ Abrir paciente -> Editar anotação -> Histórico│
 │ 16-20 │ Financeiro & Relatórios           │ Baixar Pix/Cartão -> Resumo mensal em 1 clique│
 │ 20-24 │ Perfis, LGPD e Auditoria          │ Alternar Profissional/Admin -> Trilha de Logs │
-│ 24-28 │ Andamento & Engenharia C#         │ Citar os 56 testes TDD xUnit e maturidade     │
+│ 24-28 │ Andamento & Engenharia C#         │ Citar os 66 testes TDD xUnit e maturidade     │
 │ 28-35 │ Apresentação das Duas Portas      │ Oferecer Opção 1 (Adesão R$ 290 + R$ 179/mês) │
 │       │ & Fechamento Comercial            │ vs Opção 2 (Projeto R$ 2.400 em 3x R$ 800)    │
 └───────┴───────────────────────────────────┴───────────────────────────────────────────────┘

@@ -15,29 +15,29 @@ src/
 │
 ├── ClinicaApp/                         # Core: Domínio, Regras de Negócio e Repositórios
 │   ├── Domain/
-│   │   ├── Entities/                   # Entidades ricas com encapsulamento e validação de invariantes
-│   │   ├── Enums/                      # Enums de status, perfis e formas de pagamento
+│   │   ├── Entities/                   # Paciente, Agendamento, SessaoProntuario, Pagamento, AvaliacaoAtendimento, PedidoExameLaboratorio, etc.
+│   │   ├── Enums/                      # StatusAgendamento, PerfilUsuario, FormaPagamento, MotivoCancelamento, StatusExameLaboratorio, etc.
 │   │   └── Interfaces/                 # Contratos de repositórios e serviços externos
 │   ├── Infrastructure/
 │   │   ├── InMemory/                   # Persistência em memória thread-safe (Desenvolvimento & Testes)
 │   │   ├── MySQL/                      # Repositórios relacionais com Dapper e MySqlConnector
 │   │   └── External/                   # Adaptadores de serviços externos (ex: NotificadorWhatsApp)
 │   └── Services/                       # Application Services com guardiões das Regras de Negócio
-│       ├── AuthService.cs              # RF26, RQ08: Autenticação segura PBKDF2/SHA-256 + Salt
-│       ├── AgendaService.cs            # RN01/RN02: Conflitos; RN10: Cancelamento tardio; RF12: Notificação
+│       ├── AuthService.cs              # RF26, RQ08: Autenticação segura PBKDF2/SHA-256 + Salt (#if DEBUG isolado)
+│       ├── AgendaService.cs            # RN01/RN02: Conflitos; RN10: Cancelamento tardio; RF12: Notificação; RF31: Motivos
 │       ├── ProntuarioService.cs        # RN05, RN17: Histórico imutável; RN13, RQ07: Auditoria LGPD
-│       └── FinanceiroService.cs        # RN07: Cobrança sem duplicidade; RN08/RN09: Quitação e fechamento
+│       └── FinanceiroService.cs        # RN07: Cobrança; RN08/RN09: Quitação; RF30/RN19: Pagamento misto
 │
 ├── ClinicaApp.Api/                     # Apresentação: ASP.NET Core Web API & Interface Web
-│   ├── Controllers/                    # Endpoints REST (Pacientes, Agendamentos, Auth, Prontuários, Financeiro)
+│   ├── Controllers/                    # Endpoints REST (Pacientes, Agendamentos, Auth, Prontuários, Financeiro, Cep, Avaliações, Exames, Status)
 │   ├── Data/DadosIniciais.cs           # Seed de dados de demonstração em memória
-│   ├── Program.cs                      # Injeção de dependência híbrida (MySQL ou InMemory) e middlewares
+│   ├── Program.cs                      # Injeção de dependência híbrida (MySQL ou InMemory), Rate Limiting e Middlewares
 │   ├── appsettings.Development.json    # Configurações de logging e template de conexão
 │   └── wwwroot/                        # Interface Web completa (HTML/Tailwind/React) distribuída com a API
 │
-└── ClinicaApp.Tests/                   # Garantia de Qualidade: TDD com xUnit
-    ├── Domain/                         # 23 testes unitários focados nas entidades de domínio
-    └── Services/                       # 29 testes unitários dos fluxos de regras de negócio
+└── ClinicaApp.Tests/                   # Garantia de Qualidade: TDD com xUnit (66 Testes / 100% Sucesso)
+    ├── Domain/                         # 32 testes unitários focados nas entidades de domínio
+    └── Services/                       # 34 testes unitários dos fluxos de regras de negócio
 ```
 
 ---
@@ -84,13 +84,13 @@ dotnet user-secrets list
 Toda a regra de negócio do sistema é coberta por testes automatizados sem necessidade de banco de dados ativo:
 
 ```bash
-# Executar todos os 52 testes unitários
+# Executar todos os 66 testes unitários
 dotnet test src/
 ```
 
 ### Sumário da Suíte de Testes:
 ```text
-Aprovado!  – Com falha: 0, Aprovado: 52, Ignorado: 0, Total: 52 (100% de sucesso)
+Aprovado!  – Com falha: 0, Aprovado: 66, Ignorado: 0, Total: 66 (100% de sucesso)
 ```
 
 ---

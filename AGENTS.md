@@ -29,7 +29,7 @@ Neste arquivo você encontrará:
 - As 4 disciplinas integradas do Projeto Integrador (Requisitos, POO C#, Banco de Dados II MySQL, Interface Web).
 - O mapa de todos os arquivos do projeto e a arquitetura em camadas (`src/ClinicaApp`).
 - O status exato de cada bloco/tarefa do projeto.
-- A matriz completa de requisitos (`RF01-RF28`, `RN01-RN17`, `RQ01-RQ16`).
+- A matriz completa de requisitos (`RF01-RF34`, `RN01-RN23`, `RQ01-RQ16`).
 
 Na **memória pessoal** você encontrará: perfil/background da pessoa, área de responsabilidade, regras pedagógicas específicas e **onde ela parou**.
 

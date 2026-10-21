@@ -8,7 +8,7 @@
 
 ## 📌 Visão Geral do Módulo
 
-Este diretório contém a modelagem completa do banco de dados relacional para o **Clinix** (Sistema de Agendamento e Prontuário para Clínicas Pequenas), cobrindo integralmente as 15 entidades concebidas para suportar a matriz de requisitos acadêmicos (**RF01–RF28**, **RN01–RN17** e **RQ01–RQ16**).
+Este diretório contém a modelagem completa do banco de dados relacional para o **Clinix** (Sistema de Agendamento e Prontuário para Clínicas Pequenas), cobrindo integralmente as 15 entidades concebidas para suportar a matriz de requisitos acadêmicos (**RF01–RF34**, **RN01–RN23** e **RQ01–RQ16**).
 
 Os artefatos foram projetados para permitir que o backend C# substitua os repositórios em memória (`ClinicaApp.Infrastructure.InMemory`) por implementações relacionais usando **Dapper** ou **Entity Framework Core**, mantendo intacto o núcleo do Domínio (**Repository Pattern**).
 

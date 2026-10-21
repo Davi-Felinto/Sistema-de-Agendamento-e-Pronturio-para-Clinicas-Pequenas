@@ -53,7 +53,7 @@ Para segurança contra oscilações de rede:
    ```bash
    dotnet test src/
    ```
-2. Mostrar o resultado: **56 testes unitários passando com 100% de sucesso**.
+2. Mostrar o resultado: **66 testes unitários passando com 100% de sucesso**.
 3. Isso prova a cobertura de testes em entidades, serviços de aplicação e segurança.
 
 ---

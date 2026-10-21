@@ -1,8 +1,8 @@
 # Projeto Integrador — Eng. de Requisitos
 ## Contexto completo, memórias e especificação
 
-> Sistema de Agendamento e Prontuário para Clínicas Pequenas
-> Arquivo consolidado em 01/10/2026. Reúne o que está registrado na memória do projeto e o conteúdo do Documento de Especificação de Requisitos (versão final).
+> **NOTA HISTÓRICA:** Este arquivo é um registro estático do levantamento inicial de requisitos consolidado em **01/10/2026**.  
+> Para o estado ativo, arquitetura completa, 34 RFs, 23 RNs, 16 RQs e 66 testes unitários xUnit, consulte a **Memória Viva do Projeto:** [`CONTEXTO_MEMORIA_PROJETO.md`](CONTEXTO_MEMORIA_PROJETO.md).
 
 ---
 

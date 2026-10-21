@@ -51,10 +51,10 @@ Todos os membros da equipe possuem conta ativa no banco na nuvem e podem entrar 
 - **Responsável pelo projeto:** Davi Felinto (`github.com/Davi-Felinto`).
 
 ### Disciplinas Integradas no Projeto:
-1. **Engenharia de Requisitos:** Concluída formalmente. Especificação com 28 RFs, 17 RNs, 16 RQs (ISO/IEC 25010), BPMN e LGPD.
-2. **Programação Orientada a Objetos (C# / .NET 8 / .NET 10):** **100% CONCLUÍDO**. Foco em Clean Architecture simplificada, Domain-Driven Design pragmático, TDD com xUnit (52 testes).
-3. **Banco de Dados II (MySQL):** **FASE ATIVA ATUAL**. Modelo lógico relacional com 15 tabelas no MySQL Workbench (`clínica.mwb`), DDL (`01_schema_ddl.sql`) e DML (`02_dados_iniciais.sql`).
-4. **Desenvolvimento de Interface Web:** Interface MVP em HTML/CSS/JS com Tailwind, React e suporte híbrido integrada à API e no GitHub Pages (`index.html`).
+1. **Engenharia de Requisitos:** **Etapa 1 (Análise de Negócio) 100% CONCLUÍDA** em Word (.docx), Markdown e BPMN AS-IS/TO-BE. Matriz ampliada para 34 RFs, 23 RNs e 16 RQs (ISO/IEC 25010 e LGPD) incorporando demandas de clientes reais.
+2. **Programação Orientada a Objetos (C# / .NET 8 / .NET 10):** **100% CONCLUÍDO**. Foco em Clean Architecture simplificada, Domain-Driven Design pragmático, TDD com xUnit (66 testes unitários com 100% de sucesso).
+3. **Banco de Dados II (MySQL):** **100% CONCLUÍDO**. Modelo lógico relacional com 15 tabelas no MySQL Workbench (`clínica.mwb`), DDL (`01_schema_ddl.sql`), DML (`02_dados_iniciais.sql`), views, triggers LGPD e procedures (`03_procedures_views_triggers.sql`), ativo em cluster MySQL 8.4 na nuvem Aiven e Docker Compose.
+4. **Desenvolvimento de Interface Web:** **100% CONCLUÍDO**. Interface responsiva com React, Tailwind, usabilidade em até 3 cliques (RQ10), integrada à API ASP.NET Core no Render, MySQL no Aiven e GitHub Pages com suporte offline.
 
 ---
 
@@ -78,11 +78,13 @@ src/
 ├── ClinicaApp/
 │   ├── Domain/
 │   │   ├── Entities/
-│   │   │   ├── Paciente.cs (RF01-RF05, RN16, RQ03)
-│   │   │   ├── Agendamento.cs (RF06-RF11, RN01, RN02, RN10)
+│   │   │   ├── Paciente.cs (RF01-RF05, RN16, RQ03, RF29, RN18)
+│   │   │   ├── Agendamento.cs (RF06-RF11, RN01, RN02, RN10, RF31, RN20)
 │   │   │   ├── SessaoProntuario.cs (RF15-RF18, RN05, RN06, RN17)
 │   │   │   ├── VersaoAnotacao.cs (RN17 - histórico de versões)
-│   │   │   ├── Pagamento.cs (RF19-RF22, RN07, RN08)
+│   │   │   ├── Pagamento.cs (RF19-RF22, RN07, RN08, RF30, RN19)
+│   │   │   ├── AvaliacaoAtendimento.cs (RF32, RN21)
+│   │   │   ├── PedidoExameLaboratorio.cs (RF34, RN23)
 │   │   │   ├── Notificacao.cs (RF12-RF14, RN03, RN04, RN14, RN15)
 │   │   │   ├── LogAcesso.cs (RF28, RN13, RQ07 - auditoria LGPD)
 │   │   │   ├── Usuario.cs (RF26, RF27, RQ06, RQ08)
@@ -93,6 +95,8 @@ src/
 │   │   │   ├── StatusAgendamento.cs (Pendente, Confirmado, Remarcado, Cancelado, Concluido)
 │   │   │   ├── StatusPagamento.cs (Pendente, Pago)
 │   │   │   ├── FormaPagamento.cs (Pix, Dinheiro, CartaoCredito, CartaoDebito)
+│   │   │   ├── MotivoCancelamento.cs (Desistencia, Conflito, Financeiro, Saude, Satisfacao, Outro)
+│   │   │   ├── StatusExameLaboratorio.cs (Coletado, Enviado, EmAnalise, LaudoDisponivel, Entregue)
 │   │   │   ├── TipoNotificacao.cs (Confirmacao, Lembrete)
 │   │   │   ├── StatusNotificacao.cs (Pendente, Enviado, Falha, Reenviado)
 │   │   │   └── CanalNotificacao.cs (WhatsApp)
@@ -105,34 +109,33 @@ src/
 │   │       ├── ILogAcessoRepository.cs
 │   │       └── INotificador.cs
 │   ├── Infrastructure/
-│   │   ├── InMemory/
-│   │   │   ├── InMemoryPacienteRepository.cs
-│   │   │   ├── InMemoryAgendamentoRepository.cs
-│   │   │   ├── InMemoryProntuarioRepository.cs
-│   │   │   ├── InMemoryPagamentoRepository.cs
-│   │   │   ├── InMemoryUsuarioRepository.cs
-│   │   │   └── InMemoryLogAcessoRepository.cs
+│   │   ├── InMemory/ (Repositórios em memória thread-safe para testes/fallback)
+│   │   ├── MySQL/ (Repositórios relacionais Dapper mapeando para o schema de 15 tabelas)
 │   │   └── External/
 │   │       └── NotificadorWhatsApp.cs (implementa INotificador)
 │   └── Services/
-│       ├── AuthService.cs (RF26, RQ08 - SHA-256 + Salt)
-│       ├── AgendaService.cs (RF06, RF08, RN01, RN02, RN03, RN10)
+│       ├── AuthService.cs (RF26, RQ08 - PBKDF2-SHA256 + Salt e atalho isolado em #if DEBUG)
+│       ├── AgendaService.cs (RF06, RF08, RN01, RN02, RN03, RN10, RF31, RN20)
 │       ├── ProntuarioService.cs (RF15, RF16, RN05, RN06, RN13, RN17)
-│       └── FinanceiroService.cs (RF19-RF22, RN07-RN09)
+│       └── FinanceiroService.cs (RF19-RF22, RN07-RN09, RF30, RN19)
 ├── ClinicaApp.Api/
 │   ├── Controllers/
 │   │   ├── AgendamentosController.cs
 │   │   ├── AuthController.cs
+│   │   ├── AvaliacoesController.cs
+│   │   ├── CepController.cs (proxy ViaCEP seguro)
+│   │   ├── ExamesLaboratorioController.cs
 │   │   ├── FinanceiroController.cs
 │   │   ├── LogsController.cs
 │   │   ├── PacientesController.cs
-│   │   └── ProntuariosController.cs
+│   │   ├── ProntuariosController.cs
+│   │   └── StatusController.cs
 │   ├── Data/DadosIniciais.cs
 │   ├── Program.cs
 │   └── wwwroot/
-└── ClinicaApp.Tests/
-    ├── Domain/ (7 arquivos de teste cobrindo todas as entidades)
-    └── Services/ (AuthServiceTests, AgendaServiceTests, ProntuarioServiceTests, FinanceiroServiceTests)
+└── ClinicaApp.Tests/ (66 testes unitários xUnit com 100% de aprovação)
+    ├── Domain/ (32 testes unitários cobrindo todas as entidades de domínio)
+    └── Services/ (34 testes unitários cobrindo fluxos de negócio e segurança)
 ```
 
 ---
@@ -172,10 +175,11 @@ src/
 - Apresentação funcional integrada servida pela API ASP.NET Core (`ClinicaApp.Api`) via `wwwroot` com um único `dotnet run` e fallback transparente para localStorage quando hospedado no GitHub Pages.
 - Controllers em ASP.NET Core com DI via construtor, DTOs explícitos e CORS ativado.
 
-### 🚀 Bloco 6: Banco de Dados II (MySQL) — FASE ATIVA
-- Modelo lógico relacional entregue pelo Isaac em `bancodedadosclinica/clínica.mwb` (15 tabelas).
-- Modelo auditado e atualizado diretamente no Workbench com 4 otimizações técnicas.
-- Criados `01_schema_ddl.sql` e `02_dados_iniciais.sql` para deploy no MySQL 8+.
+### ✅ Bloco 6: Banco de Dados II (MySQL) — 100% CONCLUÍDO
+- Modelo lógico relacional entregue pelo Isaac em `bancodedadosclinica/clínica.mwb` (15 tabelas em 3FN).
+- 4 melhorias técnicas aplicadas no Workbench e validadas.
+- Scripts completos gerados: `01_schema_ddl.sql`, `02_dados_iniciais.sql` (seed para outubro/2026) e `03_procedures_views_triggers.sql` (3 views, 3 triggers LGPD e 2 stored procedures).
+- Deploy em nuvem concluído com sucesso em cluster MySQL 8.4 gerenciado no Aiven Cloud e ambiente Docker local com phpMyAdmin. Repositórios Dapper 100% integrados no C#.
 
 ---
 
@@ -234,6 +238,7 @@ src/
 | 20/10/2026 | Antigravity AI (usuário: Davi) | Concluída a Etapa 1 de Engenharia de Requisitos (Prof. Sérgio Haddad - CEUB): elaboração da Análise de Negócio completa (estudo de caso Amanda Souza Peixoto), modelagem BPMN AS-IS e TO-BE (PNG + Mermaid), 8 problemas, objetivos, benefícios, 11 macrofuncionalidades e requisitos ISO/IEC 25010 e LGPD. Gerados Word oficial (`.docx`), versão Markdown e pasta organizada `docs/Entregas-Eng.-de-Requisitos/`. | Realizar a Etapa 2 quando solicitada. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Refinamento do documento Word da Etapa 1, verificação dos 66 testes unitários xUnit (100% OK) e envio ao repositório remoto via `git push origin main` (commits `f65179d`, `a7f1872`, `9e2c74a`). Repositório limpo e sincronizado. | Iniciar a Etapa 2 de Engenharia de Requisitos (Personas, Histórias de Usuário e Backlog) quando solicitado. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Instalação local e global das skills `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani); condução de auditoria de segurança completa (SAST/OWASP e Hardening); aplicação de 3 correções de segurança (`#if DEBUG` em atalho de senha em `AuthService.cs`, sanitização de erro 500 em `CepController.cs` e CSPRNG `RandomNumberGenerator` em `ProntuariosController.cs`). 66 testes unitários xUnit 100% aprovados e compilação Release com 0 avisos e 0 erros. | Apresentação comercial da minuta de contrato / Início da Etapa 2 de Requisitos. |
+| 21/10/2026 | Antigravity AI (usuário: Davi) | Auditoria e saneamento global de documentação: padronização de autoria e contratado para "Davi Felinto" em todos os documentos (Word .docx e Markdown); sincronização universal de contagem para 66 testes unitários xUnit (100% aprovados), 34 RFs, 23 RNs e 16 RQs no README mestre, `src/README.md`, `docs/README.md`, `AGENTS.md`, `bancodedadosclinica/README.md`, propostas comerciais e roteiros acadêmicos da banca. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
 

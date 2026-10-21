@@ -13,7 +13,7 @@ O **Clinix** é uma plataforma integrada de gestão para clínicas de pequeno po
 
 ---
 
-## 📌 Requisitos Funcionais (RF01 – RF28)
+## 📌 Requisitos Funcionais (RF01 – RF34)
 
 ### Módulo 1: Gestão de Pacientes & LGPD
 - **RF01:** Cadastrar novos pacientes com dados cadastrais obrigatórios (Nome, CPF/RG, data de nascimento, contato e endereço).
