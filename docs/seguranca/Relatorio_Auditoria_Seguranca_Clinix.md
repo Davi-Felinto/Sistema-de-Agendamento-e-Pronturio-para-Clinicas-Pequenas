@@ -3,7 +3,7 @@
 ---
 
 > **Projeto:** Clinix — Sistema de Agendamento, Prontuário Eletrônico e Gestão Clínica  
-> **Responsável Técnico:** Davi Felinto dos Santos — Engenharia de Software (CEUB)  
+> **Responsável Técnico:** Davi Felinto — Engenharia de Software (CEUB)  
 > **Data da Auditoria:** 21 de Outubro de 2026 — Versão: 2.0 (Pós-Remediação de Vulnerabilidades)  
 > **Frameworks Utilizados:** OWASP Top 10 + Sentry Code Review Skill (`security-review`) + Google Security & Hardening (`security-and-hardening` - Addy Osmani)  
 > **Classificação Final de Segurança:** 🟢 **A+ (100% Conforme e Blindado)**

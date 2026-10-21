@@ -7,7 +7,7 @@
 Pelo presente instrumento particular, de um lado:
 
 **CONTRATADO:**  
-**DAVI FELINTO DOS SANTOS**, brasileiro, solteiro, desenvolvedor e engenheiro de software, inscrito no CPF sob o nº `[000.000.000-00]`, residente e domiciliado em Brasília, Distrito Federal, com endereço eletrônico de contato: `[davifd0978@gmail.com]`, doravante denominado simplesmente **"CONTRATADO"** ou **"DESENVOLVEDOR"**;
+**DAVI FELINTO**, brasileiro, solteiro, desenvolvedor e engenheiro de software, inscrito no CPF sob o nº `[000.000.000-00]`, residente e domiciliado em Brasília, Distrito Federal, com endereço eletrônico de contato: `[davifd0978@gmail.com]`, doravante denominado simplesmente **"CONTRATADO"** ou **"DESENVOLVEDOR"**;
 
 E, de outro lado:
 
@@ -66,7 +66,7 @@ Caso eleita a **Modalidade B (Projeto Dedicado Fechado)**:
 
 ### CLÁUSULA TERCEIRA — DA PROPRIEDADE INTELECTUAL E DIREITOS AUTORAIS
 
-**3.1.** O software CLINIX, seu código-fonte, arquitetura de software, esquemas conceituais de banco de dados, algoritmos, fluxos operacionais, interfaces de usuário, marcas e documentações técnicas são de **propriedade intelectual exclusiva, universal e inalienável do CONTRATADO (DAVI FELINTO DOS SANTOS)**, sendo expressamente protegidos pela legislação autoral e de propriedade industrial brasileira.
+**3.1.** O software CLINIX, seu código-fonte, arquitetura de software, esquemas conceituais de banco de dados, algoritmos, fluxos operacionais, interfaces de usuário, marcas e documentações técnicas são de **propriedade intelectual exclusiva, universal e inalienável do CONTRATADO (DAVI FELINTO)**, sendo expressamente protegidos pela legislação autoral e de propriedade industrial brasileira.
 
 **3.2.** O presente contrato confere à CONTRATANTE única e exclusivamente o **direito de uso** da solução, sendo-lhe expressamente vedado, sob pena de cominação de perdas e danos civis e criminais:
 * Copiar, reproduzir, modificar, descompilar, realizar engenharia reversa ou tentar derivar o código-fonte da aplicação;
@@ -160,7 +160,7 @@ Brasília - DF, `[DIA]` de `[MÊS]` de 2026.
 <br><br>
 
 _____________________________________________________________  
-**CONTRATADO:** DAVI FELINTO DOS SANTOS  
+**CONTRATADO:** DAVI FELINTO  
 CPF: `[000.000.000-00]`  
 
 <br><br>
@@ -219,7 +219,7 @@ CPF: `[000.000.000-00]` | CRM/CRO/CRP: `[00000-DF]`
 
 ### 2. DADOS BANCÁRIOS DO CONTRATADO PARA PAGAMENTOS (PIX / TED):
 
-* **Favorecido:** Davi Felinto dos Santos
+* **Favorecido:** Davi Felinto
 * **Chave Pix (E-mail):** `davifd0978@gmail.com`
 * **Instituição Bancária:** `[Banco Inter / Nubank / Banco do Brasil]`
 * **Agência:** `[0001]` | **Conta Corrente:** `[0000000-0]`
