@@ -11,6 +11,7 @@ Esta pasta reúne todos os artefatos formais de engenharia de software produzido
 
 | Diretório | Área / Disciplina | Principais Artefatos |
 |---|---|---|
+| [`Entregas-Eng.-de-Requisitos/`](Entregas-Eng.-de-Requisitos/) | **Entregas Acadêmicas (Eng. Requisitos)** | Etapa 1: Análise de Negócio (Word .docx + Markdown + BPMN AS-IS/TO-BE). |
 | [`requisitos/`](requisitos/) | **Engenharia de Requisitos** | Documento formal de requisitos (34 RFs, 23 RNs, 16 RQs ISO/IEC 25010 e LGPD). |
 | [`design/`](design/) | **Arquitetura de Software** | SDD (*Software Design Document*) com visão de camadas, design patterns e regras de persistência. |
 | [`diagramas/`](diagramas/) | **Modelagem Visual & UML** | Diagrama de Classes UML (SVG / Excalidraw), BPMN de Processos, Arquitetura e Sequência. |
