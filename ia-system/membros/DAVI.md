@@ -84,7 +84,12 @@
 - **Correção da Piscada no Login / Materialização Dapper em `Paciente.cs` Concluída:**
   - **Causa Raiz Exata do Segundo Vídeo (`17-01-50`):** O login na rota `/api/auth/login` tinha sucesso e retornava o JWT. No React (`index.html`), `setIsAuthenticated(true)` disparava o hook `useEffect` (`conectarBackend()`). Este chamava `api.listarPacientes()`. No backend C#, o `MySqlPacienteRepository` executava `SELECT ... FROM pacientes` com 10 colunas e usava Dapper para instanciar `Paciente`. Como a entidade `Paciente` teve seu construtor ampliado para 17 parâmetros (novos campos de CEP/endereço) sem construtor padrão ou sobrecarga de 10 parâmetros, o Dapper lançava exceção de materialização (`A parameterless default constructor or one matching signature (Id, Nome, ...) is required`). A API retornava `400 Bad Request`. No front, ao receber erro em `listarPacientes()`, a lógica de segurança tratava como token inválido e chamava imediatamente `setIsAuthenticated(false)`, fazendo a tela "piscar" e voltar para o login em milissegundos.
   - **Correções Aplicadas:** Adicionado construtor sem parâmetros e sobrecarga do construtor de 10 parâmetros em `Paciente.cs`; corrigida ordem dos `useEffect` de `reviews` e `labSamples` em `index.html` e `wwwroot/index.html`; container Docker `clinix-api` rebuildado. Testado via script que todos os endpoints pós-login (`/api/pacientes`, `/api/agendamentos`, `/api/avaliacoes`, `/api/exameslaboratorio`) retornam `200 OK`.
-- **Próximo passo:** Apresentação das novas telas e funcionalidades para a cliente real.
+- **Etapa 1 de Engenharia de Requisitos 100% Concluída, Validada e Enviada ao GitHub:**
+  - Análise de Negócio completa elaborada seguindo rigorosamente o modelo do Prof. Sérgio Haddad (CEUB) e as orientações da disciplina.
+  - Entregáveis gerados em `docs/Entregas-Eng.-de-Requisitos/Etapa-1/`: documento Word formatado (`Trabalho Final ER - 1 - Análise de Negócio - Clinix.docx`), versão Markdown completa e diagramas de processo BPMN AS-IS e TO-BE de alta resolução (`.png` e `.md`).
+  - 66/66 testes unitários xUnit passando com 100% de sucesso.
+  - Commits sincronizados no repositório remoto (`git push origin main` com commits `f65179d`, `a7f1872`, `9e2c74a`).
+- **Próximo passo:** Elaborar a **Etapa 2 de Engenharia de Requisitos** (Personas, Histórias de Usuário com critérios de aceite, Backlog priorizado por MoSCoW/RICE) quando solicitado pelo Davi.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -110,6 +115,7 @@
 | 20/10/2026 | Antigravity AI | Diagnóstico do vídeo 1: correção de Rate Limiting (429) no ASP.NET Core (elevado de 5 para 30/min), tratamento amigável de 429 no frontend, auto-preenchimento e reset de erro ao alternar usuários no login. Rebuild da API e validação dos 6 logins via API com 200 OK. | Apresentação das telas para a cliente. |
 | 20/10/2026 | Antigravity AI | Diagnóstico do vídeo 2 (tela piscando): identificada falha de materialização do Dapper em `Paciente.cs` (erro 400 em `/api/pacientes` no hook pós-login `conectarBackend()`, forçando logout imediato). Adicionado construtor sem parâmetros e sobrecarga de 10 parâmetros em `Paciente.cs`. Rebuild da API e testes 100% OK. | Validação visual no navegador pelo Davi. |
 | 20/10/2026 | Antigravity AI | Concluída a Etapa 1 de Engenharia de Requisitos (Prof. Sérgio Haddad - CEUB): elaboração da Análise de Negócio completa (estudo de caso com Amanda Souza Peixoto), modelagem BPMN AS-IS e TO-BE (PNG + Mermaid), mapeamento de 8 problemas, objetivos, benefícios, 11 macrofuncionalidades e requisitos ISO/IEC 25010 e LGPD. Gerados Word oficial (`.docx`), versão Markdown e pasta organizada `docs/Entregas-Eng.-de-Requisitos/`. | Realizar a Etapa 2 quando solicitada. |
+| 21/10/2026 | Antigravity AI | Refinamento do layout do Word da Etapa 1, execução da suíte de 66 testes xUnit (100% de sucesso) e push de 3 commits para o repositório remoto (`origin/main`). Branch atualizada e árvore de trabalho limpa. | Iniciar Etapa 2 de Requisitos (Personas, Histórias de Usuário e Backlog) quando solicitado. |
 
 
 
