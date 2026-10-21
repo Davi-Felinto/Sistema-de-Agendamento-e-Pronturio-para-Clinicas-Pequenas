@@ -28,46 +28,8 @@ public static class DadosIniciais
         );
         authService.Cadastrar(medicoDavi);
 
-        var adminLucas = new Administrador(
-            id: 2,
-            nome: "Lucas Pereira",
-            login: "lucas@clinix.com",
-            senhaPura: "123456",
-            cargo: "Engenharia de Requisitos & Gestão de Processos"
-        );
-        authService.Cadastrar(adminLucas);
-
-        var medicoMiguel = new ProfissionalSaude(
-            id: 3,
-            nome: "Dr. Miguel Silva",
-            login: "miguel@clinix.com",
-            senhaPura: "123456",
-            registroProfissional: "CRM-DF 54321",
-            especialidade: "Clínica Geral & Telemedicina"
-        );
-        authService.Cadastrar(medicoMiguel);
-
-        var adminIsaac = new Administrador(
-            id: 4,
-            nome: "Isaac Santos",
-            login: "isaac@clinix.com",
-            senhaPura: "123456",
-            cargo: "Administrador de Banco de Dados (DBA) & Auditor LGPD"
-        );
-        authService.Cadastrar(adminIsaac);
-
-        var medicoVanessa = new ProfissionalSaude(
-            id: 5,
-            nome: "Dra. Vanessa Oliveira",
-            login: "vanessa@clinix.com",
-            senhaPura: "123456",
-            registroProfissional: "CRM-DF 67890",
-            especialidade: "Pediatria & Saúde da Família"
-        );
-        authService.Cadastrar(medicoVanessa);
-
         var adminJuliana = new Administrador(
-            id: 6,
+            id: 2,
             nome: "Juliana Costa",
             login: "juliana@clinix.com",
             senhaPura: "123456",

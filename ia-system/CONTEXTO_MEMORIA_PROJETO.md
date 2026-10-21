@@ -28,18 +28,14 @@
 | **Lucas** | Engenharia de Requisitos | *(a criar — `membros/LUCAS.md`)* |
 | **Vanessa** | Membro da equipe e apoio na gestão clínica | *(a criar — `membros/VANESSA.md`)* |
 
-### 🔑 Credenciais Oficiais de Teste na Nuvem (Produção)
+### 🔑 Credenciais Oficiais de Acesso (Dois Perfis Padronizados)
 
-Todos os membros da equipe possuem conta ativa no banco na nuvem e podem entrar diretamente pela tela de login:
+O sistema opera com os dois perfis fundamentais de controle de acesso (RBAC):
 
-| Nome do Membro | Login (E-mail) | Senha Padrão | Perfil RBAC | Especialidade / Atribuição no Sistema |
+| Nome do Usuário | Login (E-mail) | Senha Padrão | Perfil RBAC | Atribuição / Escopo |
 |---|---|---|---|---|
-| **Dr. Davi Felinto** | `davi@clinix.com` | `123456` | **Profissional** | Dev Principal / Psicologia Clínica & Neuropsicologia |
-| **Lucas Pereira** | `lucas@clinix.com` | `123456` | **Administrador** | Engenharia de Requisitos & Gestão de Processos |
-| **Dr. Miguel Silva** | `miguel@clinix.com` | `123456` | **Profissional** | Interface Web / Clínica Geral & Telemedicina |
-| **Isaac Santos** | `isaac@clinix.com` | `123456` | **Administrador** | Banco de Dados (DBA) & Auditoria LGPD |
-| **Dra. Vanessa Oliveira** | `vanessa@clinix.com` | `123456` | **Profissional** | Pediatria & Saúde da Família |
-| **Juliana Costa** | `juliana@clinix.com` | `123456` | **Administrador** | Recepção Clínica & Atendimento |
+| **Dr. Davi Felinto** | `davi@clinix.com` | `123456` | **Profissional** | Atendimento médico, agenda clínica e prontuários eletrônicos (PEP) |
+| **Juliana Costa** | `juliana@clinix.com` | `123456` | **Administrador** | Recepção clínica, cadastro de pacientes, financeiro e auditoria LGPD |
 
 > Se a pessoa não tiver memória pessoal ainda, avise e use só a memória compartilhada (sem criar o arquivo sem o Davi pedir).
 
@@ -239,6 +235,7 @@ src/
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Refinamento do documento Word da Etapa 1, verificação dos 66 testes unitários xUnit (100% OK) e envio ao repositório remoto via `git push origin main` (commits `f65179d`, `a7f1872`, `9e2c74a`). Repositório limpo e sincronizado. | Iniciar a Etapa 2 de Engenharia de Requisitos (Personas, Histórias de Usuário e Backlog) quando solicitado. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Instalação local e global das skills `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani); condução de auditoria de segurança completa (SAST/OWASP e Hardening); aplicação de 3 correções de segurança (`#if DEBUG` em atalho de senha em `AuthService.cs`, sanitização de erro 500 em `CepController.cs` e CSPRNG `RandomNumberGenerator` em `ProntuariosController.cs`). 66 testes unitários xUnit 100% aprovados e compilação Release com 0 avisos e 0 erros. | Apresentação comercial da minuta de contrato / Início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Auditoria e saneamento global de documentação: padronização de autoria e contratado para "Davi Felinto" em todos os documentos (Word .docx e Markdown); sincronização universal de contagem para 66 testes unitários xUnit (100% aprovados), 34 RFs, 23 RNs e 16 RQs no README mestre, `src/README.md`, `docs/README.md`, `AGENTS.md`, `bancodedadosclinica/README.md`, propostas comerciais e roteiros acadêmicos da banca. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
+| 21/10/2026 | Antigravity AI (usuário: Davi) | Simplificação dos perfis de acesso na tela de login para apenas 2 opções (Profissional: Dr. Davi Felinto e Administrador: Juliana Costa) em `index.html`, `wwwroot/index.html` e `DadosIniciais.cs`. 66 testes unitários xUnit 100% OK. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
 
