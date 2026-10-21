@@ -236,8 +236,10 @@ src/
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Instalação local e global das skills `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani); condução de auditoria de segurança completa (SAST/OWASP e Hardening); aplicação de 3 correções de segurança (`#if DEBUG` em atalho de senha em `AuthService.cs`, sanitização de erro 500 em `CepController.cs` e CSPRNG `RandomNumberGenerator` em `ProntuariosController.cs`). 66 testes unitários xUnit 100% aprovados e compilação Release com 0 avisos e 0 erros. | Apresentação comercial da minuta de contrato / Início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Auditoria e saneamento global de documentação: padronização de autoria e contratado para "Davi Felinto" em todos os documentos (Word .docx e Markdown); sincronização universal de contagem para 66 testes unitários xUnit (100% aprovados), 34 RFs, 23 RNs e 16 RQs no README mestre, `src/README.md`, `docs/README.md`, `AGENTS.md`, `bancodedadosclinica/README.md`, propostas comerciais e roteiros acadêmicos da banca. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI (usuário: Davi) | Simplificação dos perfis de acesso na tela de login para apenas 2 opções (Profissional: Dr. Davi Felinto e Administrador: Juliana Costa) em `index.html`, `wwwroot/index.html` e `DadosIniciais.cs`. 66 testes unitários xUnit 100% OK. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
+| 21/10/2026 | Antigravity AI (usuário: Davi) | Levantamento de custos de infraestrutura e TCO em produção: dimensionamento da carga de trabalho (450-700 MB RAM, 15-40 consultas/dia), comparativo de 4 cenários (VPS Docker Recomendada de R$ 35-50/mês gerando ~80% de margem na assinatura de R$ 179/mês), viabilidade financeira de escala e geração de documentos oficiais (`.docx` e `.md`) em `docs/comercial/`. | Apresentação da minuta à cliente / Iniciar Etapa 2 de Requisitos. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
+
 
 
 

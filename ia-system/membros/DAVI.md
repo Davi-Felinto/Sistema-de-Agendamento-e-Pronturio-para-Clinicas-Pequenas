@@ -102,6 +102,12 @@
   - 3 correções de segurança aplicadas: `#if DEBUG` em `AuthService.cs` para isolar atalhos de senha de desenvolvimento de builds Release; sanitização defensiva de erros 500 em `CepController.cs` evitando information disclosure; substituição de `Random` por CSPRNG criptográfico `RandomNumberGenerator` em `ProntuariosController.cs`.
   - Relatório oficial consolidado em `docs/seguranca/Relatorio_Auditoria_Seguranca_Clinix.md`.
   - 66/66 testes unitários xUnit 100% aprovados e compilação em Release com 0 erros e 0 warnings.
+- **Levantamento de Custos de Infraestrutura e Manutenção (TCO) Concluído:**
+  - Elaborado levantamento completo de custos operacionais (OPEX/TCO) para manter o Clinix no ar 24/7.
+  - Dimensionamento detalhado da carga de trabalho para clínicas pequenas (15 a 40 atendimentos/dia, 500 a 2.500 req/dia, ~450 MB a 700 MB de RAM no total).
+  - Comparativo estruturado em 4 cenários: Piloto Gratuito (R$ 3 a 15/mês), VPS Docker Recomendada (R$ 35 a 50/mês), PaaS Gerenciado (R$ 90 a 130/mês) e Enterprise (R$ 180 a 280/mês).
+  - Análise de viabilidade financeira e Unit Economics: no modelo SaaS (R$ 179/mês), o custo de R$ 35/mês gera margem líquida de ~80% logo no 1º cliente; taxa de adesão de R$ 290 antecipa 8 meses de custos de servidores.
+  - Documentos oficiais gerados em `docs/comercial/`: [`Levantamento_Custos_Infraestrutura_Clinix.docx`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Levantamento_Custos_Infraestrutura_Clinix.docx) e [`Levantamento_Custos_Infraestrutura_Clinix.md`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Levantamento_Custos_Infraestrutura_Clinix.md).
 - **Próximo passo:** Apresentação da minuta e fechamento comercial com a cliente real / Iniciar a **Etapa 2 de Engenharia de Requisitos** (Personas, Histórias de Usuário, Backlog priorizado por MoSCoW/RICE) quando solicitado pelo Davi.
 
 ## 5. Histórico Pessoal de Sessões
@@ -133,6 +139,7 @@
 | 21/10/2026 | Antigravity AI | Instalação global de `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani); auditoria de segurança completa do código e infraestrutura; aplicação de 3 blindagens (`#if DEBUG` em `AuthService.cs`, sanitização de erro em `CepController.cs` e CSPRNG em `ProntuariosController.cs`). 66 testes unitários xUnit 100% OK e compilação Release com 0 erros. | Apresentação da minuta contratual à cliente e início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI | Auditoria e saneamento global de documentação: padronização de autoria e contratado para "Davi Felinto" em todos os documentos (Word .docx e Markdown); sincronização universal para 66 testes unitários xUnit (100% OK), 34 RFs, 23 RNs e 16 RQs no README mestre, `src/README.md`, `docs/README.md`, `AGENTS.md`, `bancodedadosclinica/README.md`, propostas comerciais e roteiros da banca. | Apresentação da minuta à cliente e início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI | Simplificação dos perfis de login para apenas 2 (Dr. Davi Felinto - Profissional e Juliana Costa - Administrador) em `index.html`, `wwwroot/index.html` e `DadosIniciais.cs`. 66 testes unitários xUnit 100% OK. | Apresentação da minuta à cliente e início da Etapa 2 de Requisitos. |
+| 21/10/2026 | Antigravity AI | Levantamento executivo de custos de infraestrutura e TCO para manter o sistema em produção: dimensionamento de workload, comparativo em 4 cenários (Cenário VPS Recomendado de R$ 35 a 50/mês, gerando margem de ~80% na assinatura de R$ 179/mês), unit economics de escala e geração de documentos Word (.docx) e Markdown em `docs/comercial/`. | Apresentação comercial à cliente e início da Etapa 2 de Requisitos. |
 
 
 
