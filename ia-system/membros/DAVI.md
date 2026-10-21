@@ -89,7 +89,20 @@
   - Entregáveis gerados em `docs/Entregas-Eng.-de-Requisitos/Etapa-1/`: documento Word formatado (`Trabalho Final ER - 1 - Análise de Negócio - Clinix.docx`), versão Markdown completa e diagramas de processo BPMN AS-IS e TO-BE de alta resolução (`.png` e `.md`).
   - 66/66 testes unitários xUnit passando com 100% de sucesso.
   - Commits sincronizados no repositório remoto (`git push origin main` com commits `f65179d`, `a7f1872`, `9e2c74a`).
-- **Próximo passo:** Elaborar a **Etapa 2 de Engenharia de Requisitos** (Personas, Histórias de Usuário com critérios de aceite, Backlog priorizado por MoSCoW/RICE) quando solicitado pelo Davi.
+- **Elaboração do Contrato Base Oficial de Licenciamento e Prestação de Serviços (Clinix):**
+  - Sessão estruturada de Grilling (estresse e blindagem de cláusulas jurídicas e operacionais).
+  - Estrutura híbrida com escolha formal no Anexo I: **Modalidade A (SaaS / Assinatura Recorrente)** com R$ 290 de adesão + R$ 179/mês (nuvem e backups inclusos) vs. **Modalidade B (Projeto Dedicado Fechado)** por R$ 2.400 em 3 marcos (nuvem por conta da clínica + 90 dias de garantia).
+  - Blindagem de Propriedade Intelectual (código-fonte 100% de Davi Felinto), divisão LGPD (Clínica = Controladora / Davi = Operador), SLA profissional (2h para críticos / 24h operacionais) e cláusula mandatória de portabilidade de dados (SQL e Excel/CSV em 15 dias úteis sem taxas).
+  - Arquivos gerados e prontos para uso em `docs/comercial/`: [`Contrato_Prestacao_Servicos_Clinix.docx`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Contrato_Prestacao_Servicos_Clinix.docx) e [`Contrato_Prestacao_Servicos_Clinix.md`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Contrato_Prestacao_Servicos_Clinix.md).
+- **Instalação das Skills no Projeto e Globalmente:**
+  - `mattpocock/skills` (`grill-me` e `grilling`) e `vercel-labs/agent-browser` (`agent-browser`) instaladas localmente em `.agents/skills/`.
+  - `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani) instaladas e ativas.
+- **Auditoria de Segurança e Hardening 100% Concluída (Classificação A+):**
+  - SAST completo com OWASP Top 10 e frameworks Sentry + Addy Osmani.
+  - 3 correções de segurança aplicadas: `#if DEBUG` em `AuthService.cs` para isolar atalhos de senha de desenvolvimento de builds Release; sanitização defensiva de erros 500 em `CepController.cs` evitando information disclosure; substituição de `Random` por CSPRNG criptográfico `RandomNumberGenerator` em `ProntuariosController.cs`.
+  - Relatório oficial consolidado em `docs/seguranca/Relatorio_Auditoria_Seguranca_Clinix.md`.
+  - 66/66 testes unitários xUnit 100% aprovados e compilação em Release com 0 erros e 0 warnings.
+- **Próximo passo:** Apresentação da minuta e fechamento comercial com a cliente real / Iniciar a **Etapa 2 de Engenharia de Requisitos** (Personas, Histórias de Usuário, Backlog priorizado por MoSCoW/RICE) quando solicitado pelo Davi.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -116,6 +129,8 @@
 | 20/10/2026 | Antigravity AI | Diagnóstico do vídeo 2 (tela piscando): identificada falha de materialização do Dapper em `Paciente.cs` (erro 400 em `/api/pacientes` no hook pós-login `conectarBackend()`, forçando logout imediato). Adicionado construtor sem parâmetros e sobrecarga de 10 parâmetros em `Paciente.cs`. Rebuild da API e testes 100% OK. | Validação visual no navegador pelo Davi. |
 | 20/10/2026 | Antigravity AI | Concluída a Etapa 1 de Engenharia de Requisitos (Prof. Sérgio Haddad - CEUB): elaboração da Análise de Negócio completa (estudo de caso com Amanda Souza Peixoto), modelagem BPMN AS-IS e TO-BE (PNG + Mermaid), mapeamento de 8 problemas, objetivos, benefícios, 11 macrofuncionalidades e requisitos ISO/IEC 25010 e LGPD. Gerados Word oficial (`.docx`), versão Markdown e pasta organizada `docs/Entregas-Eng.-de-Requisitos/`. | Realizar a Etapa 2 quando solicitada. |
 | 21/10/2026 | Antigravity AI | Refinamento do layout do Word da Etapa 1, execução da suíte de 66 testes xUnit (100% de sucesso) e push de 3 commits para o repositório remoto (`origin/main`). Branch atualizada e árvore de trabalho limpa. | Iniciar Etapa 2 de Requisitos (Personas, Histórias de Usuário e Backlog) quando solicitado. |
+| 21/10/2026 | Antigravity AI | Instalação local das skills `grill-me`, `grilling` e `agent-browser`; condução de sessão completa de Grilling para parametrização contratual; criação do Contrato Base Oficial do Clinix (SaaS e Projeto Dedicado) em `.docx` e `.md` em `docs/comercial/`. | Fechamento comercial / Iniciar Etapa 2 de Engenharia de Requisitos. |
+| 21/10/2026 | Antigravity AI | Instalação global de `find-skills`, `security-review` (Sentry) e `security-and-hardening` (Addy Osmani); auditoria de segurança completa do código e infraestrutura; aplicação de 3 blindagens (`#if DEBUG` em `AuthService.cs`, sanitização de erro em `CepController.cs` e CSPRNG em `ProntuariosController.cs`). 66 testes unitários xUnit 100% OK e compilação Release com 0 erros. | Apresentação da minuta contratual à cliente e início da Etapa 2 de Requisitos. |
 
 
 
