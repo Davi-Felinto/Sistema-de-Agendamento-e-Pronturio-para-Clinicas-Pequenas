@@ -1,7 +1,7 @@
 # 🧠 Memória Pessoal — Davi Felinto (Dev Principal)
 > **Carregue este arquivo quando o usuário se identificar como Davi.**
 > Leia também a memória compartilhada: [`../CONTEXTO_MEMORIA_PROJETO.md`](../CONTEXTO_MEMORIA_PROJETO.md).
-> **Última Atualização:** 10/10/2026
+> **Última Atualização:** 23/10/2026
 
 ---
 
@@ -13,9 +13,9 @@
 - **GitHub:** `github.com/Davi-Felinto` (git: `Davi Felinto <davifd0978@gmail.com>`).
 
 ## 2. Área de Responsabilidade
-- **POO C# / .NET** (Domínio, Serviços, Testes xUnit) — 100% concluído (66 testes unitários xUnit com 100% de sucesso).
+- **POO C# / .NET** (Domínio, Serviços, Testes xUnit) — 100% concluído (68 testes unitários xUnit com 100% de sucesso).
 - **API `ClinicaApp.Api`** (Bloco 5 — MVP visual integrado com Controllers e static files).
-- **Integração front ↔ API:** `api.js` e `index.html` integrados via `fetch()` assíncrono aos endpoints C#, exibindo erros de regra de negócio em tela (`RN01/RN02`, `RN10`, `RN16`).
+- **Integração front ↔ API:** `api.js` e `index.html` integrados via `fetch()` assíncrono aos endpoints C#, exibindo erros de regra de negócio em tela (`RN01/RN02`, `RN10`, `RN16`, `RN18-RN23`).
 - **Banco de Dados II (MySQL)** — junto com o Isaac (próxima disciplina).
 - Decisões de arquitetura e revisão final do que os demais membros entregam.
 
@@ -29,6 +29,7 @@
    - `?? throw new ArgumentNullException(nameof(x))`.
 4. **Comentários apenas de rastreabilidade** (`// RN01`, `// RQ08`).
 5. **TDD com xUnit** — `dotnet test src/`.
+6. **Validação Contínua de Frontend com `agent-browser` (MANDATÓRIO):** Sempre que houver qualquer alteração que interfira ou modifique o frontend (`index.html`, `api.js`, telas, formulários, modais ou integração com a API), executar obrigatoriamente a verificação automatizada ponta a ponta com a skill `agent-browser` para validar elementos visuais, fluxos de uso e ausência de erros no console antes de concluir a entrega.
 
 ## 4. Onde o Davi parou
 - **Bloco 5 (MVP Visual Integrado) 100% Concluído e Validado:**
@@ -108,6 +109,12 @@
   - Comparativo estruturado em 4 cenários: Piloto Gratuito (R$ 3 a 15/mês), VPS Docker Recomendada (R$ 35 a 50/mês), PaaS Gerenciado (R$ 90 a 130/mês) e Enterprise (R$ 180 a 280/mês).
   - Análise de viabilidade financeira e Unit Economics: no modelo SaaS (R$ 179/mês), o custo de R$ 35/mês gera margem líquida de ~80% logo no 1º cliente; taxa de adesão de R$ 290 antecipa 8 meses de custos de servidores.
   - Documentos oficiais gerados em `docs/comercial/`: [`Levantamento_Custos_Infraestrutura_Clinix.docx`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Levantamento_Custos_Infraestrutura_Clinix.docx) e [`Levantamento_Custos_Infraestrutura_Clinix.md`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/comercial/Levantamento_Custos_Infraestrutura_Clinix.md).
+- **Sincronização e Purificação Conceitual de Documentos de Requisitos e Design (SDD) Concluída:**
+  - Varredura completa realizada em todo o repositório (entidades, serviços, enums, controllers, views, triggers e regras).
+  - Atualizado [`docs/requisitos/Documento_Especificacao_Requisitos_Final.docx`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/requisitos/Documento_Especificacao_Requisitos_Final.docx): sincronizadas todas as 13 macrofuncionalidades (F1 a F13), os 34 Requisitos Funcionais (RF01 a RF34), os 10 Requisitos de Dados (RD01 a RD10), as 23 Regras de Negócio (RN01 a RN23) e os 16 Requisitos de Qualidade ISO/IEC 25010 e LGPD, redigidos estritamente em linguagem de negócios e clínica, sem qualquer menção a tecnologias transitórias.
+  - Reescrito integralmente [`docs/design/SDD_Software_Design_Document.md`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/design/SDD_Software_Design_Document.md): transformado em um Documento de Design Conceitual de Domínio 100% agnóstico de tecnologias de implementação (removidas referências a C#, .NET, MySQL, Dapper, Docker, React, etc.), contendo diagramas Mermaid de arquitetura conceitual, entidades de domínio com atributos e comportamentos, 6 diagramas de sequência de fluxos críticos de negócio, especificação textual detalhada das 23 Regras de Negócio e matriz de rastreabilidade conceitual completa para os 34 RFs.
+  - Sincronizado [`docs/requisitos/README.md`](file:///c:/Users/dav09/Dev/Projeto-Integrador/Sistema-de-Agendamento-e-Pronturio-para-Clinicas-Pequenas/docs/requisitos/README.md).
+  - 66/66 testes unitários xUnit passando com 100% de sucesso (`dotnet test src/`).
 - **Próximo passo:** Apresentação da minuta e fechamento comercial com a cliente real / Iniciar a **Etapa 2 de Engenharia de Requisitos** (Personas, Histórias de Usuário, Backlog priorizado por MoSCoW/RICE) quando solicitado pelo Davi.
 
 ## 5. Histórico Pessoal de Sessões
@@ -140,6 +147,13 @@
 | 21/10/2026 | Antigravity AI | Auditoria e saneamento global de documentação: padronização de autoria e contratado para "Davi Felinto" em todos os documentos (Word .docx e Markdown); sincronização universal para 66 testes unitários xUnit (100% OK), 34 RFs, 23 RNs e 16 RQs no README mestre, `src/README.md`, `docs/README.md`, `AGENTS.md`, `bancodedadosclinica/README.md`, propostas comerciais e roteiros da banca. | Apresentação da minuta à cliente e início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI | Simplificação dos perfis de login para apenas 2 (Dr. Davi Felinto - Profissional e Juliana Costa - Administrador) em `index.html`, `wwwroot/index.html` e `DadosIniciais.cs`. 66 testes unitários xUnit 100% OK. | Apresentação da minuta à cliente e início da Etapa 2 de Requisitos. |
 | 21/10/2026 | Antigravity AI | Levantamento executivo de custos de infraestrutura e TCO para manter o sistema em produção: dimensionamento de workload, comparativo em 4 cenários (Cenário VPS Recomendado de R$ 35 a 50/mês, gerando margem de ~80% na assinatura de R$ 179/mês), unit economics de escala e geração de documentos Word (.docx) e Markdown em `docs/comercial/`. | Apresentação comercial à cliente e início da Etapa 2 de Requisitos. |
+| 22/10/2026 | Antigravity AI (usuário: Davi) | Varredura completa do repositório e sincronização conceitual dos documentos oficiais: `Documento_Especificacao_Requisitos_Final.docx` e `SDD_Software_Design_Document.md` atualizados com 34 RFs, 23 RNs, 10 RDs, 16 RQs e novos comportamentos de sistema, 100% purificados e agnósticos de tecnologias de implementação. 66 testes xUnit OK. | Apresentação comercial à cliente e início da Etapa 2 de Requisitos. |
+| 22/10/2026 | Antigravity AI (usuário: Davi) | Criação e separação oficial do novo repositório acadêmico do Projeto Integrador (`Clinix-Projeto-Integrador-Academico`): escopo estritamente delimitado a F1-F7 (RF01-RF28, RN01-RN17, RQ01-RQ16), expurgadas entidades e telas comerciais (Ouvidoria, Laboratório, CEP, Pagamento Dividido e Motivos de Cancelamento), suíte xUnit ajustada com 56 testes unitários 100% aprovados, BD II MySQL com as 15 tabelas originais do Isaac, docs comerciais expurgados e README acadêmico destacando os 5 membros do CEUB. Repositório comercial intacto com 66 testes xUnit. | Apresentação na banca do CEUB / Etapa 2 de Requisitos. |
+| 23/10/2026 | Antigravity AI (usuário: Davi) | Transição oficial do repositório para Piloto Comercial de testes com cliente real: expurgadas todas as marcas acadêmicas e CEUB, implementada nova tela de login (email e senha), nova tela de cadastro (registro) integrada a `POST /api/auth/registrar` com JWT, widget flutuante de feedback do piloto com notas/comentários e integração com WhatsApp, além de controle de dados modelo vs clínica vazia. Suíte expandida para 68 testes xUnit 100% aprovados. | Conduzir testes práticos de usabilidade com a cliente e coletar feedbacks. |
+| 23/10/2026 | Antigravity AI (usuário: Davi) | Validação ponta a ponta com a skill `agent-browser` no Chromium real: validados login (email/senha, toggle de visibilidade e pills de 1 clique), tela de cadastro (registro de Dra. Renata Silva via `POST /api/auth/registrar` com auto-login), modal de Feedback do Piloto (5 estrelas, sugestão e integração de métrica de 4.8★ para 4.9★), modal de dados do piloto (limpeza para clínica vazia e restauração de dados modelo) e logout. Corrigidos bugs críticos descobertos pelo browser (mapeamento do retorno de `api.login`, sincronização de `api.js` e persistência de sessão no `localStorage`). 68 testes xUnit 100% OK. | Conduzir testes práticos de usabilidade com a cliente e coletar feedbacks. |
+
+
+
 
 
 

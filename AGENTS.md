@@ -64,6 +64,14 @@ Na **memória pessoal** você encontrará: perfil/background da pessoa, área de
 ### Regra 6: Respeite as áreas de cada membro
 - Não altere partes do projeto sob responsabilidade de outro membro sem que isso seja combinado (ver "Área de Responsabilidade" nas memórias pessoais). Pedidos entre membros devem ser registrados na memória pessoal.
 
+### Regra 7: Validação Automatizada de Frontend com agent-browser (MANDATÓRIO)
+- **Sempre** que realizarmos atualizações que interfiram, modifiquem ou adicionem recursos ao front-end (`index.html`, `api.js`, estilos CSS, formulários, modais ou integração front ↔ API), o agente **DEVE OBRIGATORIAMENTE** utilizar a skill `agent-browser` para realizar a verificação e validação no navegador real antes de considerar a tarefa finalizada.
+- A validação deve cobrir:
+  1. Renderização correta dos novos elementos em tela.
+  2. Interações de clique, digitação e submissão.
+  3. Ausência de erros críticos ou quebras no console JavaScript.
+  4. Manutenção rigorosa da sincronização entre os arquivos da raiz (`index.html`, `api.js`) e seus espelhos em `src/ClinicaApp.Api/wwwroot/`.
+
 ---
 
 ## 3. Protocolo Obrigatório de Atualização da Memória

@@ -53,12 +53,12 @@ O **Clinix** é uma plataforma integrada de gestão para clínicas de pequeno po
 - **RF28:** Registrar log imutável de todas as operações sensíveis realizadas sobre prontuários e dados cadastrais.
 
 ### Módulo 7: Demandas Clínicas & Inteligência de Gestão (Feedback Real)
-- **RF29 (CEP e Endereço Estruturado):** Buscar e preencher automaticamente logradouro, bairro, cidade e UF a partir do CEP via integração com ViaCEP / proxy backend, mantendo campos atômicos para contratos e relatórios.
-- **RF30 (Pagamento Misto / Dividido):** Permitir dividir a quitação de consultas em duas etapas e modalidades distintas (ex.: Entrada no Cartão de Débito e Saldo no PIX ou Boleto), com conciliação automática.
-- **RF31 (Motivos de Cancelamento & Métricas):** Registrar obrigatoriamente a categoria do cancelamento (Desistência, Conflito, Financeiro, Saúde, Satisfação, Outro) para cálculo da taxa de atrito (churn) e melhoria contínua.
+- **RF29 (CEP e Endereço Estruturado):** Preencher, validar e estruturar o endereço completo do paciente contendo CEP de 8 dígitos, logradouro, número, complemento, bairro, cidade e estado, mantendo campos atômicos para contratos e relatórios.
+- **RF30 (Pagamento Misto / Dividido):** Permitir dividir a quitação de consultas em duas etapas e modalidades distintas (entrada e saldo restante em momentos ou formas distintas), com conciliação automática do valor total.
+- **RF31 (Motivos de Cancelamento & Métricas):** Registrar obrigatoriamente a categoria predefinida do motivo do cancelamento e justificativa detalhada para cálculo da taxa de atrito (desistências) e melhoria contínua.
 - **RF32 (Ouvidoria & Avaliação do Atendimento):** Coletar avaliações dos pacientes com notas de 1 a 5 para Recepção, Atendimento Clínico e Instalações, calculando média global e permitindo depoimentos anônimos.
-- **RF33 (Recorrência Preventiva 180+ Dias):** Identificar automaticamente pacientes sem consultas nos últimos 6 meses e disponibilizar ação em 1 clique para envio de convite via WhatsApp com cupom de 10% de desconto (`CHECKUP10`).
-- **RF34 (Rastreamento de Amostras Laboratoriais):** Acompanhar o ciclo de vida de exames externos (Coletado, Enviado, Em Análise, Laudo Disponível, Entregue) com alerta visual pulsante na Agenda do médico quando houver laudo pendente.
+- **RF33 (Recorrência Preventiva 180+ Dias):** Identificar automaticamente pacientes sem consultas nos últimos 6 meses e viabilizar o envio de convites de retorno preventivo com incentivo promocional ou desconto de fidelidade.
+- **RF34 (Rastreamento de Amostras Laboratoriais):** Acompanhar o ciclo de vida de exames e amostras terceirizadas (Coletado, Enviado, Em Análise, Laudo Disponível, Entregue) com alerta visual prioritário na Agenda clínica enquanto houver laudo pendente.
 
 ---
 

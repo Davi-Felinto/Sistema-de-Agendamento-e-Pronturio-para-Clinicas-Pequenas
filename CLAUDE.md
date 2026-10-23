@@ -11,5 +11,6 @@ This repository is used by a team. Always read `AGENTS.md` first.
 2. **Explain First:** Explain the technical reasoning and the applicable business rule (`RNxx`, `RFxx`, `RQxx`) BEFORE displaying the code.
 3. **Personalized Review:** Follow the review points listed in the user's personal memory (e.g. Davi: Python habits — semicolons, `if (...)`, PascalCase).
 4. **Testing:** Run `dotnet test src/` to validate tests.
-5. **Memory Synchronization:** Before finishing, update the user's personal memory ("where they stopped" + history) and, if project state changed, the shared memory (status + history row naming the user).
+5. **Frontend Validation:** Whenever frontend changes are made (`index.html`, `api.js`, styles, or API integration), mandatory testing via `agent-browser` in real browser before completing.
+6. **Memory Synchronization:** Before finishing, update the user's personal memory ("where they stopped" + history) and, if project state changed, the shared memory (status + history row naming the user).
 

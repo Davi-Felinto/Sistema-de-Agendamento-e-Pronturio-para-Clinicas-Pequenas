@@ -903,9 +903,65 @@
           }
           const user = await res.json();
           this.setToken(user.token);
-          return { sucesso: true, dados: user };
+          const usuarioNormalizado = {
+            id: user.id || 1,
+            name: user.nome || user.name || 'Usuário',
+            role: user.perfil || user.role || 'Profissional',
+            email: user.email || login,
+            token: user.token,
+            espec: user.especialidade || (user.perfil === 'Profissional' ? 'Clínica Geral' : 'Recepção e Atendimento'),
+            registro: user.registroProfissional || null
+          };
+          return { sucesso: true, usuario: usuarioNormalizado, dados: user };
         } catch (e) {
           return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async registrar(dados) {
+        try {
+          const res = await fetch('/api/auth/registrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              nome: String(dados.nome || '').trim(),
+              email: String(dados.email || '').trim(),
+              senha: String(dados.senha || ''),
+              perfil: dados.perfil || 'Profissional',
+              nomeClinica: dados.nomeClinica || null,
+              registroProfissional: dados.registroProfissional || null,
+              especialidade: dados.especialidade || null
+            })
+          });
+
+          if (!res.ok) {
+            let erroMsg = 'Não foi possível concluir o cadastro.';
+            try {
+              const erroData = await res.json();
+              if (erroData && erroData.erro) erroMsg = erroData.erro;
+              else if (erroData && erroData.errors) {
+                const keys = Object.keys(erroData.errors);
+                if (keys.length > 0) erroMsg = erroData.errors[keys[0]][0];
+              }
+            } catch {}
+            return { sucesso: false, erro: erroMsg };
+          }
+
+          const data = await res.json();
+          this.setToken(data.token);
+          this.isConnected = true;
+          return {
+            sucesso: true,
+            usuario: {
+              id: data.id,
+              name: data.nome,
+              role: data.perfil,
+              email: data.email || dados.email,
+              token: data.token
+            }
+          };
+        } catch (e) {
+          return { sucesso: false, erro: 'Falha de conexão com a API: ' + e.message };
         }
       }
     };
@@ -1036,11 +1092,24 @@
       const [toast, setToast] = useState(null);
       const toastTimer = useRef(null);
       const [loginError, setLoginError] = useState('');
+      const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+      const [allUsers, setAllUsers] = useState(() => {
+        try {
+          const saved = localStorage.getItem('clinix_all_users');
+          if (saved) return JSON.parse(saved);
+        } catch {}
+        return INITIAL_USERS;
+      });
+
+      useEffect(() => {
+        try { localStorage.setItem('clinix_all_users', JSON.stringify(allUsers)); } catch {}
+      }, [allUsers]);
+
       const [schedulePatientId, setSchedulePatientId] = useState(null);
       const [dialogConfig, setDialogConfig] = useState(null);
-      const [showReqGuide, setShowReqGuide] = useState(false);
       const [showSearchModal, setShowSearchModal] = useState(false);
-      const [showRequirementsModal, setShowRequirementsModal] = useState(false);
+      const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+      const [showResetModal, setShowResetModal] = useState(false);
 
       // Atalho Global de Usabilidade: Ctrl+K / Cmd+K para Busca Rápida (RQ10)
       useEffect(() => {
@@ -1097,7 +1166,71 @@
       const handleLogout = () => {
         registerLog('Encerramento de Sessão', `Usuário ${currentUser.name} realizou logout`);
         api.setToken(null);
+        try {
+          localStorage.removeItem('clinix_auth');
+          localStorage.removeItem('clinix_user');
+          sessionStorage.removeItem('clinix_token');
+        } catch {}
         setIsAuthenticated(false);
+      };
+
+      // Gestão de Feedbacks do Piloto
+      const handleSendFeedback = async (feedbackObj) => {
+        setReviews(prev => [
+          {
+            id: feedbackObj.id,
+            pacienteNome: `${feedbackObj.usuario} (${feedbackObj.perfil})`,
+            data: feedbackObj.data,
+            notaAtendimento: feedbackObj.nota,
+            notaPontualidade: feedbackObj.nota,
+            notaInstalacoes: feedbackObj.nota,
+            mediaGeral: feedbackObj.nota,
+            comentario: `[Feedback Piloto: ${feedbackObj.categoria} - ${feedbackObj.tela}] ${feedbackObj.comentario}`,
+            status: 'Publicado'
+          },
+          ...prev
+        ]);
+
+        if (api.isConnected) {
+          try {
+            await api.criarAvaliacao({
+              consultaId: 1,
+              notaAtendimento: feedbackObj.nota,
+              notaPontualidade: feedbackObj.nota,
+              notaInstalacoes: feedbackObj.nota,
+              comentario: `[Feedback Piloto: ${feedbackObj.tela} - ${feedbackObj.categoria}] ${feedbackObj.comentario}`
+            });
+          } catch {}
+        }
+      };
+
+      // Limpeza para Clínica Vazia ou Restauração de Amostra Modelo
+      const handleResetClean = () => {
+        setPatients([]);
+        setAppointments([]);
+        setRecords([]);
+        setLabSamples([]);
+        localStorage.setItem('clinix_patients', JSON.stringify([]));
+        localStorage.setItem('clinix_appointments', JSON.stringify([]));
+        localStorage.setItem('clinix_records', JSON.stringify([]));
+        localStorage.setItem('clinix_lab_samples', JSON.stringify([]));
+        showToast('Clínica configurada em modo limpo (sem dados de demonstração)!', 'info');
+        registerLog('Piloto: Limpeza de Dados', 'Dados de demonstração removidos para teste limpo da clínica');
+      };
+
+      const handleResetSample = () => {
+        setPatients(INITIAL_PATIENTS);
+        setAppointments(INITIAL_APPOINTMENTS);
+        setRecords(INITIAL_RECORDS);
+        setReviews(INITIAL_REVIEWS);
+        setLabSamples(INITIAL_LAB_SAMPLES);
+        localStorage.setItem('clinix_patients', JSON.stringify(INITIAL_PATIENTS));
+        localStorage.setItem('clinix_appointments', JSON.stringify(INITIAL_APPOINTMENTS));
+        localStorage.setItem('clinix_records', JSON.stringify(INITIAL_RECORDS));
+        localStorage.setItem('clinix_reviews', JSON.stringify(INITIAL_REVIEWS));
+        localStorage.setItem('clinix_lab_samples', JSON.stringify(INITIAL_LAB_SAMPLES));
+        showToast('Dados de demonstração restaurados com sucesso!', 'success');
+        registerLog('Piloto: Restauração de Amostra', 'Dados completos de demonstração recarregados');
       };
 
       // O prontuário sempre lê a versão atual do paciente (reflete edições feitas no cadastro)
@@ -1111,22 +1244,50 @@
         setActiveTab('agenda');
       };
 
-      // Se não autenticado, renderiza a Tela 1: Login & Autenticação
+      // Se não autenticado, renderiza Login ou Cadastro
       if (!isAuthenticated) {
+        if (authMode === 'register') {
+          return (
+            <RegisterScreen
+              onGoToLogin={() => {
+                setLoginError('');
+                setAuthMode('login');
+              }}
+              onRegisterSuccess={(user, password, viaApi = false) => {
+                setAllUsers(prev => {
+                  if (prev.some(u => u.email.toLowerCase() === user.email.toLowerCase())) return prev;
+                  return [...prev, user];
+                });
+                setCurrentUser(user);
+                setIsAuthenticated(true);
+                try {
+                  localStorage.setItem('clinix_auth', 'true');
+                  localStorage.setItem('clinix_user', JSON.stringify(user));
+                } catch {}
+                setLoginError('');
+                showToast(`Bem-vindo(a) ao Clinix, ${user.name}! Sua conta foi criada com sucesso.`, 'success');
+                registerLog('Novo Cadastro no Piloto', `Usuário ${user.name} (${user.role}) se cadastrou no sistema`, user);
+              }}
+            />
+          );
+        }
+
         return (
           <LoginScreen
-            users={INITIAL_USERS}
+            users={allUsers}
             erro={loginError}
+            onGoToRegister={() => {
+              setLoginError('');
+              setAuthMode('register');
+            }}
             onLogin={(user, password, viaApi = false) => {
-              // Com a API ativa a senha já foi validada no servidor; offline vale a senha de demonstração
-              if (!viaApi && password !== DEMO_PASSWORD) {
-                setLoginError('Senha incorreta. Confira a senha e tente novamente.');
-                return;
-              }
               setLoginError('');
               setCurrentUser(user);
               setIsAuthenticated(true);
-              // O log recebe o usuário que acabou de entrar (currentUser ainda guarda o anterior)
+              try {
+                localStorage.setItem('clinix_auth', 'true');
+                localStorage.setItem('clinix_user', JSON.stringify(user));
+              } catch {}
               registerLog('Autenticação no Sistema (RF26)', `Login realizado com sucesso como ${user.role} (${user.name})`, user);
             }}
           />
@@ -1154,10 +1315,23 @@
             }}
           />
 
-          {/* MODAL GLOBAL: MATRIZ DE REQUISITOS CEUB (ISO/IEC 25010) */}
-          <RequirementsModal
-            isOpen={showRequirementsModal}
-            onClose={() => setShowRequirementsModal(false)}
+          {/* MODAL GLOBAL: FEEDBACK DO PILOTO CLÍNICO */}
+          <FeedbackModal
+            isOpen={showFeedbackModal}
+            onClose={() => setShowFeedbackModal(false)}
+            activeTab={activeTab}
+            currentUser={currentUser}
+            showToast={showToast}
+            registerLog={registerLog}
+            onSendFeedback={handleSendFeedback}
+          />
+
+          {/* MODAL GLOBAL: GERENCIAMENTO DE DADOS DO PILOTO */}
+          <ResetDataModal
+            isOpen={showResetModal}
+            onClose={() => setShowResetModal(false)}
+            onResetClean={handleResetClean}
+            onResetSample={handleResetSample}
           />
 
           {/* CUSTOM CONFIRMATION MODAL DIALOG (Substitui confirm/alert) */}
@@ -1220,22 +1394,25 @@
               <SidebarItem icon="lock" label="Auditoria" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
             </nav>
 
-            {/* Mini Guia dos Requisitos Acadêmicos (CEUB) */}
+            {/* Card do Piloto Clínico */}
             <div className="p-4 border-t border-slate-100">
-              <button
-                onClick={() => setShowReqGuide(!showReqGuide)}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-[11px] border border-slate-200 transition text-slate-600 flex items-center justify-between"
-              >
-                <span className="font-bold text-slate-700">📖 Requisitos Validados</span>
-                <span className="text-emerald-700 font-bold">{showReqGuide ? '▲' : '▼'}</span>
-              </button>
-              {showReqGuide && (
-                <div className="mt-2 text-[10px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
-                  <p><strong>F1 a F7:</strong> 28 Requisitos Funcionais</p>
-                  <p><strong>RN01 a RN17:</strong> 17 Regras de Negócio</p>
-                  <p><strong>ISO/IEC 25010:</strong> 16 RQs (Segurança, Usabilidade, Confiabilidade)</p>
+              <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/70 p-3 text-xs">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                  <span className="font-bold text-emerald-950">Piloto Ativo</span>
                 </div>
-              )}
+                <p className="text-[11px] text-emerald-900/80 leading-relaxed mb-2.5">
+                  Você está avaliando o Clinix. Sua opinião ajuda a calibrar a melhor experiência clínica!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] transition flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <span>💬</span>
+                  <span>Avaliar Sistema</span>
+                </button>
+              </div>
             </div>
 
             {/* RF27 - Perfil logado e saída */}
@@ -1266,7 +1443,6 @@
           {/* MAIN WORKSPACE */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header Superior */}
-            {/* Header Superior Modernizado com Indicadores de Engenharia */}
             <header className="no-print bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="lg:hidden font-bold text-lg text-emerald-600">Clinix+</span>
@@ -1286,7 +1462,7 @@
                 </div>
               </div>
 
-              {/* Botões do Header: Matriz de Requisitos e Ação Primária */}
+              {/* Botões do Header: Status, Feedback, Gestão de Dados e Nova Consulta */}
               <div className="flex items-center gap-2">
                 {/* Indicador de Conexão com o Backend C# */}
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
@@ -1313,10 +1489,23 @@
                 )}
 
                 <button
-                  onClick={() => setShowRequirementsModal(true)}
-                  className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 outline-none focus-visible:ring-4 focus-visible:ring-slate-400/40"
+                  type="button"
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 outline-none"
+                  title="Enviar sugestão ou relato de experiência"
                 >
-                  Requisitos
+                  <span>💬</span>
+                  <span>Dar Feedback</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowResetModal(true)}
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 outline-none"
+                  title="Alternar entre dados modelo ou clínica vazia"
+                >
+                  <span>⚙️</span>
+                  <span>Dados do Piloto</span>
                 </button>
 
                 <button
@@ -1436,6 +1625,20 @@
               <MobileItem icon="flask" label="Exames" active={activeTab === 'laboratorio'} onClick={() => setActiveTab('laboratorio')} />
               <MobileItem icon="wallet" label="Finanças" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
             </nav>
+
+            {/* BOTÃO FLUTUANTE DE FEEDBACK DO PILOTO (DISCRETO E ACESSÍVEL) */}
+            <button
+              id="btn-pilot-feedback"
+              type="button"
+              onClick={() => setShowFeedbackModal(true)}
+              className="fixed bottom-16 lg:bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-700 hover:to-teal-900 text-white font-bold text-xs sm:text-sm rounded-full shadow-2xl shadow-emerald-800/40 hover:scale-105 active:scale-95 transition-all border border-emerald-300/30 group"
+              title="Dar feedback sobre a usabilidade desta tela"
+            >
+              <span className="text-base animate-bounce">💬</span>
+              <span className="hidden sm:inline">Feedback do Piloto</span>
+              <span className="sm:hidden">Feedback</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
+            </button>
           </div>
         </div>
       );
@@ -1480,12 +1683,15 @@
       );
     }
 
-    // RF26, RN12 - Tela de autenticação com seleção de perfil (Profissional / Administrador)
-    function LoginScreen({ users, onLogin, erro }) {
-      const [selectedUserId, setSelectedUserId] = useState(users[0].id);
-      const [password, setPassword] = useState(DEMO_PASSWORD);
+    // =========================================================================
+    // TELA DE AUTENTICAÇÃO (LOGIN) COM EMAIL E SENHA (RF26, RQ08)
+    // =========================================================================
+    function LoginScreen({ users, onLogin, onGoToRegister, erro }) {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
       const [showPassword, setShowPassword] = useState(false);
       const [loginError, setLoginError] = useState(erro || null);
+      const [carregando, setCarregando] = useState(false);
       const [dbStatus, setDbStatus] = useState(api.storage);
 
       useEffect(() => {
@@ -1494,24 +1700,23 @@
         });
       }, []);
 
-      const selectedUser = users.find(u => u.id === selectedUserId);
-
-      const getInitials = (name) => {
-        const parts = name.replace(/^Dra?\.\s+/i, '').trim().split(/\s+/);
-        return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
-      };
-
       const handleFormSubmit = async (e) => {
         e.preventDefault();
         setLoginError(null);
-        if (!selectedUser) return;
+        const emailLimpo = email.trim().toLowerCase();
+        if (!emailLimpo || !password) {
+          setLoginError('Por favor, informe seu e-mail e sua senha.');
+          return;
+        }
 
-        // Se a API estiver ativa, valida com o AuthService C# (RQ08 - Hash com Salt)
-        // e guarda o token JWT devolvido para as próximas requisições
+        setCarregando(true);
+
+        // 1. Se a API estiver ativa, valida com o AuthService C# (RQ08 - Hash com Salt)
         if (api.isConnected) {
-          const res = await api.login(selectedUser.email, password);
+          const res = await api.login(emailLimpo, password);
+          setCarregando(false);
           if (res.sucesso) {
-            onLogin(selectedUser, password, true);
+            onLogin(res.usuario, password, true);
             return;
           } else {
             setLoginError(res.erro || 'Login ou senha inválidos.');
@@ -1519,54 +1724,86 @@
           }
         }
 
-        // Fallback para modo offline
-        onLogin(selectedUser, password);
+        // 2. Fallback para modo offline (busca em users e demo users)
+        setCarregando(false);
+        const foundUser = users.find(u =>
+          u.email.toLowerCase() === emailLimpo ||
+          (u.email === 'davi@clinix.com' && (emailLimpo.includes('davi') || emailLimpo === 'dr.davi')) ||
+          (u.email === 'juliana@clinix.com' && (emailLimpo.includes('juliana') || emailLimpo === 'admin'))
+        );
+
+        if (!foundUser) {
+          setLoginError('Nenhuma conta encontrada com este e-mail. Crie uma conta ou use o acesso de teste.');
+          return;
+        }
+
+        // Validação da senha no modo offline
+        const senhaCorreta = foundUser.senha ? (password === foundUser.senha) : (password === DEMO_PASSWORD || password === '123');
+        if (!senhaCorreta) {
+          setLoginError('Senha incorreta. Confira a senha e tente novamente.');
+          return;
+        }
+
+        onLogin(foundUser, password, false);
+      };
+
+      const handlePreencherDemo = (demoUser) => {
+        setEmail(demoUser.email);
+        setPassword(DEMO_PASSWORD);
+        setLoginError(null);
       };
 
       return (
-        <div className="min-h-screen grid lg:grid-cols-2 bg-white">
+        <div className="min-h-screen grid lg:grid-cols-2 bg-white font-sans">
+          {/* ASIDE ESQUERDA - IDENTIDADE CLINIX */}
           <aside className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 text-white p-12 xl:p-16">
             <div className="flex items-center gap-3">
-              <div aria-hidden="true" className="w-11 h-11 rounded-2xl bg-white text-emerald-700 flex items-center justify-center font-extrabold text-2xl">
+              <div aria-hidden="true" className="w-11 h-11 rounded-2xl bg-white text-emerald-700 flex items-center justify-center font-extrabold text-2xl shadow-lg">
                 +
               </div>
               <span className="text-2xl font-extrabold tracking-tight">Clinix<span className="text-emerald-300">.</span></span>
             </div>
 
             <div className="max-w-md">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-emerald-200 border border-white/20 mb-4 backdrop-blur-sm">
+                <span>🩺</span>
+                <span>Plataforma Médica & Gestão Clínica</span>
+              </span>
               <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight tracking-tight">
                 Agenda e prontuário da sua clínica em um só lugar.
               </h1>
-              <p className="mt-4 text-emerald-100 leading-relaxed">
-                Menos tempo com planilhas, mais tempo com os pacientes.
+              <p className="mt-4 text-emerald-100 leading-relaxed text-sm">
+                Menos tempo com planilhas e burocracia, mais tempo e foco no cuidado com seus pacientes.
               </p>
 
-              <ul className="mt-10 space-y-5 text-sm">
+              <ul className="mt-8 space-y-4 text-sm">
                 {[
-                  ['Agenda sem conflitos', 'Horários validados automaticamente a cada marcação.'],
-                  ['Prontuário com histórico', 'Cada edição de anotação fica registrada em versões.'],
-                  ['Dados protegidos (LGPD)', 'Acesso por perfil e trilha de auditoria de cada consulta.']
+                  ['Agenda inteligente sem conflitos', 'Validação automática contra conflitos de horário em tempo real.'],
+                  ['Prontuário eletrônico completo', 'Evoluções com histórico imutável e controle de alergias.'],
+                  ['Financeiro & Recibos integrados', 'Divisão de pagamentos (PIX + Cartão) e relatórios rápidos.'],
+                  ['Piloto Clínico em Validação', 'Participe do teste e nos ajude a calibrar a melhor experiência.']
                 ].map(([titulo, descricao]) => (
-                  <li key={titulo} className="flex gap-3.5">
-                    <span aria-hidden="true" className="mt-0.5 shrink-0 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-300/40 flex items-center justify-center text-xs font-bold text-emerald-100">
+                  <li key={titulo} className="flex gap-3">
+                    <span aria-hidden="true" className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald-500/30 border border-emerald-300/40 flex items-center justify-center text-xs font-bold text-emerald-100">
                       ✓
                     </span>
                     <div>
-                      <p className="font-bold">{titulo}</p>
-                      <p className="text-emerald-100/80 mt-0.5">{descricao}</p>
+                      <p className="font-bold text-white text-xs">{titulo}</p>
+                      <p className="text-emerald-100/80 text-xs mt-0.5">{descricao}</p>
                     </div>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <p className="text-xs text-emerald-200/70">Projeto Integrador CEUB • Engenharia de Software</p>
+            <p className="text-xs text-emerald-200/80 font-medium">Clinix Medical Platform • Versão Piloto 2.4</p>
           </aside>
 
+          {/* MAIN DIREITA - FORMULÁRIO DE LOGIN */}
           <main className="flex items-center justify-center bg-slate-50 px-5 py-10 sm:px-8">
             <div className="w-full max-w-md">
               <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-                <div aria-hidden="true" className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-xl">
+                <div aria-hidden="true" className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md">
                   +
                 </div>
                 <span className="text-xl font-extrabold tracking-tight text-slate-900">Clinix<span className="text-emerald-600">.</span></span>
@@ -1575,26 +1812,26 @@
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h2>
-                  <p className="mt-1.5 text-sm text-slate-600">Escolha o perfil e informe a senha para entrar.</p>
+                  <p className="mt-1.5 text-sm text-slate-600">Digite seu e-mail e senha para entrar no sistema.</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${api.isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                    {api.isConnected ? '● API .NET Ativa' : '● Standalone'}
+                    {api.isConnected ? '● API .NET' : '● Standalone'}
                   </span>
                   {api.isConnected && (
                     <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${dbStatus === 'mysql' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}>
-                      {dbStatus === 'mysql' ? '● MySQL 8.0' : '● Memória'}
+                      {dbStatus === 'mysql' ? '● MySQL' : '● Memória'}
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* RQ11 - Mensagem amigável devolvida pela API */}
+              {/* MENSAGEM DE ERRO AMIGÁVEL */}
               {(loginError || erro) && (
                 <div
                   id="login-erro"
                   role="alert"
-                  className="mt-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900"
+                  className="mt-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 animate-slide-in"
                 >
                   <span aria-hidden="true" className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold">
                     !
@@ -1603,53 +1840,29 @@
                 </div>
               )}
 
-
-              <form onSubmit={handleFormSubmit} className="mt-6 space-y-6">
-                <fieldset>
-                  <legend className="text-sm font-bold text-slate-800 mb-2.5">Perfil de acesso</legend>
-                  <div className="space-y-3">
-                    {users.map(u => {
-                      const isAdmin = u.role === 'Administrador';
-                      return (
-                        <label key={u.id} htmlFor={`login-perfil-${u.id}`} className="block cursor-pointer">
-                          <input
-                            id={`login-perfil-${u.id}`}
-                            type="radio"
-                            name="userProfile"
-                            value={u.id}
-                            checked={selectedUserId === u.id}
-                            onChange={() => { setSelectedUserId(u.id); setPassword(DEMO_PASSWORD); setLoginError(null); }}
-                            className="peer sr-only"
-                          />
-                          <div className="flex items-center gap-3.5 rounded-2xl border-2 border-slate-200 bg-white p-3.5 transition hover:border-slate-300 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-4 peer-focus-visible:ring-emerald-500/40">
-                            <span
-                              aria-hidden="true"
-                              className={`shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold ${
-                                isAdmin ? 'bg-slate-800 text-white' : 'bg-emerald-600 text-white'
-                              }`}
-                            >
-                              {getInitials(u.name)}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-bold text-slate-900">{u.name}</span>
-                              <span className="block truncate text-xs text-slate-600">{u.email}</span>
-                            </span>
-                            <span
-                              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                                isAdmin ? 'bg-slate-200 text-slate-800' : 'bg-emerald-100 text-emerald-800'
-                              }`}
-                            >
-                              {u.role}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </fieldset>
+              <form onSubmit={handleFormSubmit} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    E-mail de acesso
+                  </label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    autoComplete="username"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="ex: seu.nome@clinica.com"
+                    className="w-full rounded-xl border-2 border-slate-200 bg-white py-3 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                  />
+                </div>
 
                 <div>
-                  <label htmlFor="login-senha" className="block text-sm font-bold text-slate-800 mb-2">Senha</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label htmlFor="login-senha" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Senha
+                    </label>
+                  </div>
                   <div className="relative">
                     <input
                       id="login-senha"
@@ -1658,39 +1871,421 @@
                       autoComplete="current-password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      aria-invalid={erro ? 'true' : undefined}
-                      aria-describedby={erro ? 'login-erro login-senha-ajuda' : 'login-senha-ajuda'}
-                      className={`w-full rounded-xl border-2 bg-white py-3 pl-4 pr-24 text-sm text-slate-900 outline-none transition focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-500/40 ${
-                        erro ? 'border-rose-400' : 'border-slate-200'
-                      }`}
+                      placeholder="Sua senha secreta"
+                      className="w-full rounded-xl border-2 border-slate-200 bg-white py-3 pl-4 pr-24 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(prev => !prev)}
-                      aria-pressed={showPassword}
-                      aria-controls="login-senha"
-                      className="absolute inset-y-1.5 right-1.5 rounded-lg px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-50 outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                      className="absolute inset-y-1.5 right-1.5 rounded-lg px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-50 outline-none"
                     >
                       {showPassword ? 'Ocultar' : 'Mostrar'}
-                      <span className="sr-only"> senha</span>
                     </button>
                   </div>
-                  <p id="login-senha-ajuda" className="mt-2 text-xs text-slate-500">
-                    Versão de demonstração com dados fictícios. Senha de acesso: {DEMO_PASSWORD}
-                  </p>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full rounded-2xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 active:scale-[0.99] outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2"
+                  disabled={carregando}
+                  className="w-full rounded-2xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 active:scale-[0.99] outline-none disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  Entrar como {selectedUser ? selectedUser.role : 'usuário'}
+                  {carregando ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Autenticando...</span>
+                    </>
+                  ) : (
+                    <span>Entrar no Clinix</span>
+                  )}
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-xs text-slate-500 lg:hidden">
-                Projeto Integrador CEUB • Engenharia de Software
+              {/* LINK PARA CRIAR CONTA */}
+              <div className="mt-5 text-center">
+                <p className="text-xs text-slate-600">
+                  Ainda não tem conta na sua clínica?{' '}
+                  <button
+                    type="button"
+                    onClick={onGoToRegister}
+                    className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                  >
+                    Cadastre-se grátis para testar
+                  </button>
+                </p>
+              </div>
+
+              {/* ATALHOS RÁPIDOS PARA O PILOTO */}
+              <div className="mt-6 pt-5 border-t border-slate-200">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center justify-between">
+                  <span>⚡ Contas de demonstração (1 clique):</span>
+                  <span className="text-slate-400 font-normal">senha: 123456</span>
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePreencherDemo(users[0] || { email: 'davi@clinix.com' })}
+                    className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        DF
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">Dr. Davi</p>
+                        <p className="text-[10px] text-emerald-800 truncate">Profissional</p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handlePreencherDemo(users[1] || { email: 'juliana@clinix.com' })}
+                    className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        JC
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">Juliana</p>
+                        <p className="text-[10px] text-slate-600 truncate">Recepção</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-8 text-center text-xs text-slate-400 lg:hidden">
+                Clinix Medical Platform • Versão Piloto 2.4
               </p>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // TELA DE CADASTRO (REGISTRO) DE NOVO USUÁRIO / CLÍNICA
+    // =========================================================================
+    function RegisterScreen({ onGoToLogin, onRegisterSuccess }) {
+      const [nome, setNome] = useState('');
+      const [nomeClinica, setNomeClinica] = useState('');
+      const [email, setEmail] = useState('');
+      const [perfil, setPerfil] = useState('Profissional'); // 'Profissional' | 'Administrador'
+      const [especialidade, setEspecialidade] = useState('');
+      const [registroProfissional, setRegistroProfissional] = useState('');
+      const [senha, setSenha] = useState('');
+      const [confirmarSenha, setConfirmarSenha] = useState('');
+      const [showSenha, setShowSenha] = useState(false);
+      const [erro, setErro] = useState('');
+      const [carregando, setCarregando] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErro('');
+
+        if (!nome.trim() || !email.trim() || !senha) {
+          setErro('Preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        if (senha.length < 6) {
+          setErro('A senha deve conter no mínimo 6 caracteres.');
+          return;
+        }
+
+        if (senha !== confirmarSenha) {
+          setErro('As senhas não coincidem. Digite novamente.');
+          return;
+        }
+
+        setCarregando(true);
+
+        const dadosCadastro = {
+          nome: nome.trim(),
+          email: email.trim().toLowerCase(),
+          senha,
+          perfil,
+          nomeClinica: nomeClinica.trim() || 'Clínica Piloto',
+          registroProfissional: registroProfissional.trim() || (perfil === 'Profissional' ? 'CRM-BR' : null),
+          especialidade: especialidade.trim() || (perfil === 'Profissional' ? 'Clínica Geral' : null)
+        };
+
+        // 1. Se API conectada, registra no backend
+        if (api.isConnected) {
+          const res = await api.registrar(dadosCadastro);
+          setCarregando(false);
+          if (res.sucesso) {
+            onRegisterSuccess(res.usuario, senha, true);
+            return;
+          } else {
+            setErro(res.erro || 'Não foi possível cadastrar. Tente outro e-mail.');
+            return;
+          }
+        }
+
+        // 2. Modo Offline / Standalone
+        setCarregando(false);
+        const novoUsuario = {
+          id: 'u_' + Date.now(),
+          name: dadosCadastro.nome,
+          role: dadosCadastro.perfil,
+          email: dadosCadastro.email,
+          senha,
+          espec: dadosCadastro.perfil === 'Profissional'
+            ? (dadosCadastro.especialidade || 'Clínica Geral')
+            : (dadosCadastro.nomeClinica ? `Gestão - ${dadosCadastro.nomeClinica}` : 'Recepção e Atendimento'),
+          registro: dadosCadastro.registroProfissional,
+          clinica: dadosCadastro.nomeClinica
+        };
+
+        onRegisterSuccess(novoUsuario, senha, false);
+      };
+
+      return (
+        <div className="min-h-screen grid lg:grid-cols-2 bg-white font-sans">
+          {/* ASIDE ESQUERDA */}
+          <aside className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 text-white p-12 xl:p-16">
+            <div className="flex items-center gap-3">
+              <div aria-hidden="true" className="w-11 h-11 rounded-2xl bg-white text-emerald-700 flex items-center justify-center font-extrabold text-2xl shadow-lg">
+                +
+              </div>
+              <span className="text-2xl font-extrabold tracking-tight">Clinix<span className="text-emerald-300">.</span></span>
+            </div>
+
+            <div className="max-w-md">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-emerald-200 border border-white/20 mb-4 backdrop-blur-sm">
+                <span>🚀</span>
+                <span>Piloto Prático para Clínicas</span>
+              </span>
+              <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight tracking-tight">
+                Crie sua conta e comece o teste em segundos.
+              </h1>
+              <p className="mt-4 text-emerald-100 leading-relaxed text-sm">
+                Experimente na prática todas as ferramentas de agendamento, prontuário LGPD e controle financeiro desenhadas sob medida para consultórios.
+              </p>
+
+              <div className="mt-8 p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm text-xs space-y-2">
+                <p className="font-bold text-white flex items-center gap-2">
+                  <span>✨</span>
+                  <span>Ambiente pronto para uso</span>
+                </p>
+                <p className="text-emerald-100/90 leading-relaxed">
+                  Você poderá cadastrar novos pacientes imediatamente ou restaurar pacientes modelo para testar as telas da agenda e do prontuário.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-emerald-200/80 font-medium">Clinix Medical Platform • Versão Piloto 2.4</p>
+          </aside>
+
+          {/* MAIN DIREITA - FORMULÁRIO DE CADASTRO */}
+          <main className="flex items-center justify-center bg-slate-50 px-5 py-8 sm:px-8 overflow-y-auto">
+            <div className="w-full max-w-md py-6">
+              <div className="flex items-center justify-between mb-6">
+                <button
+                  type="button"
+                  onClick={onGoToLogin}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                >
+                  <span>←</span>
+                  <span>Voltar para o login</span>
+                </button>
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Novo Cadastro
+                </span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Cadastre-se no Clinix</h2>
+                <p className="mt-1 text-xs text-slate-600">Preencha seus dados para criar sua conta de acesso ao piloto.</p>
+              </div>
+
+              {erro && (
+                <div role="alert" className="mt-4 flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900">
+                  <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold">!</span>
+                  <p>{erro}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
+                <div>
+                  <label htmlFor="reg-nome" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Nome Completo *
+                  </label>
+                  <input
+                    id="reg-nome"
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={e => setNome(e.target.value)}
+                    placeholder="ex: Dr. Carlos Eduardo ou Marina Santos"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-3.5 text-xs text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="reg-clinica" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Nome da Clínica ou Consultório
+                  </label>
+                  <input
+                    id="reg-clinica"
+                    type="text"
+                    value={nomeClinica}
+                    onChange={e => setNomeClinica(e.target.value)}
+                    placeholder="ex: Consultório Integrado de Saúde"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-3.5 text-xs text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="reg-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    E-mail de acesso *
+                  </label>
+                  <input
+                    id="reg-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="ex: contato@suaclinica.com.br"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-3.5 text-xs text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Perfil de atuação *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPerfil('Profissional')}
+                      className={`p-2.5 rounded-xl border text-left transition ${
+                        perfil === 'Profissional'
+                          ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-500/30'
+                          : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <p className="text-xs font-bold">🩺 Profissional de Saúde</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Médico, Psicólogo, Terapeuta</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPerfil('Administrador')}
+                      className={`p-2.5 rounded-xl border text-left transition ${
+                        perfil === 'Administrador'
+                          ? 'border-slate-800 bg-slate-100 text-slate-950 ring-2 ring-slate-800/20'
+                          : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <p className="text-xs font-bold">📋 Gestão & Recepção</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Atendimento e Secretaria</p>
+                    </button>
+                  </div>
+                </div>
+
+                {perfil === 'Profissional' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 rounded-2xl bg-emerald-50/60 border border-emerald-200">
+                    <div>
+                      <label htmlFor="reg-espec" className="block text-[11px] font-bold text-emerald-950 mb-1">
+                        Especialidade
+                      </label>
+                      <input
+                        id="reg-espec"
+                        type="text"
+                        value={especialidade}
+                        onChange={e => setEspecialidade(e.target.value)}
+                        placeholder="ex: Dermatologia"
+                        className="w-full rounded-xl border border-emerald-300 bg-white py-2 px-3 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="reg-conselho" className="block text-[11px] font-bold text-emerald-950 mb-1">
+                        Registro Profissional
+                      </label>
+                      <input
+                        id="reg-conselho"
+                        type="text"
+                        value={registroProfissional}
+                        onChange={e => setRegistroProfissional(e.target.value)}
+                        placeholder="ex: CRM-SP 12345"
+                        className="w-full rounded-xl border border-emerald-300 bg-white py-2 px-3 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label htmlFor="reg-senha" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                      Senha *
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="reg-senha"
+                        type={showSenha ? 'text' : 'password'}
+                        required
+                        value={senha}
+                        onChange={e => setSenha(e.target.value)}
+                        placeholder="Mín. 6 dígitos"
+                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-3 pr-9 text-xs text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenha(!showSenha)}
+                        className="absolute inset-y-1 right-1 px-2 text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                      >
+                        {showSenha ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="reg-confirma" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                      Confirmar Senha *
+                    </label>
+                    <input
+                      id="reg-confirma"
+                      type={showSenha ? 'text' : 'password'}
+                      required
+                      value={confirmarSenha}
+                      onChange={e => setConfirmarSenha(e.target.value)}
+                      placeholder="Repita a senha"
+                      className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-3 text-xs text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={carregando}
+                  className="w-full mt-2 rounded-2xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 active:scale-[0.99] outline-none disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {carregando ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Criando conta...</span>
+                    </>
+                  ) : (
+                    <span>Criar Conta e Iniciar Piloto</span>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-4 text-center">
+                <p className="text-xs text-slate-600">
+                  Já possui uma conta cadastrada?{' '}
+                  <button
+                    type="button"
+                    onClick={onGoToLogin}
+                    className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                  >
+                    Fazer login
+                  </button>
+                </p>
+              </div>
             </div>
           </main>
         </div>
@@ -1770,146 +2365,247 @@
     }
 
     /* =========================================================================
-       MODAL DE MATRIZ DE REQUISITOS CEUB (ISO/IEC 25010)
+       MODAL DE FEEDBACK DO PILOTO CLÍNICO (TESTE COM CLIENTE REAL)
        ========================================================================= */
-    function RequirementsModal({ isOpen, onClose }) {
-      const [tab, setTab] = useState('modulos');
+    function FeedbackModal({ isOpen, onClose, activeTab, currentUser, showToast, registerLog, onSendFeedback }) {
+      const [nota, setNota] = useState(5);
+      const [categoria, setCategoria] = useState('Sugestao');
+      const [comentario, setComentario] = useState('');
+      const [enviando, setEnviando] = useState(false);
+
+      if (!isOpen) return null;
+
+      const titulosTelas = {
+        dashboard: 'Visão Geral (Dashboard)',
+        agenda: 'Agenda de Consultas',
+        pacientes: 'Cadastro de Pacientes',
+        prontuario: 'Prontuário Eletrônico',
+        financeiro: 'Financeiro & Recibos',
+        ouvidoria: 'Ouvidoria & Avaliações',
+        laboratorio: 'Acompanhamento Laboratorial',
+        logs: 'Auditoria do Sistema'
+      };
+      const nomeTelaAtual = titulosTelas[activeTab] || 'Geral do Sistema';
+
+      const estrelasDesc = {
+        1: '1★ Precisa melhorar muito / Difícil',
+        2: '2★ Confuso em alguns pontos',
+        3: '3★ Regular / Atende o básico',
+        4: '4★ Bom e prático',
+        5: '5★ Excelente e intuitivo!'
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!comentario.trim()) return;
+        setEnviando(true);
+
+        const feedbackObj = {
+          id: 'fb_' + Date.now(),
+          data: new Date().toISOString(),
+          usuario: currentUser.name,
+          perfil: currentUser.role,
+          tela: nomeTelaAtual,
+          nota: Number(nota),
+          categoria,
+          comentario: comentario.trim()
+        };
+
+        if (onSendFeedback) {
+          await onSendFeedback(feedbackObj);
+        }
+
+        registerLog('Feedback do Piloto Registrado', `Avaliação da tela "${nomeTelaAtual}": Nota ${nota}/5 (${categoria})`, currentUser);
+        showToast('Obrigado! Seu feedback foi registrado com sucesso.', 'success');
+        setEnviando(false);
+        setComentario('');
+        onClose();
+      };
+
+      const mensagemWhatsApp = encodeURIComponent(
+        `*Feedback do Piloto Clinix*\n` +
+        `👤 Usuário: ${currentUser.name} (${currentUser.role})\n` +
+        `📱 Tela avaliada: ${nomeTelaAtual}\n` +
+        `⭐ Nota: ${nota}/5 estrelas\n` +
+        `🏷️ Tipo: ${categoria}\n` +
+        `💬 Comentário: ${comentario.trim() || '(sem texto adicional)'}`
+      );
+
+      return (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+          <div className="bg-white rounded-3xl max-w-lg w-full flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="p-6 bg-gradient-to-r from-emerald-800 to-teal-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center text-xl font-bold backdrop-blur-sm border border-white/20">
+                  💬
+                </div>
+                <div>
+                  <h3 className="text-base font-bold tracking-tight">Feedback & Usabilidade</h3>
+                  <p className="text-xs text-emerald-200">Sua opinião é fundamental para calibrar o sistema para sua rotina</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-emerald-200 hover:text-white text-xl font-bold px-2 py-1 rounded-lg">✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-3 text-xs text-emerald-900 flex items-center justify-between">
+                <span>Tela em avaliação no momento:</span>
+                <span className="font-bold bg-white px-2.5 py-1 rounded-lg border border-emerald-200 text-emerald-800">{nomeTelaAtual}</span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Como está sendo sua experiência nesta tela?
+                </label>
+                <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        type="button"
+                        key={star}
+                        onClick={() => setNota(star)}
+                        className={`text-2xl transition hover:scale-110 ${star <= nota ? 'text-amber-400' : 'text-slate-300'}`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">{estrelasDesc[nota]}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Tipo de Feedback
+                </label>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    ['Sugestao', '💡 Sugestão de melhoria'],
+                    ['Elogio', '⭐ O que mais gostei'],
+                    ['Duvida', '❓ Dúvida / Dificuldade'],
+                    ['Problema', '⚠️ Relatar problema']
+                  ].map(([val, label]) => (
+                    <button
+                      type="button"
+                      key={val}
+                      onClick={() => setCategoria(val)}
+                      className={`p-2 rounded-xl border text-left font-semibold transition ${
+                        categoria === val
+                          ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-500/30'
+                          : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="fb-comentario" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Suas impressões ou sugestões:
+                </label>
+                <textarea
+                  id="fb-comentario"
+                  required
+                  rows={4}
+                  value={comentario}
+                  onChange={e => setComentario(e.target.value)}
+                  placeholder="Ex: Achei muito fácil encontrar os pacientes, mas gostaria que o botão de agendamento ficasse mais visível..."
+                  className="w-full rounded-2xl border border-slate-200 p-3 text-xs text-slate-800 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20 resize-none"
+                />
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-end items-center">
+                <a
+                  href={`https://wa.me/5561981000000?text=${mensagemWhatsApp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-emerald-600/30 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition"
+                  title="Enviar mensagem diretamente no WhatsApp do desenvolvedor"
+                >
+                  <span>💬 Enviar via WhatsApp</span>
+                </a>
+                <button
+                  type="submit"
+                  disabled={enviando || !comentario.trim()}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold transition shadow-md shadow-emerald-600/30"
+                >
+                  {enviando ? 'Enviando...' : 'Registrar Feedback'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================================
+       MODAL DE CONTROLE DE DADOS DO PILOTO (DEMO VS CLÍNICA VAZIA)
+       ========================================================================= */
+    function ResetDataModal({ isOpen, onClose, onResetClean, onResetSample }) {
       if (!isOpen) return null;
 
       return (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-scale-up" onClick={e => e.stopPropagation()}>
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-indigo-500/30">
-                  🎓
-                </div>
-                <div>
-                  <h3 className="text-base font-bold tracking-tight">Matriz de Requisitos CEUB (ISO/IEC 25010)</h3>
-                  <p className="text-xs text-slate-300">Sistema de Agendamento e Prontuário para Clínicas Pequenas • Engenharia de Requisitos</p>
-                </div>
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 overflow-hidden animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center text-xl font-bold">
+                ⚙️
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg">✕</button>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Gerenciamento de Dados do Piloto</h3>
+                <p className="text-xs text-slate-500">Alterne o modo de teste conforme sua preferência</p>
+              </div>
             </div>
 
-            <div className="flex border-b border-slate-200 bg-slate-50 px-6 text-xs font-bold">
+            <p className="text-xs text-slate-600 mb-5 leading-relaxed">
+              Você pode testar a usabilidade com pacientes e consultas modelo ou iniciar sua clínica limpa do zero para cadastrar dados reais de teste.
+            </p>
+
+            <div className="space-y-3">
               <button
-                onClick={() => setTab('modulos')}
-                className={`py-3 px-4 border-b-2 transition ${tab === 'modulos' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                type="button"
+                onClick={() => {
+                  onResetClean();
+                  onClose();
+                }}
+                className="w-full p-4 rounded-2xl border-2 border-slate-200 hover:border-rose-400 bg-white hover:bg-rose-50/40 text-left transition group"
               >
-                📦 7 Módulos & 28 RFs
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-900 group-hover:text-rose-900">🗑️ Começar Clínica Vazia</span>
+                  <span className="text-xs text-rose-600 font-bold opacity-0 group-hover:opacity-100 transition">Limpar dados</span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Remove pacientes, agendamentos e prontuários modelo para você cadastrar pacientes reais da sua clínica.
+                </p>
               </button>
+
               <button
-                onClick={() => setTab('regras')}
-                className={`py-3 px-4 border-b-2 transition ${tab === 'regras' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                type="button"
+                onClick={() => {
+                  onResetSample();
+                  onClose();
+                }}
+                className="w-full p-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/60 text-left transition group"
               >
-                ⚖️ 17 Regras de Negócio (RN)
-              </button>
-              <button
-                onClick={() => setTab('qualidade')}
-                className={`py-3 px-4 border-b-2 transition ${tab === 'qualidade' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
-              >
-                🛡️ 16 RQs & Qualidade ISO/IEC 25010
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-emerald-950">↺ Restaurar Dados Modelo</span>
+                  <span className="text-xs text-emerald-700 font-bold">Recomendado</span>
+                </div>
+                <p className="text-xs text-emerald-800/80 mt-1">
+                  Recarrega pacientes, consultas, prontuários e receitas de exemplo para explorar todas as telas do sistema.
+                </p>
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-3 text-xs scrollbar-thin flex-1">
-              {tab === 'modulos' && (
-                <div className="space-y-3">
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F1: Cadastro de Pacientes (RF01 - RF05)</span>
-                    <p className="text-slate-600 mt-1">Inclusão, alteração, consulta, validação de unicidade por CPF e inativação lógica com anonimização conforme LGPD (RN16, RQ03).</p>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F2: Agendamento de Consultas (RF06 - RF11)</span>
-                    <p className="text-slate-600 mt-1">Marcação com checagem antecipada de choques de horário (RN01, RN02), remarcação (RF07), cancelamento com política de antecedência e bloqueio de horários (RF11).</p>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F3: Notificações de Consultas (RF12 - RF15)</span>
-                    <p className="text-slate-600 mt-1">Confirmação automática de agendamento por WhatsApp, lembrete 24h antes e controle de 2ª tentativa de envio com alerta visual em caso de falha (RN03, RN14, RN15).</p>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F4: Prontuário Eletrônico (RF16 - RF20)</span>
-                    <p className="text-slate-600 mt-1">Registro de anotações clínicas com histórico versionado imutável (RN17), ficha clínica com destaque de alergias/condições preexistentes (RF18) e sigilo profissional.</p>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F5 & F6: Controle Financeiro e Relatórios (RF21 - RF25)</span>
-                    <p className="text-slate-600 mt-1">Registro de recebimentos (pago/pendente), cálculo de faturamento no período e relatórios com filtros por status de pagamento e período (RN08, RN10).</p>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                    <span className="font-bold text-slate-900 text-sm">F7: Autenticação & Auditoria (RF26 - RF28)</span>
-                    <p className="text-slate-600 mt-1">Acesso protegido por credenciais, perfis diferenciados (Profissional vs Administrador - RN12) e registro contínuo de trilha de auditoria para conformidade jurídica (RN13).</p>
-                  </div>
-                </div>
-              )}
-
-              {tab === 'regras' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
-                    <strong className="text-emerald-900">RN01 & RN02: Sem Conflito de Horário</strong>
-                    <p className="text-emerald-800 text-[11px] mt-0.5">O sistema rejeita agendamentos simultâneos para o mesmo profissional no mesmo horário.</p>
-                  </div>
-                  <div className="p-3 rounded-2xl border border-emerald-100 bg-emerald-50/50">
-                    <strong className="text-emerald-900">RN03 & RN14: Notificação WhatsApp</strong>
-                    <p className="text-emerald-800 text-[11px] mt-0.5">Confirmação imediata ao marcar e lembrete preventivo 24 horas antes do horário marcado.</p>
-                  </div>
-                  <div className="p-3 rounded-2xl border border-amber-100 bg-amber-50/50">
-                    <strong className="text-amber-900">RN15: 2ª Tentativa de Notificação</strong>
-                    <p className="text-amber-800 text-[11px] mt-0.5">Se o WhatsApp falhar, o sistema reenvia em 15 minutos; persistindo a falha, exibe alerta visual na agenda.</p>
-                  </div>
-                  <div className="p-3 rounded-2xl border border-blue-100 bg-blue-50/50">
-                    <strong className="text-blue-900">RN17: Prontuário Imutável Versionado</strong>
-                    <p className="text-blue-800 text-[11px] mt-0.5">Nenhuma anotação médica é apagada. Toda edição cria nova versão preservando o histórico integral.</p>
-                  </div>
-                  <div className="p-3 rounded-2xl border border-purple-100 bg-purple-50/50">
-                    <strong className="text-purple-900">RN12 & RN13: Perfis & Auditoria</strong>
-                    <p className="text-purple-800 text-[11px] mt-0.5">Recepção/Admin agenda e visualiza dados cadastrais; prontuário restrito ao profissional. Acessos são auditados.</p>
-                  </div>
-                  <div className="p-3 rounded-2xl border border-rose-100 bg-rose-50/50">
-                    <strong className="text-rose-900">RN16: Inativação com Anonimização LGPD</strong>
-                    <p className="text-rose-800 text-[11px] mt-0.5">Exclusão lógica: dados de contato são anonimizados, mas prontuário é mantido para resguardo ético/legal.</p>
-                  </div>
-                </div>
-              )}
-
-              {tab === 'qualidade' && (
-                <div className="space-y-3">
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">⚡</span>
-                    <div>
-                      <strong className="text-slate-800">RQ10: Usabilidade — Regra dos 3 Cliques</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Qualquer fluxo crítico (novo agendamento, consulta ao prontuário, registro de pagamento) é alcançável em no máximo 3 cliques a partir do painel principal.</p>
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">⏱️</span>
-                    <div>
-                      <strong className="text-slate-800">RQ09: Desempenho & Tempo de Resposta</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Consultas e atualizações de tela respondem em menos de 1 segundo através de reatividade em estado React local.</p>
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">🔒</span>
-                    <div>
-                      <strong className="text-slate-800">RQ01 a RQ05: LGPD e Segurança da Informação</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Consentimento explícito, portabilidade em JSON estruturado, anonimização seletiva e segregação de privilégios de acesso.</p>
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <span className="text-xl">📱</span>
-                    <div>
-                      <strong className="text-slate-800">RQ11: Responsividade & Acessibilidade</strong>
-                      <p className="text-slate-600 text-[11px] mt-0.5">Interface perfeitamente adaptada para uso em tablets, smartphones e computadores de consultório.</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center text-[11px] text-slate-500">
-              <span>Universidade CEUB • Projeto Integrador</span>
-              <button onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">
-                Fechar Matriz
+            <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+              >
+                Fechar
               </button>
             </div>
           </div>

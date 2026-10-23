@@ -1,554 +1,562 @@
 # Software Design Document (SDD)
 ## Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)
 
-> **Documento de Arquitetura e Design de Software (Versão 2.5 — Demandas de Feedback Real e Homologação)**  
+> **Documento de Design Conceitual de Software e Especificação de Domínio**  
 > **Autor:** Davi Felinto — Engenharia de Software (CEUB)  
-> **Referência de Requisitos:** [`docs/requisitos/README.md`](../requisitos/README.md)  
-> **Modelagem Visual:** [`diagrama_classes.svg`](../diagramas/diagrama_classes.svg)  
-> **Data:** Outubro / 2026 — Versão: 2.5 (POO C# + Banco de Dados II MySQL + API REST + Demandas Clínicas Reais + 66 Testes xUnit)
+> **Referência de Requisitos:** [`docs/requisitos/README.md`](../requisitos/README.md) e [`Documento_Especificacao_Requisitos_Final.docx`](../requisitos/Documento_Especificacao_Requisitos_Final.docx)  
+> **Escopo:** Arquitetura Conceitual, Entidades de Domínio, Regras de Negócio, Comportamentos do Sistema e Casos de Uso (100% Agnóstico de Tecnologias de Implementação)  
+> **Data:** Outubro / 2026 — Versão Consolidada: 3.0 (34 Requisitos Funcionais, 23 Regras de Negócio e 16 Requisitos de Qualidade ISO/IEC 25010 e LGPD)
 
 ---
 
 ## 1. Introdução e Visão Geral
 
 ### 1.1 Propósito
-Este **Software Design Document (SDD)** especifica a arquitetura técnica, o design orientado a objetos, a modelagem relacional e os padrões de projeto que regem a implementação do **Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)**.
+Este **Software Design Document (SDD)** estabelece o design funcional, a modelagem conceitual de domínio, os fluxos operacionais e as regras de negócio que governam o **Sistema de Agendamento e Prontuário para Clínicas Pequenas (Clinix)**.
 
-O documento formaliza como os requisitos levantados (`RF01–RF34`, `RN01–RN23`, `RQ01–RQ16`) foram consolidados em uma solução de software robusta, desacoplada, segura e em estrita conformidade com a LGPD.
+O objetivo primordial deste documento é traduzir as necessidades reais do ambiente de saúde em uma especificação de software lógica, elegante e desacoplada, garantindo a completa aderência aos requisitos funcionais (**RF01 a RF34**), às regras de negócio de domínio (**RN01 a RN23**) e aos requisitos de qualidade e governança (**RQ01 a RQ16**), em estrita conformidade com as diretrizes da norma internacional **ISO/IEC 25010** e com a **Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018)**.
 
-### 1.2 O Papel no Projeto Integrador Multidisciplinar
-O projeto integra harmonicamente as competências de quatro disciplinas da graduação em Engenharia de Software do CEUB:
+### 1.2 Problema de Negócio e Solução Proposta
+Consultórios e clínicas de pequeno porte (médicos, psicólogos, fisioterapeutas, fonoaudiólogos e nutricionistas) frequentemente enfrentam desafios críticos de gestão que afetam diretamente a qualidade do atendimento e a sustentabilidade financeira:
+1. **Conflito de Horários:** Marcação acidental de consultas simultâneas para o mesmo profissional em agendas manuais ou planilhas despadronizadas.
+2. **Absenteísmo e Evasão:** Faltas de pacientes ocasionadas pela ausência de mecanismos padronizados de confirmação imediata e lembretes preventivos com 24 horas de antecedência.
+3. **Vulnerabilidade de Prontuários:** Anotações clínicas dispersas ou passíveis de rasura e exclusão indevida, sem trilha de auditoria e sem histórico imutável de retificações.
+4. **Descontrole Financeiro:** Dificuldade no acompanhamento de consultas pendentes de quitação, impossibilidade de gerir pagamentos divididos (entrada e saldo) e ausência de relatórios mensais consolidados.
+5. **Risco Regulatório (LGPD):** Falta de segregação de acesso entre o corpo clínico e a recepção, bem como inexistência de procedimentos de anonimização e registro de logs de acesso a dados sensíveis de saúde.
+6. **Desconexão com Amostras Laboratoriais:** Insegurança no acompanhamento de exames terceirizados, gerando consultas realizadas sem o laudo do paciente.
+7. **Inexistência de Gestão Preventiva e Ouvidoria:** Perda de vínculo com pacientes que não retornam há mais de 6 meses e ausência de canal formal de avaliação de satisfação.
 
-```
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 1. Engenharia de Requisitos                │
-  │     (Documento de Requisitos: 34 RFs, 23 RNs, 16 RQs)       │
-  │                       [✅ CONCLUÍDO]                        │
-  └──────────────────────────────┬──────────────────────────────┘
-                                 │
-                                 ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │         2. Programação Orientada a Objetos (C# / .NET 8)    │
-  │       (Domínio Rico, 4 Pilares, TDD xUnit - 66 testes)      │
-  │                       [✅ CONCLUÍDO]                        │
-  └──────────────────────────────┬──────────────────────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-  ┌──────────────────────────────┐ ┌────────────────────────────┐
-  │    3. Banco de Dados II      │ │ 4. Desenv. de Interface    │
-  │ (MySQL 8.0, 15 tabelas, 3FN, │ │ (Web Responsivo, HTML5,    │
-  │   Repositórios Dapper C#)    │ │  TailwindCSS, React, PWA)  │
-  │        [✅ CONCLUÍDO]         │ │        [✅ CONCLUÍDO]       │
-  └──────────────┬───────────────┘ └─────────────┬──────────────┘
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │              5. Solução Integrada e Entregue                │
-  │ (ASP.NET Core Web API com DI Híbrida, Dapper, Docker e Web) │
-  │                       [✅ CONCLUÍDO]                        │
-  └─────────────────────────────────────────────────────────────┘
-```
-
-### 1.3 Premissa Fundamental de Arquitetura (Zero Retrabalho)
-Considerando que:
-1. **O professor de POO** valoriza arquiteturas modernas e funcionais (não limitadas a aplicações de terminal "tela preta");
-2. **A interface** será construída em tecnologias Web (HTML, CSS, JavaScript com transição para frameworks);
-3. **O banco de dados** em BD II será o **MySQL**;
-
-A arquitetura deste sistema adota o **Padrão em Camadas (Layered Architecture / Clean Architecture simplificada)** com **Inversão de Dependência**. As entidades e regras de negócio são **completamente agnósticas** de banco de dados e de telas.
+A solução **Clinix** resolve essas lacunas por meio de uma arquitetura orientada a serviços conceituais bem delimitados, garantindo que as regras de saúde, finanças e segurança sejam executadas de forma automática e transparente pelo sistema.
 
 ---
 
-## 2. Visão Geral da Arquitetura
+## 2. Arquitetura Lógica e Conceitual do Sistema
 
-O sistema é dividido em 4 camadas bem delimitadas:
+O sistema é estruturado no padrão de **Separação de Conceitos (Separation of Concerns)**, organizado em 5 camadas lógicas funcionais:
 
 ```mermaid
 flowchart TD
-    subgraph UI ["Camada de Apresentação (Interface)"]
-        WEB["Front-end Web (HTML5 / CSS3 / JavaScript)"]
+    subgraph UI ["1. Camada de Apresentação e Interação com o Usuário"]
+        INTERF["Interfaces Operacionais (Recepção, Consultório, Gestão e Ouvidoria)"]
     end
 
-    subgraph API ["Camada de Exposição / Aplicação (C# / .NET)"]
-        CTRL["Controllers / Endpoints REST (ASP.NET Core)"]
-        DTO["Data Transfer Objects (DTOs)"]
+    subgraph APP ["2. Camada de Aplicação e Orquestração de Casos de Uso"]
+        CASOS["Controladores de Casos de Uso (Agenda, Prontuário, Financeiro, Auditoria)"]
+        VALID["Validadores de Invariantes e Tratamento de Exceções Orientativas"]
     end
 
-    subgraph SERV ["Camada de Serviços / Negócio (Services)"]
-        AUTH_S["AuthService (Login & Sessão)"]
-        AG_S["AgendaService (RN01, RN02, RN10)"]
-        PR_S["ProntuarioService (RN05, RN06, RN17)"]
-        FIN_S["FinanceiroService (RN07, RN08, RN09)"]
-        NOT_S["NotificacaoService (RN14, RN15)"]
+    subgraph DOMAIN ["3. Camada de Domínio de Negócio (Entidades e Regras Puras)"]
+        PAC["Paciente"]
+        AG["Agendamento"]
+        PRONT["SessaoProntuario & VersaoAnotacao"]
+        PAG["Pagamento & Cobranca"]
+        OUV["AvaliacaoAtendimento"]
+        LAB["PedidoExameLaboratorio"]
+        NOTIF["Notificacao"]
+        USR["Usuario (Profissional & Administrador)"]
+        LOGS["LogAcesso"]
     end
 
-    subgraph DOMAIN ["Camada de Domínio (POO Pura)"]
-        ENT["Entidades (Paciente, Agendamento, Sessao, etc.)"]
-        ENUMS["Enums (StatusAgendamento, PerfilUsuario, etc.)"]
-        IR["Interfaces de Repositório (IPacienteRepository, etc.)"]
-        INOT["Interface de Notificação (INotificador)"]
+    subgraph REPO ["4. Camada de Persistência Abstrata (Repositórios Conceituais)"]
+        IREPO["Contratos Abstratos de Consulta, Armazenamento e Recuperação de Dados"]
     end
 
-    subgraph INFRA ["Camada de Infraestrutura / Persistência"]
-        MEM["Repositórios em Memória (Concurrent Collections - Thread-Safe)"]
-        MYSQL["Repositórios Relacionais MySQL 8.0 (Dapper & MySqlConnector)"]
-        DI_HYBRID["Injeção Híbrida & Secret Manager (dotnet user-secrets)"]
-        WHATS["NotificadorWhatsApp (Simulação de Canal)"]
+    subgraph EXT ["5. Camada de Comunicação e Canais Externos"]
+        MENSAG["Disparadores de Notificação e Integrações de Localização/Exames"]
     end
 
-    WEB <-->|"JSON / HTTP REST"| CTRL
-    CTRL --> DTO
-    CTRL --> SERV
-    SERV --> DOMAIN
-    SERV --> IR
-    SERV --> INOT
-    INFRA -.->|Implementa| IR
-    INFRA -.->|Implementa| INOT
+    UI --> APP
+    APP --> DOMAIN
+    APP --> IREPO
+    APP --> EXT
+    REPO -.->|Provê Dados| DOMAIN
 ```
 
-### 2.1 Descrição das Camadas
+### 2.1 Descrição das Camadas Conceituais
 
-1. **`Domain` (Domínio):** O núcleo da POO. Contém as classes de negócio puras, sem referências externas. Aplica regras intrínsecas e protege as invariantes dos dados com encapsulamento estrito (`private set`).
-2. **`Services` (Aplicação / Negócio):** Orquestra fluxos que envolvem múltiplas entidades, persistência e validações cruzadas (ex: verificar conflito de horário `RN01/RN02` e aplicar cancelamento tardio `RN10`).
-3. **`Infrastructure` (Persistência e Conectores):**
-   - **`ClinicaApp.Infrastructure.InMemory`:** Coleções thread-safe para testes automatizados rápidos e desenvolvimento ágil de front-end.
-   - **`ClinicaApp.Infrastructure.MySQL`:** Implementação relacional de alta performance via **Dapper**, mapeando as 15 tabelas em 3ª Forma Normal.
-   - **Injeção Híbrida (`Program.cs`):** Alternância automática em tempo de execução via connection string protegida com `dotnet user-secrets`.
-4. **`Presentation / API` (`ClinicaApp.Api`):** Endpoints REST em ASP.NET Core (.NET 8) que expõem recursos JSON e servem a interface Web integrada (`wwwroot/index.html`).
+1. **Camada de Apresentação e Interação com o Usuário:** Responsável pela mediação entre os operadores (profissionais de saúde, recepcionistas e administradores) e o sistema. Assegura facilidade de uso em até 3 cliques a partir do painel principal (**RQ10**), com terminologia amigável e acessibilidade multiplataforma.
+2. **Camada de Aplicação e Orquestração:** Centraliza a execução dos casos de uso, orquestrando entidades de negócio, persistência abstrata e canais de comunicação. Impede que a interface realize regras de negócio e garante que mensagens de validação sejam orientativas (**RQ11**).
+3. **Camada de Domínio de Negócio:** O coração conceitual do software. Contém as entidades, atributos, comportamentos e invariantes clínicas e regulatórias. Suas regras são autônomas, independentes de interfaces de usuário ou mecanismos de armazenamento.
+4. **Camada de Persistência Abstrata:** Define os contratos formais de recuperação e guarda permanente de entidades (isolando a lógica de negócio de qualquer formato físico de banco de dados).
+5. **Camada de Comunicação e Canais Externos:** Abstrai serviços de envio de mensagens preventivas aos pacientes e integrações cadastrais.
 
 ---
 
-## 3. Design Orientado a Objetos (Classes e Pilares de POO)
+## 3. Modelo Conceitual de Domínio (Entidades e Comportamentos)
 
-A modelagem de classes foi desenhada para aplicar os **quatro pilares da Orientação a Objetos** de maneira pragmática e elegante.
+A modelagem de entidades do domínio reflete a dinâmica clínica e administrativa, incorporando todos os atributos necessários para conformidade legal, financeira e de atendimento:
 
 ```mermaid
 classDiagram
     class Usuario {
-        <<abstract>>
-        +int Id
-        +string Nome
-        +string Login
-        +string SenhaHash
+        <<Conceito Base>>
+        +Inteiro Identificador
+        +Texto Nome
+        +Texto Login
+        +Texto CredencialProtegida
         +PerfilUsuario Perfil
-        +bool Ativo
-        +Autenticar(string senha) bool
+        +Booleano Ativo
+        +Autenticar(credencial) Booleano
     }
 
     class ProfissionalSaude {
-        +string RegistroProfissional
-        +string Especialidade
+        +Texto RegistroProfissional
+        +Texto EspecialidadeClinica
     }
 
     class Administrador {
-        +string Cargo
-        +bool PodeAuditarLogs() bool
+        +Texto AtribuicaoCargo
+        +Booleano TemPermissaoAuditoria() Booleano
+    }
+
+    class Paciente {
+        +Inteiro Identificador
+        +Texto NomeCompleto
+        +Texto DocumentoIdentificacao
+        +DataHora DataNascimento
+        +Texto TelefoneContato
+        +Texto Email
+        +Texto EnderecoCompleto
+        +Texto CEP
+        +Texto Logradouro
+        +Texto Numero
+        +Texto Complemento
+        +Texto Bairro
+        +Texto Cidade
+        +Texto EstadoUF
+        +Texto Alergias
+        +Texto CondicoesPreexistentes
+        +Booleano Ativo
+        +AtualizarEndereco(cep, logradouro, numero, complemento, bairro, cidade, uf)
+        +InativarComAnonimizacao()
+        +CalcularIdade() Inteiro
+    }
+
+    class Agendamento {
+        +Inteiro Identificador
+        +Inteiro PacienteId
+        +Inteiro ProfissionalId
+        +DataHora DataHoraInicio
+        +DataHora DataHoraFim
+        +StatusAgendamento Status
+        +Texto Observacoes
+        +Booleano CancelamentoTardio
+        +MotivoCancelamento CategoriaCancelamento
+        +Texto JustificativaCancelamento
+        +TemConflito(inicio, fim) Booleano
+        +Confirmar()
+        +Cancelar(momentoCancelamento, motivo, justificativa)
+        +Remarcar(novoInicio, novoFim)
+    }
+
+    class SessaoProntuario {
+        +Inteiro Identificador
+        +Inteiro PacienteId
+        +Inteiro AgendamentoId
+        +DataHora DataRegistro
+        +Texto AnotacoesClinicas
+        +Colecao VersoesArquivadas
+        +AlterarAnotacao(novoTexto, motivo)
+    }
+
+    class VersaoAnotacao {
+        +Inteiro Identificador
+        +Texto TextoAnterior
+        +DataHora DataModificacao
+        +Texto MotivoAlteracao
+    }
+
+    class Pagamento {
+        +Inteiro Identificador
+        +Inteiro AgendamentoId
+        +Decimal ValorEstipulado
+        +StatusPagamento Status
+        +FormaPagamento FormaQuita
+        +DataHora DataPagamento
+        +Texto TipoLancamento
+        +Texto ObservacaoConciliacao
+        +RegistrarPagamento(forma, data, observacao)
+        +AjustarValor(novoValor)
+    }
+
+    class AvaliacaoAtendimento {
+        +Inteiro Identificador
+        +Inteiro AgendamentoId
+        +Inteiro PacienteId
+        +Texto NomeExibicao
+        +DataHora DataAvaliacao
+        +Inteiro NotaRecepcao
+        +Inteiro NotaAtendimentoClinico
+        +Inteiro NotaEspacoFisico
+        +Texto ComentarioOuvidoria
+        +Booleano Anonimo
+        +CalcularMediaGeral() Decimal
+    }
+
+    class PedidoExameLaboratorio {
+        +Inteiro Identificador
+        +Inteiro PacienteId
+        +Texto NomePaciente
+        +Inteiro ProntuarioId
+        +Texto NomeExameAmostra
+        +Texto LaboratorioParceiro
+        +Texto CodigoRastreio
+        +DataHora DataColeta
+        +DataHora DataPrevisaoLaudo
+        +DataHora DataRecebimentoLaudo
+        +StatusAmostra Status
+        +Texto ObservacoesClinicas
+        +Booleano TemLaudoPendente() Booleano
+        +AtualizarStatus(novoStatus, observacao)
+    }
+
+    class Notificacao {
+        +Inteiro Identificador
+        +Inteiro AgendamentoId
+        +TipoNotificacao Tipo
+        +Texto DestinatarioTelefone
+        +Texto Mensagem
+        +StatusNotificacao Status
+        +Inteiro TentativasEnvio
+        +DataHora ProximaTentativa
+        +RegistrarSucesso(foiReenvio)
+        +RegistrarFalha(momentoFalha)
+        +PodeReenviar(momentoAtual) Booleano
+    }
+
+    class LogAcesso {
+        +Inteiro Identificador
+        +Inteiro UsuarioId
+        +Texto OperacaoRealizada
+        +Texto DetalhesRegistro
+        +DataHora DataHoraRegistro
     }
 
     Usuario <|-- ProfissionalSaude
     Usuario <|-- Administrador
-
-    class Paciente {
-        +int Id
-        +string Nome
-        +string DocumentoIdentificacao
-        +DateTime DataNascimento
-        +string Telefone
-        +string Email
-        +string Endereco
-        +string Alergias
-        +string CondicoesPreexistentes
-        +bool Ativo
-        +InativarComAnonimizacao() void
-        +CalcularIdade() int
-    }
-
-    class Agendamento {
-        +int Id
-        +int PacienteId
-        +int ProfissionalId
-        +DateTime DataHoraInicio
-        +DateTime DataHoraFim
-        +StatusAgendamento Status
-        +string Observacoes
-        +bool CancelamentoTardio
-        +TemConflito(DateTime inicio, DateTime fim) bool
-        +Confirmar() void
-        +Cancelar(DateTime momentoCancelamento) void
-        +Remarcar(DateTime novoInicio, DateTime novoFim) void
-    }
-
-    class SessaoProntuario {
-        +int Id
-        +int PacienteId
-        +int AgendamentoId
-        +DateTime DataRegistro
-        +string AnotacoesClinicas
-        +List~VersaoAnotacao~ HistoricoVersoes
-        +AlterarAnotacao(string novoTexto, string motivo) void
-    }
-
-    class VersaoAnotacao {
-        +int Id
-        +string TextoAnterior
-        +DateTime DataModificacao
-        +string MotivoAlteracao
-    }
-
-    class Pagamento {
-        +int Id
-        +int AgendamentoId
-        +decimal Valor
-        +StatusPagamento Status
-        +FormaPagamento Forma
-        +DateTime? DataPagamento
-        +RegistrarPagamento(FormaPagamento forma) void
-    }
-
-    class Notificacao {
-        +int Id
-        +int AgendamentoId
-        +TipoNotificacao Tipo
-        +CanalNotificacao Canal
-        +DateTime DataHoraAgendada
-        +StatusNotificacao Status
-        +int TentativasEnvio
-        +DateTime? ProximaTentativa
-        +RegistrarSucesso() void
-        +RegistrarFalha() void
-        +PodeReenviar() bool
-    }
-
-    class LogAcesso {
-        +int Id
-        +int UsuarioId
-        +string Operacao
-        +string Detalhes
-        +DateTime DataHora
-    }
-
-    class INotificador {
-        <<interface>>
-        +EnviarNotificacao(Notificacao notificacao, string destinatario, string mensagem) bool
-    }
-
-    class NotificadorWhatsApp {
-        +EnviarNotificacao(Notificacao notificacao, string destinatario, string mensagem) bool
-    }
-
-    SessaoProntuario *-- VersaoAnotacao
-    INotificador <|.. NotificadorWhatsApp
-    Agendamento --> Paciente
-    Agendamento --> ProfissionalSaude
-    SessaoProntuario --> Agendamento
-    Pagamento --> Agendamento
-    Notificacao --> Agendamento
+    Agendamento --> Paciente : "Pertence a"
+    Agendamento --> ProfissionalSaude : "Vinculado a"
+    SessaoProntuario --> Agendamento : "Originada de"
+    SessaoProntuario --> Paciente : "Historico de"
+    SessaoProntuario *-- VersaoAnotacao : "Possui versoes imutaveis"
+    Pagamento --> Agendamento : "Cobranca de"
+    Notificacao --> Agendamento : "Mensageria de"
+    AvaliacaoAtendimento --> Agendamento : "Avalia"
+    PedidoExameLaboratorio --> Paciente : "Amostra de"
+    LogAcesso --> Usuario : "Gerado por"
 ```
 
-### 3.1 Os Quatro Pilares da POO no Sistema
+---
 
-#### 1. Abstração
-- **`Usuario` (Classe Abstrata):** Modela as características essenciais comuns a qualquer usuário do sistema, impedindo instâncias diretas de um "usuário genérico".
-- **`INotificador` (Interface):** Abstrai o ato de enviar notificações, desacoplando as regras de agendamento de canais específicos (WhatsApp, E-mail ou SMS).
-- **`IRepository<T>` (Interfaces de Persistência):** Abstraem o acesso e armazenamento de dados.
+## 4. Diagramas de Sequência e Dinâmica de Comportamento do Sistema
 
-#### 2. Encapsulamento
-- Propriedades com getters públicos e **setters privados (`private set`)**, garantindo que nenhum estado de entidade seja modificado ilegalmente de fora.
-- Operações de negócio expostas através de métodos ricos com validação de invariantes:
-  - `Paciente.InativarComAnonimizacao()`
-  - `Agendamento.Cancelar(DateTime momento)`
-  - `SessaoProntuario.AlterarAnotacao(novoTexto, motivo)`
+Os diagramas a seguir representam o comportamento dinâmico e a orquestração de responsabilidades nos fluxos mais críticos do sistema.
 
-#### 3. Herança
-- `ProfissionalSaude` e `Administrador` herdam diretamente de `Usuario`. Reaproveitam propriedades de autenticação e identificação, estendendo campos específicos (registro profissional, nível de auditoria).
-
-#### 4. Polimorfismo
-- Implementação de `INotificador`: a classe `NotificadorWhatsApp` implementa o contrato `EnviarNotificacao`. O serviço de agendamento dispara a mensagem sem saber qual classe concreta está executando o envio.
-- Implementação dos Repositórios: os serviços dependem de `IPacienteRepository`, que no momento de POO aponta para `InMemoryPacienteRepository` e futuramente em BD II apontará para `MySqlPacienteRepository`.
-
-### 3.2 Diagramas de Sequência UML (Fluxos Críticos de Negócio)
-
-Os diagramas a seguir representam a dinâmica temporal e a troca de mensagens entre os objetos do sistema nos dois fluxos mais sensíveis do domínio.
-
-#### Fluxo Crítico 1: Agendamento com Verificação de Conflito e Notificação (RN01, RN02, RN03, RN04)
-
-Este fluxo demonstra a orquestração do serviço de agendamento, a proteção da regra de invariância de horário na entidade `Agendamento` e o disparo desacoplado de notificação:
+### 4.1 Fluxo 1: Agendamento com Verificação de Conflito e Notificação Preventiva (RN01, RN02, RN03, RN04)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Atend as "Profissional / Atendente"
-    participant UI as "Camada UI / Controller"
-    participant Serv as "AgendaService"
-    participant Repo as "IAgendamentoRepository"
-    participant Model as "Agendamento (Entidade)"
-    participant Notif as "INotificador (WhatsApp)"
+    actor Operador as "Atendente / Profissional"
+    participant Interf as "Interface da Agenda"
+    participant ServAgenda as "Serviço de Agendamento"
+    participant RepoAgenda as "Repositório de Agendamentos"
+    participant Entidade as "Agendamento (Entidade)"
+    participant ServMensag as "Serviço de Notificações"
 
-    Atend->>UI: Solicitar Agendamento (pacienteId, profId, dataHora)
-    UI->>Serv: AgendarConsulta(dto)
-    Serv->>Repo: ObterPorProfissionalEPeriodo(profId, data)
-    Repo-->>Serv: agendamentosExistentes
+    Operador->>Interf: Solicitar novo agendamento (Paciente, Profissional, Data/Horário)
+    Interf->>ServAgenda: AgendarConsulta(dadosAgendamento)
+    ServAgenda->>RepoAgenda: ObterConsultasDoProfissional(profissionalId, data)
+    RepoAgenda-->>ServAgenda: Lista de consultas existentes
 
-    loop Para cada agendamento ativo no dia
-        Serv->>Model: TemConflito(inicio, fim)
-        Model-->>Serv: bool temConflito
+    loop Para cada consulta ativa no período
+        ServAgenda->>Entidade: TemConflito(novoInicio, novoFim)
+        Entidade-->>ServAgenda: resultadoConflito (Verdadeiro / Falso)
     end
 
     alt Conflito Detectado (RN01, RN02)
-        Serv-->>UI: Lança RegraNegocioException ("Horário indisponível")
-        UI-->>Atend: Alerta de conflito e sugestão de novo horário
+        ServAgenda-->>Interf: Rejeitar solicitação ("Horário indisponível para o profissional")
+        Interf-->>Operador: Exibir alerta de sobreposição e sugerir horários livres
     else Horário Disponível
-        Serv->>Model: new Agendamento(pacienteId, profId, inicio, fim)
-        Serv->>Repo: Adicionar(novoAgendamento)
-        Repo-->>Serv: Agendamento persistido
+        ServAgenda->>Entidade: Criar novo Agendamento(Confirmado)
+        ServAgenda->>RepoAgenda: Salvar(novoAgendamento)
+        RepoAgenda-->>ServAgenda: Agendamento persistido
 
-        Serv->>Notif: EnviarNotificacao(notificacao, telefone, mensagem)
-        Notif-->>Serv: Status do envio (Sucesso / Falha)
+        par Disparo Imediato (RN03)
+            ServAgenda->>ServMensag: EnviarConfirmacaoImediata(dadosAgendamento, contato)
+        and Programação Preventiva 24h (RN04)
+            ServAgenda->>ServMensag: ProgramarLembrete24h(dadosAgendamento, dataHoraInicio)
+        end
 
-        Serv-->>UI: Retorna AgendamentoConfirmadoDTO
-        UI-->>Atend: Exibe confirmação com sucesso
+        ServAgenda-->>Interf: Confirmar sucesso da operação
+        Interf-->>Operador: Exibir comprovante de agendamento na grade clínica
     end
 ```
 
-#### Fluxo Crítico 2: Atendimento Clínico e Alteração de Prontuário com Histórico Imutável (RN05, RN06, RN13, RN17, RQ07)
+---
 
-Este fluxo modela o ciclo de vida do prontuário: a criação de snapshots imutáveis em cada alteração clínica e a geração obrigatória de trilha de auditoria para conformidade com a LGPD:
+### 4.2 Fluxo 2: Atendimento Clínico e Prontuário com Versionamento Imutável e Auditoria LGPD (RN05, RN06, RN13, RN17, RQ07)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Med as "Profissional de Saúde"
-    participant UI as "Camada UI / Controller"
-    participant Serv as "ProntuarioService"
-    participant Repo as "IProntuarioRepository"
+    actor Medico as "Profissional de Saúde"
+    participant Interf as "Interface do Prontuário"
+    participant ServPront as "Serviço de Prontuário"
+    participant RepoPront as "Repositório de Prontuários"
     participant Sessao as "SessaoProntuario (Entidade)"
-    participant Versao as "VersaoAnotacao (Snapshot)"
-    participant Log as "ILogRepository (Auditoria LGPD)"
+    participant RepoAudit as "Repositório de Auditoria LGPD"
 
-    Med->>UI: Editar Anotação Clínica (sessaoId, novoTexto, motivo)
-    UI->>Serv: AtualizarAnotacao(sessaoId, novoTexto, motivo, usuarioId)
-    Serv->>Repo: ObterPorId(sessaoId)
-    Repo-->>Serv: sessaoExistente
+    Medico->>Interf: Abrir ficha médica do paciente
+    Interf->>ServPront: ConsultarHistoricoClinico(pacienteId, usuarioId)
+    ServPront->>RepoAudit: RegistrarLog(usuarioId, "LEITURA_PRONTUARIO", pacienteId)
+    ServPront->>RepoPront: ObterHistoricoCompleto(pacienteId)
+    RepoPront-->>ServPront: Histórico de sessões e versões
+    ServPront-->>Interf: Exibir linha do tempo e anotações clínicas
 
-    Serv->>Sessao: AlterarAnotacao(novoTexto, motivo)
-    create participant Versao
-    Sessao->>Versao: new VersaoAnotacao(textoAnterior, DateTime.Now, motivo)
-    Sessao->>Sessao: HistoricoVersoes.Add(versao)
-    Sessao->>Sessao: AnotacoesClinicas = novoTexto
-
-    Serv->>Repo: Atualizar(sessaoExistente)
-    Repo-->>Serv: Prontuário persistido com versão arquivada
-
-    Serv->>Log: RegistrarLog(usuarioId, "EDICAO_PRONTUARIO", sessaoId)
-    Log-->>Serv: Log gravado
-
-    Serv-->>UI: Retorna SessaoAtualizadaDTO
-    UI-->>Med: Confirmação de edição com integridade preservada
+    opt Retificação de Anotação Clínica Existente (RN17)
+        Medico->>Interf: Submeter alteração de texto e justificativa obrigatória
+        Interf->>ServPront: AtualizarAnotacao(sessaoId, novoTexto, justificativa, usuarioId)
+        ServPront->>RepoPront: ObterSessaoPorId(sessaoId)
+        RepoPront-->>ServPront: sessaoExistente
+        
+        ServPront->>Sessao: AlterarAnotacao(novoTexto, justificativa)
+        Note over Sessao: Arquiva snapshot do texto anterior com data e justificativa (RN17)
+        
+        ServPront->>RepoPront: SalvarAtualizacao(sessaoExistente)
+        ServPront->>RepoAudit: RegistrarLog(usuarioId, "RETIFICACAO_PRONTUARIO", sessaoId)
+        ServPront-->>Interf: Confirmar atualização preservando histórico
+        Interf-->>Medico: Exibir prontuário atualizado com badge de versão anterior
+    end
 ```
 
 ---
 
-## 4. Padrões de Projeto (Design Patterns)
+### 4.3 Fluxo 3: Gestão Financeira com Quitação Dividida em Entrada e Saldo (RN07, RN08, RN19)
 
-### 4.1 Repository Pattern (Padrão Repositório)
-Isola completamente as classes de domínio e serviços de como os dados são guardados.
-```csharp
-public interface IPacienteRepository
-{
-    Paciente? ObterPorId(int id);
-    Paciente? ObterPorDocumento(string documento);
-    IEnumerable<Paciente> ListarTodos(bool apenasAtivos = true);
-    void Adicionar(Paciente paciente);
-    void Atualizar(Paciente paciente);
-}
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Recepcao as "Recepção / Administrador"
+    participant Interf as "Interface Financeira"
+    participant ServFin as "Serviço Financeiro"
+    participant RepoFin as "Repositório Financeiro"
+    participant Pagamento as "Pagamento (Entidade)"
+
+    Recepcao->>Interf: Registrar quitação parcial/dividida (Entrada e Saldo)
+    Interf->>ServFin: RegistrarPagamentoDividido(agendamentoId, valorTotal, valorEntrada, formaEntrada, formaSaldo)
+    
+    Note over ServFin: Validação de consistência: Entrada + Saldo == Valor Total (RN19)
+    
+    ServFin->>Pagamento: Criar Parcela de Entrada (Valor = valorEntrada, Status = PAGO, Forma = formaEntrada)
+    ServFin->>Pagamento: Criar Parcela de Saldo (Valor = saldoRestante, Status = PENDENTE, Forma = formaSaldo)
+    
+    ServFin->>RepoFin: SalvarLancamentos(parcelaEntrada, parcelaSaldo)
+    RepoFin-->>ServFin: Lançamentos persistidos
+    
+    ServFin-->>Interf: Conciliação efetuada com sucesso
+    Interf-->>Recepcao: Exibir recibo da entrada e registrar saldo pendente na listagem (RN08)
 ```
-* **Fase POO:** Implementado por `InMemoryPacienteRepository` usando `List<Paciente>` e consultas LINQ (`.FirstOrDefault()`, `.Where()`).
-* **Fase BD II:** Implementado por `MySqlPacienteRepository` usando comandos SQL (`SELECT`, `INSERT`, `UPDATE`).
-
-### 4.2 Service Layer Pattern (Camada de Serviços)
-Centraliza a lógica de negócio de aplicação e garante orquestração transacional. Evita "Controladores Gordos" (*Fat Controllers*) e mantém as entidades enxutas.
-- `AgendaService`: coordena verificação de choques de horário, persistência de agendamentos e disparo de confirmações.
-- `ProntuarioService`: valida se a consulta já foi realizada antes de liberar a anotação clínica.
-
-### 4.3 Strategy / Adapter Pattern (Notificações)
-O envio de mensagens é encapsulado pela interface `INotificador`. O canal atual é WhatsApp (`NotificadorWhatsApp`), mas se a clínica quiser enviar por E-mail no futuro, basta criar `NotificadorEmail : INotificador` sem tocar na regra de agendamento.
 
 ---
 
-## 5. Matriz de Rastreabilidade (Requisitos → POO)
+### 4.4 Fluxo 4: Rastreamento de Amostras Laboratoriais e Alerta Clínico na Agenda (RN23)
 
-A tabela a seguir comprova como cada Requisito Funcional (RF), Regra de Negócio (RN) e Requisito de Qualidade (RQ) é atendido no código C#:
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Profissional as "Profissional de Saúde"
+    actor Laboratorio as "Laboratório Externo"
+    participant Interf as "Agenda e Painel Clínico"
+    participant ServLab as "Serviço de Exames Laboratoriais"
+    participant Amostra as "PedidoExameLaboratorio (Entidade)"
 
-| Requisito / Regra | Descrição Sumária | Classe C# Responsável | Método / Elemento de Código |
+    Profissional->>ServLab: Registrar Coleta de Amostra para Análise Externa
+    ServLab->>Amostra: CriarPedido(Status = ColetadoNaClinica, PrevisaoLaudo)
+    
+    loop Durante o processamento externo
+        Interf->>ServLab: VerificarStatusAmostras(pacienteId)
+        ServLab-->>Interf: Amostra com LaudoPendente = Verdadeiro
+        Interf->>Interf: Exibir alerta visual prioritário na consulta do paciente (RN23)
+    end
+
+    Laboratorio-->>ServLab: Disponibilizar laudo técnico concluído
+    ServLab->>Amostra: AtualizarStatus(LaudoLiberado, DataRecebimento)
+    Interf->>ServLab: VerificarStatusAmostras(pacienteId)
+    ServLab-->>Interf: LaudoPendente = Falso
+    Interf->>Interf: Cessar alerta prioritário e liberar visualização do laudo
+```
+
+---
+
+### 4.5 Fluxo 5: Avaliação de Atendimento (Ouvidoria) e Opção de Anonimato (RN21)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Paciente as "Paciente"
+    participant Interf as "Interface de Ouvidoria / Feedback"
+    participant ServOuv as "Serviço de Ouvidoria"
+    participant Avaliacao as "AvaliacaoAtendimento (Entidade)"
+
+    Paciente->>Interf: Submeter avaliação pós-consulta (Notas 1-5, Comentário, Opção Anônima)
+    Interf->>ServOuv: RegistrarAvaliacao(agendamentoId, notaRecepcao, notaClinico, notaEspaco, comentario, anonimo)
+    
+    Note over ServOuv: Validação de intervalo das notas: estritamente de 1 a 5 estrelas (RN21)
+    
+    alt Opção Anônima Selecionada (RN21)
+        ServOuv->>Avaliacao: Criar(NomeExibicao = "Paciente Anônimo", Notas, Anonimo = Verdadeiro)
+    else Identificação Autorizada
+        ServOuv->>Avaliacao: Criar(NomeExibicao = nomeReal, Notas, Anonimo = Falso)
+    end
+
+    ServOuv->>Avaliacao: CalcularMediaGeral()
+    ServOuv-->>Interf: Avaliação computada com sucesso
+    Interf-->>Paciente: Exibir mensagem de agradecimento e resguardo de privacidade
+```
+
+---
+
+### 4.6 Fluxo 6: Campanha de Recorrência Preventiva de Saúde (RN22)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Gestor as "Gestor / Profissional da Clínica"
+    participant Painel as "Painel de Gestão Preventiva"
+    participant ServPrev as "Serviço de Saúde Preventiva"
+    participant RepoPac as "Repositório de Pacientes"
+    participant Mensag as "Serviço de Mensageria"
+
+    Gestor->>Painel: Consultar pacientes elegíveis para retorno preventivo
+    Painel->>ServPrev: ObterPacientesComAusenciaMaiorQue180Dias()
+    ServPrev->>RepoPac: FiltrarPacientesPorDataUltimaConsulta()
+    RepoPac-->>ServPrev: Lista de pacientes sem consulta há mais de 6 meses (RN22)
+    ServPrev-->>Painel: Exibir lista de elegibilidade preventiva
+    
+    Gestor->>Painel: Acionar campanha de retorno preventivo
+    Painel->>ServPrev: DispararConvitesRetorno(listaPacientes, beneficioFidelidade)
+    loop Para cada paciente elegível
+        ServPrev->>Mensag: EnviarConviteCheckupPreventivo(contato, beneficioPromocional)
+    end
+    ServPrev-->>Painel: Confirmação de disparos preventivos efetuados
+```
+
+---
+
+## 5. Especificação Completa das 23 Regras de Negócio do Domínio (RN01 a RN23)
+
+As regras a seguir definem os comportamentos invioláveis do sistema, formuladas de maneira estritamente conceitual e agnóstica de tecnologias de implementação:
+
+| Código | Nome da Regra | Enunciado Conceitual e Comportamento do Sistema | Requisitos Vinculados |
 | :--- | :--- | :--- | :--- |
-| **RF01–RF05** | CRUD e busca de Pacientes | `Paciente`, `IPacienteRepository` | `Adicionar()`, `ObterPorDocumento()` |
-| **RF06–RF11** | Agendamento e bloqueio | `Agendamento`, `AgendaService` | `Agendar()`, `BloquearHorario()` |
-| **RF12–RF14** | Notificações e lembretes | `Notificacao`, `INotificador` | `EnviarNotificacao()`, `PodeReenviar()` |
-| **RF15–RF18** | Prontuário e histórico | `SessaoProntuario`, `VersaoAnotacao` | `RegistrarSessao()`, `AlterarAnotacao()` |
-| **RF19–RF22** | Financeiro e pendências | `Pagamento`, `FinanceiroService` | `RegistrarPagamento()`, `GerarResumoMensal()` |
-| **RF26–RF28** | Autenticação, perfis e logs | `Usuario`, `LogAcesso`, `AuthService` | `Autenticar()`, `RegistrarLog()` |
-| **RF29, RN18** | Endereço com CEP e ViaCEP | `Paciente`, `CepController` | `AtualizarEndereco(cep, logr, ...)` |
-| **RF30, RN19** | Pagamento dividido Entrada + Saldo | `Pagamento`, `FinanceiroService` | `RegistrarPagamentoDividido(...)` |
-| **RF31, RN20** | Cancelamento com categoria e motivo | `Agendamento`, `AgendaService` | `CancelarConsulta(id, motivo, justificativa)` |
-| **RF32, RN21** | Ouvidoria e avaliação 1 a 5 estrelas | `AvaliacaoAtendimento`, `IAvaliacaoRepository` | `Adicionar()`, `CalcularMediaGeral()` |
-| **RF33, RN22** | Recorrência preventiva 180+ dias | `AgendaService`, Dashboard UI | Detecção semestral e cupom `CHECKUP10` |
-| **RF34, RN23** | Rastreamento de amostras laboratoriais | `PedidoExameLaboratorio`, `IExameLaboratorioRepository` | `AtualizarStatus(...)`, Alerta na Agenda |
-| **RN01, RN02** | Verificação de conflito de horário | `Agendamento` | `TemConflito(DateTime inicio, DateTime fim)` |
-| **RN03, RN04** | Confirmação e lembrete automático 24h | `AgendaService` | `ProgramarNotificacoes(Agendamento ag)` |
-| **RN05, RN06** | Prontuário registrado pós-atendimento | `ProntuarioService` | `RegistrarAtendimento(sessao)` |
-| **RN07, RN08** | Pagamento pendente até quitação | `Pagamento` | `RegistrarPagamento(FormaPagamento)` |
-| **RN09** | Resumo financeiro mensal | `FinanceiroService` | `ObterRelatorioMensal(mes, ano)` |
-| **RN10** | Cancelamento tardio (< 24h) | `Agendamento` | `Cancelar(DateTime momentoCancelamento)` |
-| **RN11, RN12** | Isolamento de perfil (Profissional vs Admin) | `AuthService`, `SessaoUsuario` | Filtro `ProfissionalId == usuario.Id` |
-| **RN13, RQ07**| Log de auditoria em dados de prontuário | `LogAcesso`, `ProntuarioService` | `ILogRepository.Salvar(LogAcesso)` |
-| **RN14, RN15**| Retentativa de notificação (1x após 15 min) | `Notificacao` | `PodeReenviar()`, `RegistrarFalha()` |
-| **RN16, RQ03**| Inativação lógica com anonimização (LGPD) | `Paciente` | `InativarComAnonimizacao()` |
-| **RN17** | Histórico imutável de edições no prontuário | `SessaoProntuario` | `AlterarAnotacao(novoTexto, motivo)` |
-| **RN18** | Consistência e validação de CEP | `Paciente`, `CepController` | Validação de 8 dígitos numéricos |
-| **RN19** | Consistência na soma do pagamento dividido | `FinanceiroService` | Validação `entrada + saldo == valorTotal` |
-| **RN20** | Obrigatoriedade de categoria no cancelamento | `Agendamento`, `AgendaService` | Enum `MotivoCancelamento` e justificativa |
-| **RN21** | Integridade das notas de ouvidoria | `AvaliacaoAtendimento` | Notas no intervalo fechado de 1 a 5 |
-| **RN22** | Elegibilidade de fidelidade preventiva | Frontend / Agenda | Filtro de 180+ dias sem atendimento |
-| **RN23** | Alerta visual de laudo pendente | Frontend / `ExamesLaboratorioController` | Badge dinâmico de amostra em análise |
-| **RQ08** | Senha armazenada com Hash seguro | `Usuario` / `CriptografiaUtil` | `CriptografiaUtil.GerarHash(senha)` |
+| **RN01** | Verificação Prévia de Conflito | Ao receber solicitação de agendamento ou remarcação, o sistema deve verificar obrigatoriamente a disponibilidade de horário na agenda do profissional antes de qualquer confirmação. | RF06, RF09 |
+| **RN02** | Bloqueio de Horário Indisponível | Havendo sobreposição de horário com outra consulta ativa ou com período bloqueado na agenda do profissional, o sistema deve recusar a operação e orientar a seleção de outro horário livre. | RF09, RF11 |
+| **RN03** | Confirmação Imediata de Agendamento | A confirmação formal de uma consulta deve acionar imediatamente a emissão de notificação com os dados do agendamento para o canal de contato do paciente. | RF06, RF12 |
+| **RN04** | Programação de Lembrete Preventivo de 24 Horas | Toda consulta agendada deve ter o envio de um lembrete preventivo programado automaticamente para exatamente 24 horas antes do início previsto do atendimento. | RF06, RF13 |
+| **RN05** | Obrigatoriedade de Registro de Atendimento Clínico | O profissional de saúde deve registrar as notas clínicas da sessão antes de concluir e encerrar o atendimento do paciente no sistema. | RF15 |
+| **RN06** | Atualização Imediata da Linha do Tempo Médica | Todo registro ou retificação de sessão de prontuário deve alimentar em tempo real o histórico médico cronológico do paciente. | RF15, RF17, RF23 |
+| **RN07** | Unicidade de Cobrança por Consulta | Não é permitido gerar mais de uma cobrança financeira para o mesmo agendamento, ressalvado o desmembramento decorrente de quitação dividida em entrada e saldo. | RF19, RF20, RF30 |
+| **RN08** | Manutenção de Cobranças em Aberto | Cobranças com status pendente devem permanecer na listagem de pendências financeiras até que seja formalizada a quitação com forma e data de liquidação. | RF20, RF21 |
+| **RN09** | Conciliação e Fechamento Financeiro Mensal | O demonstrativo financeiro mensal deve consolidar estritamente os atendimentos, faturamentos, valores liquidados e saldos em aberto vinculados ao mês de referência. | RF22 |
+| **RN10** | Sinalização de Cancelamento Tardio (< 24 Horas) | Cancelamentos solicitados com menos de 24 horas de antecedência do horário agendado devem ser gravados obrigatoriamente com sinalização de cancelamento tardio no histórico. | RF08, RF31 |
+| **RN11** | Sigilo Clínico e Acesso Restrito | O acesso a prontuários eletrônicos, fichas cadastrais e informações clínicas de pacientes é estritamente restrito a usuários cadastrados e autenticados. | RF26 |
+| **RN12** | Segregação de Funções e Perfis (RBAC) | Usuários com perfil Profissional acessam exclusivamente os pacientes, agendas e prontuários vinculados à sua atuação clínica; usuários com perfil Administrador acessam recepção, cadastros, financeiro e governança, sem acesso indevido ao sigilo clínico dos atendimentos. | RF27 |
+| **RN13** | Trilha de Auditoria Imutável (LGPD) | Toda consulta, visualização ou edição realizada em dados de prontuário e registros pessoais de saúde deve registrar log de auditoria com identificação do usuário, data e hora. | RF28 |
+| **RN14** | Tolerância a Falhas na Comunicação (Retentativa Única) | Em caso de falha no envio de notificação de confirmação ou lembrete, o sistema deve realizar automaticamente uma única nova tentativa após 15 minutos. | RF14 |
+| **RN15** | Alerta Visual de Falha de Notificação | Persistindo o insucesso após a retentativa automática, o sistema deve emitir alerta visual na agenda do profissional e na recepção para possibilitar contato manual. | RF14 |
+| **RN16** | Inativação Lógica e Anonimização LGPD | A exclusão de pacientes deve ser estritamente lógica (inativação cadastral), mantendo o histórico de prontuários e anonimizando dados cadastrais dispensáveis (telefone, e-mail, endereço). | RF03 |
+| **RN17** | Imutabilidade e Versionamento de Prontuário | Anotações clínicas anteriores nunca são sobrescritas; qualquer edição gera uma nova versão com data e justificativa formal obrigatória, preservando o histórico anterior. | RF16 |
+| **RN18** | Consistência Cadastral de Endereçamento e CEP | O cadastro de endereço do paciente deve conter um CEP válido composto por 8 dígitos numéricos, com preenchimento coerente de logradouro, bairro, cidade e estado. | RF29 |
+| **RN19** | Conciliação Matemática de Pagamento Dividido | Na modalidade de pagamento misto ou dividido, a soma exata da Entrada com o Saldo restante deve corresponder ao valor total da consulta, mantendo o saldo em aberto até a liquidação. | RF30 |
+| **RN20** | Obrigatoriedade de Motivo e Justificativa no Cancelamento | Todo cancelamento de consulta deve registrar obrigatoriamente a seleção de uma categoria padronizada (Desistência, Conflito, Financeiro, Saúde, Satisfação, Outro) e justificativa descritiva. | RF31 |
+| **RN21** | Integridade de Notas e Anonimato na Ouvidoria | As notas atribuídas na avaliação de atendimento devem situar-se no intervalo de 1 a 5 estrelas para recepção, atendimento clínico e instalações, resguardando a opção de envio anônimo. | RF32 |
+| **RN22** | Janela de Elegibilidade Preventiva (180+ Dias) | Pacientes sem atendimentos clínicos registrados há mais de 180 dias devem ser qualificados pelo sistema como elegíveis a ações preventivas de retorno à saúde com incentivo de fidelidade. | RF33 |
+| **RN23** | Alerta Clínico de Amostra Laboratorial Pendente | Consultas com exames ou amostras biológicas encaminhadas a processamento externo devem manter sinalização de alta prioridade na agenda clínica até a disponibilização do laudo. | RF34 |
 
 ---
 
-## 6. Persistência Relacional com MySQL 8.0 & Dapper (Implementado)
+## 6. Matriz de Rastreabilidade Conceitual (Requisitos → Domínio)
 
-A persistência do sistema evoluiu com sucesso da simulação em memória para um banco de dados relacional **MySQL 8.0** de nível de produção, modelado em estrita **3ª Forma Normal (3FN)**:
+A matriz abaixo comprova como cada Requisito Funcional (**RF01 a RF34**) é suportado pelas entidades de domínio e pelos comportamentos do sistema:
 
-### 6.1 Mapeamento Objeto-Relacional (DDD ↔ SQL)
-A modelagem de entidades do domínio POO mapeia diretamente para o esquema relacional oficial ([`01_schema_ddl.sql`](../../bancodedadosclinica/01_schema_ddl.sql)):
-
-| Entidade C# (POO) | Tabela Relacional (MySQL) | Chave Primária (PK) | Chaves Estrangeiras (FK) & Índices |
-| :--- | :--- | :--- | :--- |
-| `Usuario` (Base) | `usuarios` | `id_usuario` | `uq_usuarios_login`, `uq_usuarios_id_perfil` |
-| `ProfissionalSaude` | `profissionais_saude` | `id_usuario` | `fk_prof_usuario (id_usuario, perfil)`, `uq_prof_registro` |
-| `Administrador` | `administradores` | `id_usuario` | `fk_adm_usuario (id_usuario, perfil)` |
-| `Paciente` | `pacientes` | `id_paciente` | `uq_pacientes_documento`, `fk_pacientes_profissional` |
-| `Agendamento` | `agendamentos` | `id_agendamento` | `fk_agendamento_paciente`, `fk_agendamento_profissional` |
-| `SessaoProntuario` | `sessoes_prontuario` | `id_sessao` | `fk_sessao_paciente`, `fk_sessao_agendamento` |
-| `VersaoAnotacao` | `historico_versoes_prontuario` | `id_versao` | `fk_versao_sessao (id_sessao)` |
-| `Pagamento` | `pagamentos` | `id_pagamento` | `uq_pagamentos_agendamento (RN07)` |
-| `LogAcesso` | `logs_acesso` | `id_log` | `fk_logs_usuario (id_usuario)`, `idx_logs_data` |
-
-### 6.2 Repositórios Relacionais Dapper (`ClinicaApp.Infrastructure.MySQL`)
-Optou-se pelo micro-ORM **Dapper** em conjunto com **MySqlConnector** devido à performance máxima e ao controle explícito de consultas SQL parametrizadas (**RQ09 - Prevenção contra SQL Injection**):
-1. **`MySqlPacienteRepository`:** Executa CRUD de pacientes e aplica anonimização lógica LGPD (`RN16, RQ03`).
-2. **`MySqlAgendamentoRepository`:** Consulta bloqueios de horário (`RN01, RN02`) e marcação de cancelamento tardio (`RN10`).
-3. **`MySqlUsuarioRepository`:** Gerencia herança Table-per-Type (TPT) com integridade transacional ACID (`usuarios` + `profissionais_saude`/`administradores`).
-4. **`MySqlProntuarioRepository`:** Persiste sessões clínicas e histórico imutável de versões (`RN17, RF16`).
-5. **`MySqlPagamentoRepository`:** Garante unicidade de cobrança por consulta (`RN07`) e controle de quitação (`RN08`).
-6. **`MySqlLogAcessoRepository`:** Gravação imutável de trilha de auditoria para fins de compliance LGPD (`RF28, RN13, RQ07`).
-
-### 6.3 Injeção de Dependência Híbrida & Gestão Segura de Credenciais
-No `Program.cs` da API, adotou-se o padrão de **Injeção Híbrida**:
-- Se a connection string `ClinixDb` estiver presente e válida, a API registra os repositórios MySQL em escopo `Scoped`.
-- Caso contrário, faz fallback gracioso para os repositórios `InMemory` em escopo `Singleton`.
-- Para proteger senhas de banco de dados, utiliza-se o **Secret Manager** (`dotnet user-secrets`), mantendo credenciais fora de arquivos rastreados pelo Git.
-
-### 6.4 Orquestração Conteinerizada (Docker Compose)
-O arquivo [`docker-compose.yml`](../../docker-compose.yml) provê um ambiente completo em 1 comando (`docker compose up -d`):
-- Container **MySQL 8.0** com inicialização automática dos scripts DDL e Seed via volume `/docker-entrypoint-initdb.d/`.
-- Container **API .NET 8** conectada em rede interna ao banco de dados com healthcheck automático.
-
----
-
-## 7. Camada de Apresentação e Integração Web
-
-### 7.1 ASP.NET Core Web API (`ClinicaApp.Api`)
-A exposição de serviços adota o padrão RESTful com endpoints documentados via Swagger:
-- **`AuthController`:** `POST /api/auth/login` (autenticação segura e RBAC).
-- **`PacientesController`:** `GET /api/pacientes`, `POST /api/pacientes`, `PUT /api/pacientes/{id}`, `DELETE /api/pacientes/{id}` (anonimização LGPD).
-- **`AgendamentosController`:** `GET /api/agendamentos`, `POST /api/agendamentos`, `PUT /api/agendamentos/{id}/confirmar`, `PUT /api/agendamentos/{id}/cancelar`.
-- **`ProntuariosController`:** `GET /api/prontuarios/{pacienteId}`, `POST /api/prontuarios` (versões imutáveis).
-- **`FinanceiroController`:** `GET /api/financeiro/resumo?mes={m}&ano={a}`, `PUT /api/financeiro/{id}/pagar`.
-
-### 7.2 Camada Cliente Front-End (`api.js` & `index.html`)
-O frontend web consome os endpoints através de um módulo cliente desacoplado (`api.js`):
-- Chamadas assíncronas via `fetch()` com cabeçalhos padronizados `application/json`.
-- Captura de exceções de domínio e exibição de alertas amigáveis em tela (**RQ11**).
-- Modo Híbrido: se a API estiver offline (como na demonstração do GitHub Pages), a interface alterna automaticamente para armazenamento local em `localStorage`.
+| Requisito Funcional | Denominação do Requisito | Entidade Conceitual Responsável | Comportamento do Sistema | Regras Associadas |
+| :--- | :--- | :--- | :--- | :--- |
+| **RF01** | Inclusão de Paciente | `Paciente` | Validação de dados obrigatórios e criação de ficha | RN11, RN18 |
+| **RF02** | Alteração de Paciente | `Paciente` | Atualização cadastral com consistência de dados | RN11, RN18 |
+| **RF03** | Inativação Lógica com Anonimização | `Paciente` | `InativarComAnonimizacao()` mantendo histórico clínico | RN16 |
+| **RF04** | Consulta de Ficha Cadastral | `Paciente` | Exibição de ficha com destaque de alertas clínicos | RN11, RN12 |
+| **RF05** | Busca de Pacientes | `Paciente` | Localização imediata por nome ou número de documento | RN11, RN12 |
+| **RF06** | Agendamento de Consultas | `Agendamento` | Criação de agendamento após validação de agenda | RN01, RN02, RN03, RN04 |
+| **RF07** | Remarcação de Consultas | `Agendamento` | `Remarcar()` validando disponibilidade do novo horário | RN01, RN02 |
+| **RF08** | Cancelamento de Consultas | `Agendamento` | `Cancelar()` com verificação de antecedência tardia (<24h) | RN10, RN20 |
+| **RF09** | Verificação de Conflitos | `Agendamento` | `TemConflito()` impedindo sobreposição de horários | RN01, RN02 |
+| **RF10** | Visualização da Agenda Clínica | `Agendamento` | Exibição em grade diária, semanal e mensal | RN01, RN02, RN23 |
+| **RF11** | Bloqueio de Períodos da Agenda | `Agendamento` | Criação de intervalos de indisponibilidade profissional | RN02 |
+| **RF12** | Confirmação Imediata de Consulta | `Notificacao` | Disparo instantâneo com detalhes do agendamento | RN03 |
+| **RF13** | Lembrete Preventivo de 24 Horas | `Notificacao` | Programação e envio de lembrete preventivo antecipado | RN04 |
+| **RF14** | Tolerância a Falhas em Notificações | `Notificacao` | `RegistrarFalha()` e retentativa única após 15 minutos | RN14, RN15 |
+| **RF15** | Registro de Sessão Clínica | `SessaoProntuario` | Criação de anotação clínica vinculada ao atendimento | RN05, RN06, RN13 |
+| **RF16** | Retificação com Versionamento | `SessaoProntuario` | `AlterarAnotacao()` criando snapshot imutável | RN17 |
+| **RF17** | Consulta à Linha do Tempo Médica | `SessaoProntuario` | Exibição cronológica completa de atendimentos e versões | RN06, RN11, RN13 |
+| **RF18** | Registro de Alergias e Condições | `Paciente` | Destaque prioritário de condições clínicas preexistentes | RN06, RN15 |
+| **RF19** | Registro de Cobrança de Consulta | `Pagamento` | Geração de cobrança sem duplicidade por agendamento | RN07 |
+| **RF20** | Quitação e Liquidação Financeira | `Pagamento` | `RegistrarPagamento()` com forma, data e conciliação | RN07, RN08 |
+| **RF21** | Consulta de Pendências Financeiras | `Pagamento` | Filtragem de cobranças pendentes por período e paciente | RN08 |
+| **RF22** | Resumo Financeiro Mensal | `Pagamento` | Consolidação matemática de faturamento e quitações | RN09 |
+| **RF23** | Histórico Geral de Atendimentos | `Agendamento`, `SessaoProntuario` | Rastreabilidade completa de consultas realizadas e faltas | RN06, RN10 |
+| **RF24** | Relatório Gerencial Consolidado | `Agendamento`, `Pagamento` | Apuração analítica de atendimentos, valores e motivos | RN09, RN20 |
+| **RF25** | Exportação Padronizada com Auditoria | `LogAcesso` | Exportação de dados e prontuário com registro formal | RN13 |
+| **RF26** | Autenticação Segura | `Usuario` | Validação de credenciais protegidas e controle de sessão | RN11 |
+| **RF27** | Controle de Acesso Baseado em Papéis | `Usuario` | Segregação estrita entre Profissional e Administrador | RN12 |
+| **RF28** | Registro de Trilha de Auditoria | `LogAcesso` | Gravação imutável de operações sobre dados sensíveis | RN13 |
+| **RF29** | Endereço Estruturado com CEP | `Paciente` | `AtualizarEndereco()` estruturado com campos atômicos | RN18 |
+| **RF30** | Pagamento Dividido Entrada + Saldo | `Pagamento` | Desdobramento de quitação com validação de soma total | RN19 |
+| **RF31** | Motivos e Métricas de Cancelamento | `Agendamento` | Registro de categoria de motivo e justificativa | RN10, RN20 |
+| **RF32** | Ouvidoria e Avaliação de Atendimento | `AvaliacaoAtendimento` | Coleta de notas (1-5), cálculo de média e anonimato | RN21 |
+| **RF33** | Gestão de Recorrência Preventiva | `Paciente`, `Agendamento` | Identificação de ausência de 180+ dias e incentivo | RN22 |
+| **RF34** | Rastreamento de Amostras Laboratoriais | `PedidoExameLaboratorio` | Gestão de ciclo de vida de amostras e alerta na agenda | RN23 |
 
 ---
 
-## 8. Estrutura Física da Solução C# (.NET 8)
+## 7. Requisitos de Qualidade e Governança (ISO/IEC 25010 & LGPD)
 
-A organização no diretório `src/` reflete estritamente a separação em camadas:
+A especificação de qualidade assegura que o sistema não apenas cumpra suas funções, mas atue com confiabilidade, segurança e excelência de experiência:
 
-```
-src/
-├── ClinicaApp.slnx                     # Arquivo de Solução (.NET 8)
-├── ClinicaApp/                         # Domínio e Infraestrutura
-│   ├── Domain/
-│   │   ├── Entities/                   # Paciente, Agendamento, SessaoProntuario, Pagamento, etc.
-│   │   ├── Enums/                      # StatusAgendamento, PerfilUsuario, FormaPagamento, etc.
-│   │   └── Interfaces/                 # IPacienteRepository, IAgendamentoRepository, INotificador, etc.
-│   ├── Infrastructure/
-│   │   ├── InMemory/                   # Persistência em memória thread-safe (Fallback & Testes)
-│   │   ├── MySQL/                      # 6 Repositórios relacionais concretos com Dapper
-│   │   └── External/                   # NotificadorWhatsApp (simulação de mensageria externa)
-│   └── Services/                       # Application Services com guardiões das Regras de Negócio
-│       ├── AuthService.cs              # RF26, RQ08: Autenticação PBKDF2/SHA-256 + Salt
-│       ├── AgendaService.cs            # RN01/RN02: Conflitos; RN10: Cancelamento tardio; RF12: WhatsApp
-│       ├── ProntuarioService.cs        # RN05, RN17: Histórico imutável; RN13, RQ07: Auditoria LGPD
-│       └── FinanceiroService.cs        # RN07: Cobrança sem duplicidade; RN08/RN09: Quitação e fechamento
-├── ClinicaApp.Api/                     # Apresentação e API REST
-│   ├── Controllers/                    # Endpoints RESTful
-│   ├── Data/DadosIniciais.cs           # Seed de dados para modo em memória
-│   ├── Program.cs                      # Injeção híbrida, CORS, Swagger e estáticos
-│   └── wwwroot/                        # Interface Web distribuída diretamente com a API
-├── ClinicaApp.Tests/                   # Suíte de Testes Automatizados (xUnit / TDD)
-│   ├── Domain/                         # 33 testes unitários focados nas entidades
-│   └── Services/                       # 33 testes unitários dos fluxos de regras de negócio
-└── README.md                           # Documentação técnica do código-fonte
-```
+### 7.1 Segurança e Conformidade com a LGPD (Lei 13.709/2018)
+- **Base Legal e Finalidade Estrita (RQ01, RQ05):** Tratamento restrito à tutela da saúde e prestação de serviços clínicos.
+- **Portabilidade de Dados (RQ02):** Capacidade de emissão e exportação estruturada do histórico clínico a pedido do titular.
+- **Anonimização Segura (RQ03, RN16):** Preservação legal do histórico clínico com remoção de contatos identificadores ao inativar paciente.
+- **Criptografia e Proteção de Dados (RQ04, RQ08):** Proteção integral de dados em repouso e em trânsito; credenciais protegidas por algoritmo irreversível de derivação com salt.
+- **Controle de Acesso Baseado em Papéis - RBAC (RQ06, RN12):** Segregação formal de atribuições entre corpo clínico e recepção/administração.
+- **Não Repúdio e Trilha de Auditoria (RQ07, RN13):** Registro imutável de autor, data, hora e operação realizada sobre prontuários e dados cadastrais.
+
+### 7.2 Usabilidade e Acessibilidade Operacional
+- **Facilidade de Aprendizado (RQ09):** Interfaces claras, intuitivas e desenhadas para profissionais de saúde e recepcionistas.
+- **Regra de Eficiência em 3 Cliques (RQ10):** Acesso às operações vitais (agendar consulta, abrir prontuário, registrar quitação) em no máximo 3 cliques a partir do painel principal.
+- **Mensagens Orientativas e Não Técnicas (RQ11):** Tratamento de impedimentos de negócio com instruções claras de resolução, sem exposição de jargões técnicos ao usuário final.
+
+### 7.3 Confiabilidade, Resiliência e Disponibilidade
+- **Integridade Transacional (RQ12):** Impossibilidade de corrupção ou sobreposição de horários e prontuários.
+- **Alta Disponibilidade em Horário Comercial (RQ13):** Índice mínimo de 99% de disponibilidade durante o funcionamento da clínica.
+- **Tolerância a Falhas na Comunicação (RQ14, RN14, RN15):** Mecanismos de retentativa automática de mensageria e transição para alerta visual manual.
+
+### 7.4 Adequação Funcional e Governança Financeira
+- **Completude de Escopo (RQ15):** Cobertura integral das 13 macrofuncionalidades especificadas.
+- **Exatidão e Auditoria Contábil (RQ16):** Rastreabilidade e consistência matemática em fechamentos mensais e conciliações de pagamento dividido, com guarda documental para fins fiscais.
 
 ---
 
-## 9. Metodologia de Desenvolvimento: TDD (Test-Driven Development)
+## 8. Conclusão e Síntese do Design
 
-Para assegurar confiabilidade máxima e conformidade com os requisitos de qualidade (**RQ12, RQ13, RQ14**), a suíte automatizada conta com **66 testes unitários** desenvolvidos com **xUnit**:
+O **Software Design Document (SDD)** aqui consolidado representa um modelo conceitual maduro, robusto e perene para o **Clinix**:
 
-```bash
-dotnet test src/
-```
-```text
-Aprovado!  – Com falha: 0, Aprovado: 66, Ignorado: 0, Total: 66 (100% de sucesso)
-```
-
-### 9.1 Matriz de Cobertura de Testes Prioritários (TDD)
-
-| Teste Automatizado | Regra / Requisito Coberto | Cenário Validado | Status |
-| :--- | :--- | :--- | :---: |
-| `PacienteTests.InativarComAnonimizacao_DeveLimparDadosPessoais()` | RN16, RQ03 | Ao inativar paciente, `Ativo` torna-se `false` e dados sensíveis são anonimizados. | ✅ Aprovado |
-| `PacienteTests.AtualizarEndereco_ComCepValido_DeveAtualizarPropriedades()` | RF29, RN18 | Atualiza dados estruturados de CEP e logradouro preservando consistência. | ✅ Aprovado |
-| `AgendamentoTests.TemConflito_ComSobreposicaoHorario_DeveRetornarTrue()` | RN01, RN02 | Detecta conflito se nova consulta coincidir com o intervalo de outra confirmada. | ✅ Aprovado |
-| `AgendamentoTests.Cancelar_ComMenosDe24Horas_DeveMarcarCancelamentoTardio()` | RN10 | Marca a flag `CancelamentoTardio = true` quando cancelada com menos de 24h. | ✅ Aprovado |
-| `AgendaServiceTests.CancelarConsulta_ComMotivoEJustificativa_DeveRegistrar()` | RF31, RN20 | Registra categoria (`MotivoCancelamento`) e justificativa detalhada. | ✅ Aprovado |
-| `SessaoProntuarioTests.AlterarAnotacao_DeveRegistrarVersaoAnterior()` | RN17 | Ao alterar anotação, versão anterior é salva no histórico imutável com justificativa. | ✅ Aprovado |
-| `PagamentoTests.RegistrarPagamento_DeveAtualizarStatusParaPagoEData()` | RN07, RN08 | Registra quitação, atualizando status para Pago e gravando forma e timestamp. | ✅ Aprovado |
-| `FinanceiroServiceTests.RegistrarPagamentoDividido_ValoresConsistentes_DeveRegistrar()` | RF30, RN19 | Divide pagamento em Entrada + Saldo com validação de soma e formas distintas. | ✅ Aprovado |
-| `AvaliacaoAtendimentoTests.Deve_Calcular_Media_Geral_Corretamente()` | RF32, RN21 | Valida cálculo de média aritmética de notas (1 a 5) e suporte a anonimato. | ✅ Aprovado |
-| `ExameLaboratorioTests.AtualizarStatus_FluxoCompleto_DeveTransicionarCorretamente()` | RF34, RN23 | Rastreia ciclo de vida de amostras desde a coleta até o laudo e entrega. | ✅ Aprovado |
-| `LogAcessoTests.Deve_Criar_Log_Com_Sucesso_E_DataHora_Atual()` | RF28, RN13, RQ07 | Valida criação de logs de auditoria imutáveis com rastreabilidade exigida pela LGPD. | ✅ Aprovado |
-| `UsuarioTests.Autenticar_ComSenhaIncorreta_DeveRetornarFalse()` | RF26, RQ08 | Garante validação segura com hash sem expor senhas em texto puro. | ✅ Aprovado |
-| `AgendaServiceTests.AgendarConsulta_ComConflito_DeveLancarExcecao()` | RN01, RN02 | AgendaService impede agendamento simultâneo para o mesmo médico. | ✅ Aprovado |
-| `FinanceiroServiceTests.GerarCobranca_ConsultaJaComCobranca_DeveLancarExcecao()` | RN07 | Bloqueia duplicidade de cobrança financeira para a mesma consulta. | ✅ Aprovado |
-
----
-
-## 10. Conclusão e Status Consolidado de Implementação
-
-Todos os módulos planejados no ciclo do Projeto Integrador foram **100% implementados, testados e integrados**:
-
-* **Bloco 1 — Entidades de Domínio e Testes Unitários:** ✅ **100% Concluído** (33 testes xUnit).
-* **Bloco 2 — Interfaces e Repositórios In-Memory:** ✅ **100% Concluído** (contratos DDD).
-* **Bloco 3 — Serviços de Aplicação e Casos de Uso:** ✅ **100% Concluído** (33 testes xUnit).
-* **Bloco 4 — Persistência Relacional MySQL 8.0 & Dapper:** ✅ **100% Concluído** (15 tabelas, 3FN, 6 repositórios concretos Dapper, segredos protegidos).
-* **Bloco 5 — ASP.NET Core Web API, Docker e Interface Web:** ✅ **100% Concluído** (Controllers REST, Swagger, modo híbrido, Docker Compose).
-* **Bloco 6 — Demandas Clínicas Reais & Inteligência de Gestão:** ✅ **100% Concluído** (CEP ViaCEP, Pagamento Dividido, Motivos de Cancelamento, Ouvidoria, Recorrência Preventiva 180d e Exames Laboratoriais).
-
+1. **Separação Completa entre Negócio e Tecnologia:** Todas as regras de saúde, cancelamento, quitação e auditoria residem no domínio conceitual, garantindo que a solução permaneça estável independentemente de futuras evoluções de linguagens, bancos de dados ou frameworks.
+2. **Integralidade do Domínio Clínico:** Todas as 6 demandas emergentes levantadas em homologação com clientes reais foram incorporadas com rigor formal:
+   - Endereçamento estruturado com validação de CEP (**RF29, RN18**);
+   - Pagamento misto/dividido em entrada e saldo com conciliação (**RF30, RN19**);
+   - Governança de cancelamento tardio com motivo e justificativa (**RF31, RN20**);
+   - Ouvidoria com avaliação multidimensional e anonimato (**RF32, RN21**);
+   - Prevenção à evasão com retorno semestral de 180+ dias (**RF33, RN22**);
+   - Gestão de amostras laboratoriais terceirizadas com alerta clínico na agenda (**RF34, RN23**).
+3. **Harmonia Acadêmica e Prática:** O design reflete o equilíbrio entre o rigor metodológico de Engenharia de Software (norma ISO/IEC 25010 e LGPD) e a praticidade exigida no cotidiano de uma clínica de pequeno porte.

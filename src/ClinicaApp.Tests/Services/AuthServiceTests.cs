@@ -133,5 +133,53 @@ public class AuthServiceTests
         var autenticadoComAtalho = _authService.Autenticar("davi@clinix.com", "123");
         Assert.NotNull(autenticadoComAtalho);
     }
+
+    [Fact]
+    public void Deve_Cadastrar_Novo_Profissional_E_Autenticar_Com_Sucesso()
+    {
+        // Arrange
+        var novoProfissional = new ProfissionalSaude(
+            id: 10,
+            nome: "Dra. Renata Souza",
+            login: "renata@clinica.com",
+            senhaPura: "MinhaSenhaForte@2026",
+            registroProfissional: "CRM-SP 98765",
+            especialidade: "Dermatologia"
+        );
+
+        // Act
+        _authService.Cadastrar(novoProfissional);
+        var autenticado = _authService.Autenticar("renata@clinica.com", "MinhaSenhaForte@2026");
+
+        // Assert
+        Assert.NotNull(autenticado);
+        Assert.Equal("renata@clinica.com", autenticado.Login);
+        Assert.Equal("Dra. Renata Souza", autenticado.Nome);
+        Assert.IsType<ProfissionalSaude>(autenticado);
+    }
+
+    [Fact]
+    public void Deve_Cadastrar_Novo_Administrador_E_Autenticar_Com_Sucesso()
+    {
+        // Arrange
+        var novoAdmin = new Administrador(
+            id: 11,
+            nome: "Marcos Gestor",
+            login: "marcos@clinica.com",
+            senhaPura: "Segredo@456",
+            cargo: "Gestor Geral"
+        );
+
+        // Act
+        _authService.Cadastrar(novoAdmin);
+        var autenticado = _authService.Autenticar("marcos@clinica.com", "Segredo@456");
+
+        // Assert
+        Assert.NotNull(autenticado);
+        Assert.Equal("marcos@clinica.com", autenticado.Login);
+        Assert.Equal("Marcos Gestor", autenticado.Nome);
+        Assert.True(autenticado.PodeAuditarLogs());
+    }
 }
+
 

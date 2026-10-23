@@ -18,6 +18,9 @@ Você está atuando no Projeto Integrador (Sistema de Agendamento e Prontuário 
    - Testes unitários com xUnit em `ClinicaApp.Tests`.
    - Comentários no código apenas para rastreabilidade de requisitos de negócio (RN01, RQ08, etc.).
 
-4. **ATUALIZAÇÃO DE MEMÓRIA:**
+4. **VALIDAÇÃO AUTOMATIZADA DE FRONTEND:**
+   - Sempre que houver alterações que interfiram no frontend (`index.html`, `api.js`, estilos ou integração front ↔ API), use obrigatoriamente a skill `agent-browser` para validar no navegador antes de concluir.
+
+5. **ATUALIZAÇÃO DE MEMÓRIA:**
    - Ao encerrar, atualize a memória pessoal do usuário (onde parou + histórico) e, se o estado do projeto mudou, a memória compartilhada.
 

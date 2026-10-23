@@ -76,7 +76,87 @@ export const api = {
     } catch {
       this.isConnected = false;
       this.storage = 'offline';
-      this.storageLabel = 'Modo Standalon      return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
+      this.storageLabel = 'Modo Standalone (Offline)';
+      return { ok: false, storage: 'offline', storageLabel: 'Modo Standalone (Offline)' };
+    }
+  },
+
+  // --- AUTENTICAÇÃO E REGISTRO (RF26, RQ08) ---
+  async login(login, senha) {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ login: String(login).trim(), senha: String(senha) })
+      });
+
+      if (!res.ok) {
+        let erroMsg = 'Login ou senha inválidos.';
+        try {
+          const erroData = await res.json();
+          if (erroData && erroData.erro) erroMsg = erroData.erro;
+        } catch {}
+        return { sucesso: false, erro: erroMsg };
+      }
+
+      const data = await res.json();
+      this.setToken(data.token);
+      this.isConnected = true;
+      return {
+        sucesso: true,
+        usuario: {
+          id: data.id,
+          name: data.nome,
+          role: data.perfil,
+          email: data.email || login,
+          token: data.token
+        }
+      };
+    } catch (e) {
+      return { sucesso: false, erro: 'Falha de conexão com a API: ' + e.message };
+    }
+  },
+
+  async registrar(dados) {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/registrar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          nome: String(dados.nome || '').trim(),
+          email: String(dados.email || '').trim(),
+          senha: String(dados.senha || ''),
+          perfil: dados.perfil || 'Profissional',
+          nomeClinica: dados.nomeClinica || null,
+          registroProfissional: dados.registroProfissional || null,
+          especialidade: dados.especialidade || null
+        })
+      });
+
+      if (!res.ok) {
+        let erroMsg = 'Não foi possível concluir o cadastro.';
+        try {
+          const erroData = await res.json();
+          if (erroData && erroData.erro) erroMsg = erroData.erro;
+        } catch {}
+        return { sucesso: false, erro: erroMsg };
+      }
+
+      const data = await res.json();
+      this.setToken(data.token);
+      this.isConnected = true;
+      return {
+        sucesso: true,
+        usuario: {
+          id: data.id,
+          name: data.nome,
+          role: data.perfil,
+          email: data.email || dados.email,
+          token: data.token
+        }
+      };
+    } catch (e) {
+      return { sucesso: false, erro: 'Falha de conexão com a API: ' + e.message };
     }
   },
 
