@@ -9,7 +9,9 @@ namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+// RN13, RQ07: Apenas Profissionais de Saúde possuem autorização para acessar o prontuário clínico.
+// Perfis de recepção e administração são bloqueados com HTTP 403 Forbidden.
+[Authorize(Roles = "Profissional")]
 public class ProntuariosController : ControllerBase
 {
     private readonly ProntuarioService _prontuarioService;
