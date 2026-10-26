@@ -124,6 +124,11 @@
     2. Tentativa direta de acesso à API `/api/prontuarios/paciente/1` com JWT de recepção: retorno verificado **HTTP 403 Forbidden**.
     3. Login como Dr. Davi (Profissional): "Prontuário" visível na Sidebar e nos pacientes, abrindo ficha clínica e evoluções perfeitamente (Screenshot `10_doctor_prontuario_accessible.png`).
     4. Suíte xUnit: 68/68 testes unitários passando com 100% de sucesso.
+- **Atualização do Canal de WhatsApp do Feedback do Piloto Concluída:**
+  - Configurado o número oficial de WhatsApp do desenvolvedor Davi Felinto (`+55 61 99588-7443`) no botão de envio direto do modal `FeedbackModal` (`https://wa.me/5561995887443?text=...`).
+  - Sincronização rigorosa mantida entre `index.html` e `src/ClinicaApp.Api/wwwroot/index.html`.
+  - Validação ponta a ponta com a skill `agent-browser`: abertura do modal no Chromium real e verificação de que o link gerado aponta corretamente com mensagem pré-formatada codificada para `+55 61 99588-7443`.
+  - 68/68 testes unitários xUnit passando com 100% de sucesso.
 - **Próximo passo:** Apresentação da plataforma e condução dos testes de usabilidade com a cliente real.
 
 ## 5. Histórico Pessoal de Sessões
@@ -161,6 +166,7 @@
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Transição oficial do repositório para Piloto Comercial de testes com cliente real: expurgadas todas as marcas acadêmicas e CEUB, implementada nova tela de login (email e senha), nova tela de cadastro (registro) integrada a `POST /api/auth/registrar` com JWT, widget flutuante de feedback do piloto com notas/comentários e integração com WhatsApp, além de controle de dados modelo vs clínica vazia. Suíte expandida para 68 testes xUnit 100% aprovados. | Conduzir testes práticos de usabilidade com a cliente e coletar feedbacks. |
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Validação ponta a ponta com a skill `agent-browser` no Chromium real: validados login (email/senha, toggle de visibilidade e pills de 1 clique), tela de cadastro (registro de Dra. Renata Silva via `POST /api/auth/registrar` com auto-login), modal de Feedback do Piloto (5 estrelas, sugestão e integração de métrica de 4.8★ para 4.9★), modal de dados do piloto (limpeza para clínica vazia e restauração de dados modelo) e logout. Corrigidos bugs críticos descobertos pelo browser (mapeamento do retorno de `api.login`, sincronização de `api.js` e persistência de sessão no `localStorage`). 68 testes xUnit 100% OK. | Implementar controle RBAC no prontuário para perfil recepção conforme LGPD/CFM. |
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Implementação e validação integral de RBAC / Sigilo Médico (LGPD Art. 11 & CFM 2.299/2021): bloqueio de acesso a Prontuários para não-profissionais (Recepção/Administrador) na API (`[Authorize(Roles = "Profissional")]` com HTTP 403) e na UI (ocultação na Sidebar, Pacientes, Busca Rápida e Dashboard; guard route de aviso legal). Validação com `agent-browser` comprovando bloqueio para Juliana e liberação completa para Dr. Davi. 68 testes unitários xUnit 100% OK. | Conduzir testes de usabilidade com a cliente real. |
+| 26/10/2026 | Antigravity AI (usuário: Davi) | Atualização do número de WhatsApp do Feedback do Piloto para `+55 61 99588-7443` (com o 9º dígito obrigatório do WhatsApp para o celular de Brasília informado pelo Davi) em `index.html` e `wwwroot/index.html`. Validação automatizada no navegador via `agent-browser` confirmando link gerado com mensagem pré-formatada. 68 testes xUnit 100% OK. | Conduzir testes de usabilidade com a cliente real. |
 
 
 
