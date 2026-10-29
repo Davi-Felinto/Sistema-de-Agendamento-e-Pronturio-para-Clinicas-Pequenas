@@ -1203,7 +1203,12 @@
       const [allUsers, setAllUsers] = useState(() => {
         try {
           const saved = localStorage.getItem('clinix_all_users');
-          if (saved) return JSON.parse(saved);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.some(u => u.email === 'miguel@clinix.com')) {
+              return parsed;
+            }
+          }
         } catch {}
         return INITIAL_USERS;
       });
@@ -2094,7 +2099,7 @@
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => handlePreencherDemo(users[0] || { email: 'miguel@clinix.com' })}
+                    onClick={() => handlePreencherDemo({ email: 'miguel@clinix.com' })}
                     className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition"
                   >
                     <div className="flex items-center gap-2">
@@ -2110,7 +2115,7 @@
 
                   <button
                     type="button"
-                    onClick={() => handlePreencherDemo(users[1] || { email: 'juliana@clinix.com' })}
+                    onClick={() => handlePreencherDemo({ email: 'juliana@clinix.com' })}
                     className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left transition"
                   >
                     <div className="flex items-center gap-2">
