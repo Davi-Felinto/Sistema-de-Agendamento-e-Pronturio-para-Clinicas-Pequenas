@@ -129,19 +129,21 @@
   - Sincronização rigorosa mantida entre `index.html` e `src/ClinicaApp.Api/wwwroot/index.html`.
   - Validação ponta a ponta com a skill `agent-browser`: abertura do modal no Chromium real e verificação de que o link gerado aponta corretamente com mensagem pré-formatada codificada para `+55 61 99588-7443`.
   - 68/68 testes unitários xUnit passando com 100% de sucesso.
-- **Blindagem de Acesso, Rastreamento de IP/Dispositivo e Painel de Monitoramento de Contas do Banco Concluídos:**
-  - **Diagnóstico da Nuvem (Render + Aiven MySQL):** Inspecionado banco em produção (13 pacientes, 42 agendamentos, 14 prontuários) e identificado erro 400 de materialização do Dapper em `GET /api/logs` (`BIGINT` `id_log` vs `Int32` em `LogAcesso.cs`).
-  - **Correção Dapper & IP de Origem (`LogAcesso.cs`, `MySqlLogAcessoRepository.cs`):** Adicionado construtor padrão sem parâmetros para o Dapper, propriedade `IpOrigem` e `CAST(id_log AS SIGNED)` na query SQL.
-  - **Rastreio de Login, Dispositivo e Último Acesso (`Usuario.cs`, `MySqlUsuarioRepository.cs`, `AuthController.cs`):** Gravação automática em `logs_acesso` de todo login (sucesso e falha) e novo cadastro capturando IP real (`X-Forwarded-For` do Render) e Sistema Operacional/Navegador (`User-Agent`), além de atualizar `ultimo_acesso = NOW()` na tabela `usuarios`.
-  - **Blindagem de Cadastro com Código de Convite (`POST /api/auth/registrar` e `RegisterScreen`):** Exigência de chave de licença (`CLINIX-PILOTO-2026` / `CLINIX2026` ou variável `ConvitePiloto`) para impedir que terceiros com o link criem contas sem autorização (retorna HTTP 403 Forbidden sem a chave).
-  - **Painel "Quem Está Usando o Sistema" (`GET /api/auth/usuarios` + `LogsView`):** Novo endpoint e painel visual no topo da aba Auditoria listando todas as contas cadastradas no banco MySQL, perfil, data de criação, timestamp do último login e badges de IP de origem nos eventos.
-  - **Validação Automatizada:** 70/70 testes unitários xUnit passando (100% OK) e validação ponta a ponta no Chromium real via `agent-browser`.
-- **Próximo passo:** Enviar commit para o GitHub (`git push origin main`) para atualizar o container no Render e consultar os logs/usuários históricos da nuvem.
+- **Exclusão de Contas Não Autorizadas e RBAC Estrito para Auditoria (RN12, RF27, RQ06):**
+  - **Exclusão no Banco em Produção (Render + Aiven Cloud MySQL 8.4):** Contas de teste #7 (`Maria das Colves`) e #8 (`alcilene felinto`) foram permanentemente removidas do banco de dados relacional via endpoint `DELETE /api/auth/usuarios/{id}`.
+  - **Restrição de Auditoria ao Perfil Administrador:** Endpoints `GET /api/logs` e `GET /api/auth/usuarios` agora exigem `[Authorize(Roles = "Administrador")]` (HTTP 403 Forbidden para médicos/profissionais e terceiros).
+  - **Privilégios Unificados para o Criador:** Dr. Davi Felinto (`davi@clinix.com`) recebeu claims de `Administrador` no token JWT (`TokenService.cs`), mantendo acesso tanto às funções clínicas quanto à administração e auditoria global.
+  - **Endpoint de Exclusão de Contas:** Criado `DELETE /api/auth/usuarios/{id}` em `AuthController.cs` com remoção em cascata (`logs_acesso`, `administradores`, `profissionais_saude`, `usuarios`).
+  - **Interface Web Sincronizada:** Botão `🛡️ Quem Está Usando`, menu de Auditoria na sidebar e navegação mobile agora são renderizados **exclusivamente** para Administradores. Tabela de contas enriquecida com botão vermelho `🗑️ Apagar` (com confirmação e bloqueio de exclusão da conta principal).
+  - **Tela de Login com 3 Perfis:** Atalhos rápidos de 1 clique para Dr. Davi (Admin), Juliana (Admin) e Dr. Miguel (Médico), facilitando demonstrar que o médico não tem acesso à auditoria.
+  - **Testes e Homologação:** 71/71 testes unitários xUnit passando com 100% de sucesso e homologação no Chromium via `agent-browser`.
+- **Próximo passo:** Apresentar o sistema ao cliente com total blindagem, controle de convites e isolamento de perfis.
 
 ## 5. Histórico Pessoal de Sessões
 
 | Data | Agente / Ferramenta | O que foi feito | Próximo passo |
 |---|---|---|---|
+| 29/10/2026 | Antigravity AI (usuário: Davi) | Exclusão definitiva de contas de teste #7 (`Maria das Colves`) e #8 (`alcilene felinto`) no banco de produção Render/Aiven; restrição estrita de auditoria (`GET /api/logs` e `GET /api/auth/usuarios`) para perfil Administrador (`[Authorize(Roles = "Administrador")]`); criação do endpoint `DELETE /api/auth/usuarios/{id}`; privilégios de Admin e Médico unificados para Dr. Davi; botões `🛡️ Quem Está Usando` e menu de Auditoria ocultados de médicos/clientes na UI; botão de exclusão de contas em 1 clique na tabela; tela de login com 3 atalhos (Dr. Davi, Juliana e Dr. Miguel); 71 testes unitários xUnit 100% aprovados e homologados no Chromium via `agent-browser`. | Apresentar à cliente com segurança e controle de licença ativos. |
 | 07/10/2026 | Antigravity AI | Blocos 1–3 concluídos (entidades, repositórios, Auth/Agenda/Prontuario/Financeiro services), 52 testes passando. | Banco de Dados II. |
 | 08/10/2026 | Antigravity AI | Optou por MVP visual antes do MySQL; scaffold da `ClinicaApp.Api`. | Etapa 2 do Bloco 5 (`Program.cs` da API). |
 | 08/10/2026 | Antigravity AI | Divisão da memória por membro da equipe (Davi e Miguel). | Continuar etapa 2 do Bloco 5. |
