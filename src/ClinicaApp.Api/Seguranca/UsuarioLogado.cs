@@ -18,6 +18,6 @@ public static class UsuarioLogado
 
     public static bool EhAdministrador(this ClaimsPrincipal usuario)
     {
-        return usuario.IsInRole(nameof(PerfilUsuario.Administrador));
+        return usuario.IsInRole("Administrador") || usuario.IsInRole("Recepcionista");
     }
 }

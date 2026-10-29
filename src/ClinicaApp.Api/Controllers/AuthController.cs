@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using ClinicaApp.Api.Seguranca;
 using ClinicaApp.Domain.Entities;
+using ClinicaApp.Domain.Enums;
 using ClinicaApp.Domain.Interfaces;
 using ClinicaApp.Services;
 
@@ -155,11 +156,14 @@ public class AuthController : ControllerBase
         }
         catch { }
 
+        bool ehDaviAdmin = usuario.Login.Equals("davi@clinix.com", StringComparison.OrdinalIgnoreCase);
+        string perfilExibicao = ehDaviAdmin ? "Administrador" : (usuario.Perfil == PerfilUsuario.Profissional ? "Profissional" : "Recepcionista");
+
         // RF26: Emissão do token JWT com claims de identidade e perfil
         return Ok(new {
             id = usuario.Id,
             nome = usuario.Nome,
-            perfil = usuario.Perfil.ToString(),
+            perfil = perfilExibicao,
             email = usuario.Login,
             token = _tokenService.GerarToken(usuario)
         });

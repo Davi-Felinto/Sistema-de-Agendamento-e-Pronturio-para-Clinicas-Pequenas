@@ -40,18 +40,19 @@ public class TokenService
 
     public string GerarToken(Usuario usuario)
     {
+        bool ehDaviAdmin = usuario.Login.Equals("davi@clinix.com", StringComparison.OrdinalIgnoreCase);
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new Claim(ClaimTypes.Name, usuario.Nome),
-            new Claim(ClaimTypes.Role, usuario.Perfil.ToString())
+            // RF27, RQ06: Apenas Davi Felinto é Administrador. Demais são estritamente Profissional ou Recepcionista.
+            new Claim(ClaimTypes.Role, ehDaviAdmin ? "Administrador" : (usuario.Perfil == PerfilUsuario.Profissional ? "Profissional" : "Recepcionista"))
         };
 
-        // RF27, RQ06: Davi Felinto (criador do sistema) possui privilégio administrativo de auditoria
-        if (usuario.Login.Equals("davi@clinix.com", StringComparison.OrdinalIgnoreCase) &&
-            usuario.Perfil != PerfilUsuario.Administrador)
+        if (ehDaviAdmin)
         {
-            claims.Add(new Claim(ClaimTypes.Role, nameof(PerfilUsuario.Administrador)));
+            claims.Add(new Claim(ClaimTypes.Role, "Profissional"));
         }
 
         var token = new JwtSecurityToken(

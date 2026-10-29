@@ -74,9 +74,8 @@
     const { useState, useEffect, useMemo, useRef } = React;
 
     const INITIAL_USERS = [
-      { id: 'u1', name: 'Dr. Davi Felinto', role: 'Administrador', email: 'davi@clinix.com', espec: 'Psicologia Clínica & Administração' },
-      { id: 'u2', name: 'Juliana Costa', role: 'Administrador', email: 'juliana@clinix.com', espec: 'Recepção Clínica & Atendimento' },
-      { id: 'u3', name: 'Dr. Miguel Silva', role: 'Profissional', email: 'miguel@clinix.com', espec: 'Clínica Geral & Telemedicina' }
+      { id: 'u1', name: 'Dr. Miguel Silva', role: 'Profissional', email: 'miguel@clinix.com', espec: 'Clínica Geral & Telemedicina' },
+      { id: 'u2', name: 'Juliana Costa', role: 'Recepcionista', email: 'juliana@clinix.com', espec: 'Recepção Clínica & Atendimento' }
     ];
 
     // Versão de demonstração (dados em localStorage): não existe autenticação real aqui.
@@ -1071,9 +1070,8 @@
 
       const isAdmin = useMemo(() => {
         if (!currentUser) return false;
-        const role = String(currentUser.role || currentUser.perfil || '').toLowerCase();
         const email = String(currentUser.email || '').toLowerCase();
-        return role.includes('admin') || email === 'davi@clinix.com' || email === 'admin@clinix.com';
+        return email === 'davi@clinix.com';
       }, [currentUser]);
 
       const [patients, setPatients] = useState(() => {
@@ -2093,19 +2091,19 @@
                   <span>⚡ Contas de demonstração (1 clique):</span>
                   <span className="text-slate-400 font-normal">senha: 123456</span>
                 </p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => handlePreencherDemo(users[0] || { email: 'davi@clinix.com' })}
-                    className="p-2 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition"
+                    onClick={() => handlePreencherDemo(users[0] || { email: 'miguel@clinix.com' })}
+                    className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-left transition"
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                        DF
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        MS
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate">Dr. Davi</p>
-                        <p className="text-[10px] text-emerald-800 font-semibold truncate">Admin</p>
+                        <p className="text-xs font-bold text-slate-900 truncate">Dr. Miguel</p>
+                        <p className="text-[10px] text-emerald-800 font-semibold truncate">Profissional</p>
                       </div>
                     </div>
                   </button>
@@ -2113,31 +2111,15 @@
                   <button
                     type="button"
                     onClick={() => handlePreencherDemo(users[1] || { email: 'juliana@clinix.com' })}
-                    className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left transition"
+                    className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left transition"
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center text-xs font-bold shrink-0">
                         JC
                       </span>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-900 truncate">Juliana</p>
-                        <p className="text-[10px] text-slate-600 font-semibold truncate">Admin</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handlePreencherDemo(users[2] || { email: 'miguel@clinix.com' })}
-                    className="p-2 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-left transition"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                        MS
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate">Dr. Miguel</p>
-                        <p className="text-[10px] text-blue-800 font-semibold truncate">Médico</p>
+                        <p className="text-[10px] text-slate-600 font-semibold truncate">Recepcionista</p>
                       </div>
                     </div>
                   </button>
