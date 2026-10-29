@@ -30,6 +30,11 @@ public class InMemoryUsuarioRepository : IUsuarioRepository
         _usuarios.Add(usuario);
     }
 
+    public void Remover(int id)
+    {
+        _usuarios.RemoveAll(u => u.Id == id);
+    }
+
     public void RegistrarUltimoAcesso(int id)
     {
         var usuario = ObterPorId(id);

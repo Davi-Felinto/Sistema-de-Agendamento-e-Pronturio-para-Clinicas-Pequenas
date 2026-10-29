@@ -7,7 +7,7 @@ namespace ClinicaApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // RF28, RN12, RQ07: Consulta autenticada à trilha de auditoria imutável
+[Authorize(Roles = "Administrador")] // RF28, RN12, RQ07: Consulta restrita exclusivamente ao perfil Administrador
 public class LogsController : ControllerBase
 {
     private readonly ILogAcessoRepository _logAcessoRepository;

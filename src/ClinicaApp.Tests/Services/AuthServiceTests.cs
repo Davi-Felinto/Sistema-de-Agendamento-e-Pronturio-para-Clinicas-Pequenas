@@ -225,4 +225,25 @@ public class AuthServiceTests
         Assert.Equal("189.6.44.120", recuperado.IpOrigem);
         Assert.Equal("AUTENTICACAO_LOGIN", recuperado.Operacao);
     }
+
+    [Fact]
+    public void Deve_Remover_Usuario_Do_Repositorio_Corretamente()
+    {
+        // Arrange (RF27, RF28, RQ06)
+        var usuario = new Administrador(
+            id: 88,
+            nome: "Usuario Temporario",
+            login: "temp@clinix.com",
+            senhaPura: "123456",
+            cargo: "Suporte"
+        );
+        _authService.Cadastrar(usuario);
+        Assert.NotNull(_usuarioRepository.ObterPorId(88));
+
+        // Act
+        _usuarioRepository.Remover(88);
+
+        // Assert
+        Assert.Null(_usuarioRepository.ObterPorId(88));
+    }
 }

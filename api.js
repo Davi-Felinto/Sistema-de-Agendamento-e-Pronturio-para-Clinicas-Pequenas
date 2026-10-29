@@ -176,6 +176,22 @@ export const api = {
     }
   },
 
+  async excluirUsuario(id) {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/usuarios/${id}`, {
+        method: 'DELETE',
+        headers: this.authHeaders()
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { sucesso: false, erro: err.erro || err.mensagem || 'Falha ao excluir usuário' };
+      }
+      return { sucesso: true };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
   async listarLogs() {
     try {
       const res = await fetch(`${API_BASE}/api/logs`, { headers: this.authHeaders() });

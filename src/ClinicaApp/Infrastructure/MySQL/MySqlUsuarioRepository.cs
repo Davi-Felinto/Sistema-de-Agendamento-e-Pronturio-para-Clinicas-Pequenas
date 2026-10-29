@@ -192,4 +192,25 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         const string sql = "UPDATE usuarios SET ultimo_acesso = NOW() WHERE id_usuario = @Id;";
         conexao.Execute(sql, new { Id = id });
     }
+
+    // RF27, RF28, RQ06 - Exclusão de contas por Administrador com limpeza de integridade referencial
+    public void Remover(int id)
+    {
+        using var conexao = CriarConexao();
+        conexao.Open();
+        using var transacao = conexao.BeginTransaction();
+        try
+        {
+            conexao.Execute("DELETE FROM logs_acesso WHERE id_usuario = @Id;", new { Id = id }, transacao);
+            conexao.Execute("DELETE FROM administradores WHERE id_usuario = @Id;", new { Id = id }, transacao);
+            conexao.Execute("DELETE FROM profissionais_saude WHERE id_usuario = @Id;", new { Id = id }, transacao);
+            conexao.Execute("DELETE FROM usuarios WHERE id_usuario = @Id;", new { Id = id }, transacao);
+            transacao.Commit();
+        }
+        catch
+        {
+            transacao.Rollback();
+            throw;
+        }
+    }
 }

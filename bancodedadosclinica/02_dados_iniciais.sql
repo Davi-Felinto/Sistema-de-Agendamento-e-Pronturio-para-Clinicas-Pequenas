@@ -26,7 +26,8 @@ INSERT INTO usuarios (id_usuario, nome, login, senha_hash, perfil, ativo, criado
 (3, 'Dr. Miguel Silva',     'miguel@clinix.com',  '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Profissional',  1, '2026-09-01 08:00:00'),
 (4, 'Isaac Santos',         'isaac@clinix.com',   '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00'),
 (5, 'Dra. Vanessa Oliveira', 'vanessa@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Profissional',  1, '2026-09-01 08:00:00'),
-(6, 'Juliana Costa',        'juliana@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00')
+(6, 'Juliana Costa',        'juliana@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00'),
+(99, 'Administrador do Sistema', 'admin@clinix.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrador', 1, '2026-09-01 08:00:00')
 ON DUPLICATE KEY UPDATE nome = VALUES(nome), login = VALUES(login), senha_hash = VALUES(senha_hash), perfil = VALUES(perfil), ativo = VALUES(ativo);
 
 INSERT INTO profissionais_saude (id_usuario, perfil, registro_profissional, especialidade) VALUES
@@ -38,7 +39,8 @@ ON DUPLICATE KEY UPDATE registro_profissional = VALUES(registro_profissional), e
 INSERT INTO administradores (id_usuario, perfil, cargo) VALUES
 (2, 'Administrador', 'Engenharia de Requisitos & Gestão de Processos'),
 (4, 'Administrador', 'Administrador de Banco de Dados (DBA) & Auditor LGPD'),
-(6, 'Administrador', 'Recepção & Atendimento ao Paciente')
+(6, 'Administrador', 'Recepção & Atendimento ao Paciente'),
+(99, 'Administrador', 'Direção Geral & Auditoria do Sistema')
 ON DUPLICATE KEY UPDATE cargo = VALUES(cargo);
 
 

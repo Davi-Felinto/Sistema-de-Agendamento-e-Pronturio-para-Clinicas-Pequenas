@@ -243,9 +243,9 @@ public class AuthController : ControllerBase
         });
     }
 
-    // GET: api/auth/usuarios (RF27, RF28 - Auditoria de contas cadastradas e último acesso)
+    // GET: api/auth/usuarios (RF27, RF28 - Auditoria de contas cadastradas e último acesso restrita a Administrador)
     [HttpGet("usuarios")]
-    [Authorize]
+    [Authorize(Roles = "Administrador")]
     public IActionResult ListarUsuarios()
     {
         var usuarios = _usuarioRepository.ListarTodos().Select(u => new
@@ -263,5 +263,32 @@ public class AuthController : ControllerBase
         });
 
         return Ok(usuarios);
+    }
+
+    // DELETE: api/auth/usuarios/{id} (RF27, RF28, RQ06 - Exclusão de contas por Administrador)
+    [HttpDelete("usuarios/{id:int}")]
+    [Authorize(Roles = "Administrador")]
+    public IActionResult ExcluirUsuario(int id)
+    {
+        var usuario = _usuarioRepository.ObterPorId(id);
+        if (usuario == null)
+            return NotFound(new { erro = "Usuário não encontrado." });
+
+        _usuarioRepository.Remover(id);
+
+        var ip = ObterIpCliente();
+        try
+        {
+            _logAcessoRepository.Salvar(new LogAcesso(
+                id: 0,
+                usuarioId: User.ObterId(),
+                operacao: "EXCLUSAO_USUARIO",
+                detalhes: $"Conta #{id} ({usuario.Nome} - {usuario.Login}) excluída pelo Administrador | IP: {ip}",
+                ipOrigem: ip
+            ));
+        }
+        catch { }
+
+        return Ok(new { mensagem = $"Conta de {usuario.Nome} excluída com sucesso." });
     }
 }
