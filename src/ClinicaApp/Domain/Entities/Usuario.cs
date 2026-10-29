@@ -13,6 +13,8 @@ public abstract class Usuario
     public string SenhaHash { get; protected set; }
     public PerfilUsuario Perfil { get; protected set; }
     public bool Ativo { get; protected set; }
+    public DateTime CriadoEm { get; protected set; }
+    public DateTime? UltimoAcesso { get; protected set; }
 
     protected Usuario(
         int id,
@@ -34,6 +36,7 @@ public abstract class Usuario
         SenhaHash = GerarHashSenha(senhaPura);
         Perfil = perfil;
         Ativo = true;
+        CriadoEm = DateTime.Now;
     }
 
     private const int IteracoesPbkdf2 = 210_000;
@@ -84,6 +87,19 @@ public abstract class Usuario
     public void DefinirAtivo(bool ativo)
     {
         Ativo = ativo;
+    }
+
+    // RF28, RQ07 - Hidratação de timestamps de criação e último acesso vindos do banco relacional
+    public void DefinirDatasPersistidas(DateTime criadoEm, DateTime? ultimoAcesso)
+    {
+        CriadoEm = criadoEm;
+        UltimoAcesso = ultimoAcesso;
+    }
+
+    // RF26, RF28 - Registra o instante exato do último login do usuário
+    public void RegistrarAcesso(DateTime? dataHora = null)
+    {
+        UltimoAcesso = dataHora ?? DateTime.Now;
     }
 
     /// <summary>

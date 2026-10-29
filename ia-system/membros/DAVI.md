@@ -1,7 +1,7 @@
 # 🧠 Memória Pessoal — Davi Felinto (Dev Principal)
 > **Carregue este arquivo quando o usuário se identificar como Davi.**
 > Leia também a memória compartilhada: [`../CONTEXTO_MEMORIA_PROJETO.md`](../CONTEXTO_MEMORIA_PROJETO.md).
-> **Última Atualização:** 23/10/2026
+> **Última Atualização:** 29/10/2026
 
 ---
 
@@ -13,7 +13,7 @@
 - **GitHub:** `github.com/Davi-Felinto` (git: `Davi Felinto <davifd0978@gmail.com>`).
 
 ## 2. Área de Responsabilidade
-- **POO C# / .NET** (Domínio, Serviços, Testes xUnit) — 100% concluído (68 testes unitários xUnit com 100% de sucesso).
+- **POO C# / .NET** (Domínio, Serviços, Testes xUnit) — 100% concluído (70 testes unitários xUnit com 100% de sucesso).
 - **API `ClinicaApp.Api`** (Bloco 5 — MVP visual integrado com Controllers e static files).
 - **Integração front ↔ API:** `api.js` e `index.html` integrados via `fetch()` assíncrono aos endpoints C#, exibindo erros de regra de negócio em tela (`RN01/RN02`, `RN10`, `RN16`, `RN18-RN23`).
 - **Banco de Dados II (MySQL)** — junto com o Isaac (próxima disciplina).
@@ -129,7 +129,14 @@
   - Sincronização rigorosa mantida entre `index.html` e `src/ClinicaApp.Api/wwwroot/index.html`.
   - Validação ponta a ponta com a skill `agent-browser`: abertura do modal no Chromium real e verificação de que o link gerado aponta corretamente com mensagem pré-formatada codificada para `+55 61 99588-7443`.
   - 68/68 testes unitários xUnit passando com 100% de sucesso.
-- **Próximo passo:** Apresentação da plataforma e condução dos testes de usabilidade com a cliente real.
+- **Blindagem de Acesso, Rastreamento de IP/Dispositivo e Painel de Monitoramento de Contas do Banco Concluídos:**
+  - **Diagnóstico da Nuvem (Render + Aiven MySQL):** Inspecionado banco em produção (13 pacientes, 42 agendamentos, 14 prontuários) e identificado erro 400 de materialização do Dapper em `GET /api/logs` (`BIGINT` `id_log` vs `Int32` em `LogAcesso.cs`).
+  - **Correção Dapper & IP de Origem (`LogAcesso.cs`, `MySqlLogAcessoRepository.cs`):** Adicionado construtor padrão sem parâmetros para o Dapper, propriedade `IpOrigem` e `CAST(id_log AS SIGNED)` na query SQL.
+  - **Rastreio de Login, Dispositivo e Último Acesso (`Usuario.cs`, `MySqlUsuarioRepository.cs`, `AuthController.cs`):** Gravação automática em `logs_acesso` de todo login (sucesso e falha) e novo cadastro capturando IP real (`X-Forwarded-For` do Render) e Sistema Operacional/Navegador (`User-Agent`), além de atualizar `ultimo_acesso = NOW()` na tabela `usuarios`.
+  - **Blindagem de Cadastro com Código de Convite (`POST /api/auth/registrar` e `RegisterScreen`):** Exigência de chave de licença (`CLINIX-PILOTO-2026` / `CLINIX2026` ou variável `ConvitePiloto`) para impedir que terceiros com o link criem contas sem autorização (retorna HTTP 403 Forbidden sem a chave).
+  - **Painel "Quem Está Usando o Sistema" (`GET /api/auth/usuarios` + `LogsView`):** Novo endpoint e painel visual no topo da aba Auditoria listando todas as contas cadastradas no banco MySQL, perfil, data de criação, timestamp do último login e badges de IP de origem nos eventos.
+  - **Validação Automatizada:** 70/70 testes unitários xUnit passando (100% OK) e validação ponta a ponta no Chromium real via `agent-browser`.
+- **Próximo passo:** Enviar commit para o GitHub (`git push origin main`) para atualizar o container no Render e consultar os logs/usuários históricos da nuvem.
 
 ## 5. Histórico Pessoal de Sessões
 
@@ -167,6 +174,7 @@
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Validação ponta a ponta com a skill `agent-browser` no Chromium real: validados login (email/senha, toggle de visibilidade e pills de 1 clique), tela de cadastro (registro de Dra. Renata Silva via `POST /api/auth/registrar` com auto-login), modal de Feedback do Piloto (5 estrelas, sugestão e integração de métrica de 4.8★ para 4.9★), modal de dados do piloto (limpeza para clínica vazia e restauração de dados modelo) e logout. Corrigidos bugs críticos descobertos pelo browser (mapeamento do retorno de `api.login`, sincronização de `api.js` e persistência de sessão no `localStorage`). 68 testes xUnit 100% OK. | Implementar controle RBAC no prontuário para perfil recepção conforme LGPD/CFM. |
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Implementação e validação integral de RBAC / Sigilo Médico (LGPD Art. 11 & CFM 2.299/2021): bloqueio de acesso a Prontuários para não-profissionais (Recepção/Administrador) na API (`[Authorize(Roles = "Profissional")]` com HTTP 403) e na UI (ocultação na Sidebar, Pacientes, Busca Rápida e Dashboard; guard route de aviso legal). Validação com `agent-browser` comprovando bloqueio para Juliana e liberação completa para Dr. Davi. 68 testes unitários xUnit 100% OK. | Conduzir testes de usabilidade com a cliente real. |
 | 26/10/2026 | Antigravity AI (usuário: Davi) | Atualização do número de WhatsApp do Feedback do Piloto para `+55 61 99588-7443` (com o 9º dígito obrigatório do WhatsApp para o celular de Brasília informado pelo Davi) em `index.html` e `wwwroot/index.html`. Validação automatizada no navegador via `agent-browser` confirmando link gerado com mensagem pré-formatada. 68 testes xUnit 100% OK. | Conduzir testes de usabilidade com a cliente real. |
+| 29/10/2026 | Antigravity AI (usuário: Davi) | Auditoria do banco em produção no Render/Aiven; correção de materialização Dapper em `LogAcesso.cs` (`GET /api/logs`); implementação de rastreamento de IP (`X-Forwarded-For`), aparelho/navegador (`User-Agent`) e `ultimo_acesso` no login/cadastro; blindagem do registro com Código de Convite (`CLINIX-PILOTO-2026` / HTTP 403); criação de `GET /api/auth/usuarios` e painel visual 'Quem Está Usando o Sistema' na aba Auditoria. Validado com `agent-browser` e 70 testes xUnit 100% OK. | Push para `origin/main` para atualizar o Render e inspecionar acessos na nuvem. |
 
 
 

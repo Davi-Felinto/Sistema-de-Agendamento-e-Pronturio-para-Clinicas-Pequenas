@@ -9,4 +9,5 @@ public interface IUsuarioRepository
     Usuario? ObterPorLogin(string login);
     IEnumerable<Usuario> ListarTodos();
     void Adicionar(Usuario usuario);
+    void RegistrarUltimoAcesso(int id);
 }

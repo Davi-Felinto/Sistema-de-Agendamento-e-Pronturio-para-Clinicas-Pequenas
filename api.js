@@ -91,10 +91,13 @@ export const api = {
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          return { sucesso: false, erro: 'Muitas tentativas em pouco tempo. Aguarde alguns segundos e tente novamente.' };
+        }
         let erroMsg = 'Login ou senha inválidos.';
         try {
           const erroData = await res.json();
-          if (erroData && erroData.erro) erroMsg = erroData.erro;
+          if (erroData && (erroData.erro || erroData.mensagem)) erroMsg = erroData.erro || erroData.mensagem;
         } catch {}
         return { sucesso: false, erro: erroMsg };
       }
@@ -104,6 +107,7 @@ export const api = {
       this.isConnected = true;
       return {
         sucesso: true,
+        dados: data,
         usuario: {
           id: data.id,
           name: data.nome,
@@ -129,7 +133,8 @@ export const api = {
           perfil: dados.perfil || 'Profissional',
           nomeClinica: dados.nomeClinica || null,
           registroProfissional: dados.registroProfissional || null,
-          especialidade: dados.especialidade || null
+          especialidade: dados.especialidade || null,
+          codigoConvite: dados.codigoConvite ? String(dados.codigoConvite).trim() : null
         })
       });
 
@@ -157,6 +162,40 @@ export const api = {
       };
     } catch (e) {
       return { sucesso: false, erro: 'Falha de conexão com a API: ' + e.message };
+    }
+  },
+
+  async listarUsuarios() {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/usuarios`, { headers: this.authHeaders() });
+      if (!res.ok) throw new Error('Falha ao listar usuários');
+      const data = await res.json();
+      return { sucesso: true, dados: data };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
+    }
+  },
+
+  async listarLogs() {
+    try {
+      const res = await fetch(`${API_BASE}/api/logs`, { headers: this.authHeaders() });
+      if (!res.ok) throw new Error('Falha ao listar logs de auditoria');
+      const data = await res.json();
+      return {
+        sucesso: true,
+        dados: data.map(l => ({
+          id: String(l.id),
+          timestamp: l.dataHora || new Date().toISOString(),
+          usuarioId: String(l.usuarioId),
+          usuarioNome: l.usuarioNome || `Usuário #${l.usuarioId}`,
+          usuarioEmail: l.usuarioEmail || '',
+          operacao: l.operacao,
+          detalhes: l.detalhes || '',
+          ipOrigem: l.ipOrigem || null
+        }))
+      };
+    } catch (e) {
+      return { sucesso: false, erro: e.message };
     }
   },
 
@@ -571,31 +610,6 @@ export const api = {
       }
       const data = await res.json();
       return { sucesso: true, dados: data };
-    } catch (e) {
-      return { sucesso: false, erro: e.message };
-    }
-  },
-
-  // --- AUTENTICAÇÃO (RF26, RQ08) ---
-  async login(login, senha) {
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, senha })
-      });
-      if (!res.ok) {
-        if (res.status === 429) {
-          return { sucesso: false, erro: 'Muitas tentativas em pouco tempo. Aguarde alguns segundos e tente novamente.' };
-        }
-        const err = await res.json().catch(() => ({}));
-        return { sucesso: false, erro: err.erro || err.mensagem || 'Login ou senha inválidos.' };
-      }
-      const user = await res.json();
-      if (user.token) {
-        this.setToken(user.token);
-      }
-      return { sucesso: true, dados: user };
     } catch (e) {
       return { sucesso: false, erro: e.message };
     }

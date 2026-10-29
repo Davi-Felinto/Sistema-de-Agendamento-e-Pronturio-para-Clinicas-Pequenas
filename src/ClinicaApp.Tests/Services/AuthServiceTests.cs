@@ -180,6 +180,49 @@ public class AuthServiceTests
         Assert.Equal("Marcos Gestor", autenticado.Nome);
         Assert.True(autenticado.PodeAuditarLogs());
     }
+
+    [Fact]
+    public void Deve_Registrar_Ultimo_Acesso_Do_Usuario_Ao_Autenticar()
+    {
+        // Arrange (RF26, RF28, RQ07)
+        var usuario = new ProfissionalSaude(
+            id: 15,
+            nome: "Dra. Amanda Peixoto",
+            login: "amanda@clinica.com",
+            senhaPura: "Clinix@2026",
+            registroProfissional: "CRM-DF 55443",
+            especialidade: "Dermatologia"
+        );
+        _authService.Cadastrar(usuario);
+        Assert.Null(usuario.UltimoAcesso);
+
+        // Act
+        _usuarioRepository.RegistrarUltimoAcesso(usuario.Id);
+
+        // Assert
+        var atualizado = _usuarioRepository.ObterPorId(usuario.Id);
+        Assert.NotNull(atualizado?.UltimoAcesso);
+    }
+
+    [Fact]
+    public void Deve_Registrar_Log_De_Acesso_Com_Ip_De_Origem_E_Materializar_Corretamente()
+    {
+        // Arrange (RF28, RN13, RQ07)
+        var logRepo = new InMemoryLogAcessoRepository();
+        var log = new LogAcesso(
+            id: 100,
+            usuarioId: 1,
+            operacao: "AUTENTICACAO_LOGIN",
+            detalhes: "Acesso via iPhone (iOS) (Safari)",
+            ipOrigem: "189.6.44.120"
+        );
+
+        // Act
+        logRepo.Salvar(log);
+        var recuperado = Assert.Single(logRepo.ObterTodos());
+
+        // Assert
+        Assert.Equal("189.6.44.120", recuperado.IpOrigem);
+        Assert.Equal("AUTENTICACAO_LOGIN", recuperado.Operacao);
+    }
 }
-
-

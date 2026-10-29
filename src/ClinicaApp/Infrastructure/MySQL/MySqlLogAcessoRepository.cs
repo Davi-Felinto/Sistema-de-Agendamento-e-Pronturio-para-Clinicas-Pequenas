@@ -19,39 +19,41 @@ public class MySqlLogAcessoRepository : ILogAcessoRepository
 
     private IDbConnection CriarConexao() => new MySqlConnection(_connectionString);
 
-    // RF28, RN13, RQ07 - Gravação imutável de log de auditoria LGPD
+    // RF28, RN13, RQ07 - Gravação imutável de log de auditoria LGPD com IP de origem
     public void Salvar(LogAcesso log)
     {
         using var conexao = CriarConexao();
         const string sql = @"
             INSERT INTO logs_acesso (
-                id_log, id_usuario, operacao, detalhes, data_hora
+                id_usuario, operacao, detalhes, ip_origem, data_hora
             ) VALUES (
-                @Id, @UsuarioId, @Operacao, @Detalhes, @DataHora
+                @UsuarioId, @Operacao, @Detalhes, @IpOrigem, @DataHora
             );";
 
         conexao.Execute(sql, new {
-            log.Id,
             log.UsuarioId,
             log.Operacao,
             log.Detalhes,
+            log.IpOrigem,
             log.DataHora
         });
     }
 
-    // RF28 - Listagem de auditoria para administradores
+    // RF28 - Listagem de auditoria convertendo id_log (BIGINT) para Int32 compatível com Dapper
     public IEnumerable<LogAcesso> ObterTodos()
     {
         using var conexao = CriarConexao();
         const string sql = @"
             SELECT 
-                id_log AS Id,
+                CAST(id_log AS SIGNED) AS Id,
                 id_usuario AS UsuarioId,
                 operacao AS Operacao,
-                detalhes AS Detalhes,
+                COALESCE(detalhes, '') AS Detalhes,
+                ip_origem AS IpOrigem,
                 data_hora AS DataHora
             FROM logs_acesso
-            ORDER BY data_hora DESC;";
+            ORDER BY data_hora DESC
+            LIMIT 250;";
 
         return conexao.Query<LogAcesso>(sql);
     }

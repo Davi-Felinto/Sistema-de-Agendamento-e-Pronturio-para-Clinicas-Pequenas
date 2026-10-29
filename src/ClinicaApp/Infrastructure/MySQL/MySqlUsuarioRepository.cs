@@ -28,6 +28,8 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         string senha_hash,
         string perfil,
         bool ativo,
+        DateTime criado_em,
+        DateTime? ultimo_acesso,
         string? registro_profissional,
         string? especialidade,
         string? cargo
@@ -47,6 +49,7 @@ public class MySqlUsuarioRepository : IUsuarioRepository
             );
             prof.DefinirHashPersistido(dto.senha_hash);
             prof.DefinirAtivo(dto.ativo);
+            prof.DefinirDatasPersistidas(dto.criado_em, dto.ultimo_acesso);
             return prof;
         }
         else
@@ -60,6 +63,7 @@ public class MySqlUsuarioRepository : IUsuarioRepository
             );
             admin.DefinirHashPersistido(dto.senha_hash);
             admin.DefinirAtivo(dto.ativo);
+            admin.DefinirDatasPersistidas(dto.criado_em, dto.ultimo_acesso);
             return admin;
         }
     }
@@ -71,6 +75,7 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         const string sql = @"
             SELECT 
                 u.id_usuario, u.nome, u.login, u.senha_hash, u.perfil, u.ativo,
+                u.criado_em, u.ultimo_acesso,
                 p.registro_profissional, p.especialidade,
                 a.cargo
             FROM usuarios u
@@ -89,6 +94,7 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         const string sql = @"
             SELECT 
                 u.id_usuario, u.nome, u.login, u.senha_hash, u.perfil, u.ativo,
+                u.criado_em, u.ultimo_acesso,
                 p.registro_profissional, p.especialidade,
                 a.cargo
             FROM usuarios u
@@ -100,19 +106,20 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         return dto != null ? MapearParaEntidade(dto) : null;
     }
 
-    // RF27 - Listar todos os usuários do sistema
+    // RF27 - Listar todos os usuários do sistema ordenados por último acesso e criação
     public IEnumerable<Usuario> ListarTodos()
     {
         using var conexao = CriarConexao();
         const string sql = @"
             SELECT 
                 u.id_usuario, u.nome, u.login, u.senha_hash, u.perfil, u.ativo,
+                u.criado_em, u.ultimo_acesso,
                 p.registro_profissional, p.especialidade,
                 a.cargo
             FROM usuarios u
             LEFT JOIN profissionais_saude p ON p.id_usuario = u.id_usuario
             LEFT JOIN administradores a ON a.id_usuario = u.id_usuario
-            ORDER BY u.nome ASC;";
+            ORDER BY u.id_usuario ASC;";
 
         var dtos = conexao.Query<UsuarioDbDto>(sql);
         return dtos.Select(MapearParaEntidade).ToList();
@@ -128,8 +135,8 @@ public class MySqlUsuarioRepository : IUsuarioRepository
         try
         {
             const string sqlUsuario = @"
-                INSERT INTO usuarios (id_usuario, nome, login, senha_hash, perfil, ativo, criado_em)
-                VALUES (@Id, @Nome, @Login, @SenhaHash, @Perfil, @Ativo, NOW());";
+                INSERT INTO usuarios (id_usuario, nome, login, senha_hash, perfil, ativo, criado_em, ultimo_acesso)
+                VALUES (@Id, @Nome, @Login, @SenhaHash, @Perfil, @Ativo, NOW(), NOW());";
 
             conexao.Execute(sqlUsuario, new {
                 usuario.Id,
@@ -142,13 +149,18 @@ public class MySqlUsuarioRepository : IUsuarioRepository
 
             if (usuario is ProfissionalSaude prof)
             {
+                // Evita colisão na constraint UNIQUE(registro_profissional) quando o usuário não informa CRM próprio
+                var registroUnico = string.IsNullOrWhiteSpace(prof.RegistroProfissional) || prof.RegistroProfissional == "CRM-BR"
+                    ? $"CRM-PILOTO-{prof.Id}"
+                    : prof.RegistroProfissional;
+
                 const string sqlProf = @"
                     INSERT INTO profissionais_saude (id_usuario, perfil, registro_profissional, especialidade)
                     VALUES (@Id, 'Profissional', @RegistroProfissional, @Especialidade);";
 
                 conexao.Execute(sqlProf, new {
                     prof.Id,
-                    prof.RegistroProfissional,
+                    RegistroProfissional = registroUnico,
                     prof.Especialidade
                 }, transacao);
             }
@@ -171,5 +183,13 @@ public class MySqlUsuarioRepository : IUsuarioRepository
             transacao.Rollback();
             throw;
         }
+    }
+
+    // RF26, RF28 - Atualiza o timestamp de último acesso na tabela usuarios
+    public void RegistrarUltimoAcesso(int id)
+    {
+        using var conexao = CriarConexao();
+        const string sql = "UPDATE usuarios SET ultimo_acesso = NOW() WHERE id_usuario = @Id;";
+        conexao.Execute(sql, new { Id = id });
     }
 }

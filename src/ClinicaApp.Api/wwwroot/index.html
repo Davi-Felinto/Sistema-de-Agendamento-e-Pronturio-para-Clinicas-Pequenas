@@ -429,6 +429,20 @@
        Comunica com os Controllers em /api (ASP.NET Core) e possui fallback
        gracioso para localStorage quando executado offline ou no GitHub Pages.
        ========================================================================= */
+    const CLOUD_API_URL = 'https://clinix-api-c58x.onrender.com';
+    const getApiBase = () => {
+      if (typeof window !== 'undefined' && window.location) {
+        if (window.location.port === '5055' || (window.location.href && window.location.href.includes(':5055/'))) return '';
+        if (window.location.hostname.includes('onrender.com')) return '';
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+          return 'http://localhost:5055';
+        }
+        if (window.location.hostname.includes('github.io')) return CLOUD_API_URL;
+      }
+      return CLOUD_API_URL;
+    };
+    const API_BASE = getApiBase();
+
     const api = {
       isConnected: false,
       token: (() => { try { return sessionStorage.getItem('clinix_token'); } catch { return null; } })(),
@@ -450,7 +464,7 @@
 
       async checkHealth() {
         try {
-          const res = await fetch('/api/status', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          const res = await fetch(`${API_BASE}/api/status`, { method: 'GET', headers: { 'Accept': 'application/json' } });
           if (res.ok) {
             const data = await res.json();
             this.isConnected = true;
@@ -458,7 +472,7 @@
             this.storageLabel = data.storageLabel || 'Banco: MySQL 8.0';
             return { ok: true, storage: this.storage, storageLabel: this.storageLabel };
           }
-          const resHealth = await fetch('/api/health', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          const resHealth = await fetch(`${API_BASE}/api/health`, { method: 'GET', headers: { 'Accept': 'application/json' } });
           this.isConnected = resHealth.ok;
           this.storage = resHealth.ok ? 'memoria' : 'offline';
           this.storageLabel = resHealth.ok ? 'Banco: Memória (Mock)' : 'Modo Standalone (Offline)';
@@ -501,7 +515,7 @@
 
           // 2. Fallback: Proxy backend na API local (/api/cep/{limpo})
           try {
-            const resBackend = await fetch(`/api/cep/${limpo}`, { headers: this.authHeaders() });
+            const resBackend = await fetch(`${API_BASE}/api/cep/${limpo}`, { headers: this.authHeaders() });
             if (resBackend.ok) {
               const data = await resBackend.json();
               if (data.sucesso) return data;
@@ -517,7 +531,7 @@
       // --- PACIENTES (RF01-RF05, RN16, RF29, RN18) ---
       async listarPacientes() {
         try {
-          const res = await fetch('/api/pacientes', { headers: this.authHeaders() });
+          const res = await fetch(`${API_BASE}/api/pacientes`, { headers: this.authHeaders() });
           if (!res.ok) throw new Error('Falha ao listar pacientes');
           const data = await res.json();
           this.isConnected = true;
@@ -551,7 +565,7 @@
 
       async criarPaciente(dados) {
         try {
-          const res = await fetch('/api/pacientes', {
+          const res = await fetch(`${API_BASE}/api/pacientes`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -610,7 +624,7 @@
         try {
           const numId = Number(id);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/pacientes/${numId}/inativar`, {
+            const res = await fetch(`${API_BASE}/api/pacientes/${numId}/inativar`, {
               method: 'PUT',
               headers: this.authHeaders()
             });
@@ -628,7 +642,7 @@
       // --- AGENDAMENTOS (RF06-RF11, RN01, RN02, RN10, RF31, RN20) ---
       async listarAgendamentos() {
         try {
-          const res = await fetch('/api/agendamentos', { headers: this.authHeaders() });
+          const res = await fetch(`${API_BASE}/api/agendamentos`, { headers: this.authHeaders() });
           if (!res.ok) throw new Error('Falha ao listar agendamentos');
           const data = await res.json();
           this.isConnected = true;
@@ -689,7 +703,7 @@
             ? dados.profissionalId
             : (parseInt(String(dados.profissionalId).replace(/\D/g, ''), 10) || 1);
 
-          const res = await fetch('/api/agendamentos', {
+          const res = await fetch(`${API_BASE}/api/agendamentos`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -739,7 +753,7 @@
         try {
           const numId = typeof id === 'number' ? id : parseInt(String(id).replace(/\D/g, ''), 10);
           if (!isNaN(numId)) {
-            const res = await fetch(`/api/agendamentos/${numId}/cancelar`, {
+            const res = await fetch(`${API_BASE}/api/agendamentos/${numId}/cancelar`, {
               method: 'PUT',
               headers: this.authHeaders({ 'Content-Type': 'application/json' }),
               body: JSON.stringify({
@@ -767,7 +781,7 @@
       // --- FINANCEIRO & PAGAMENTO DIVIDIDO (RF21-RF25, RF30, RN19) ---
       async registrarPagamentoDividido(pagamentoId, dados) {
         try {
-          const res = await fetch(`/api/financeiro/${pagamentoId}/pagamento-dividido`, {
+          const res = await fetch(`${API_BASE}/api/financeiro/${pagamentoId}/pagamento-dividido`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -792,7 +806,7 @@
       // --- OUVIDORIA & AVALIAÇÕES (RF32, RN21) ---
       async listarAvaliacoes() {
         try {
-          const res = await fetch('/api/avaliacoes', { headers: this.authHeaders() });
+          const res = await fetch(`${API_BASE}/api/avaliacoes`, { headers: this.authHeaders() });
           if (!res.ok) throw new Error('Falha ao obter avaliações');
           const data = await res.json();
           return { sucesso: true, dados: data };
@@ -803,7 +817,7 @@
 
       async registrarAvaliacao(dados) {
         try {
-          const res = await fetch('/api/avaliacoes', {
+          const res = await fetch(`${API_BASE}/api/avaliacoes`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -829,7 +843,7 @@
       // --- RASTREAMENTO DE EXAMES LABORATORIAIS (RF34, RN23) ---
       async listarExames(pacienteId = null) {
         try {
-          const url = pacienteId ? `/api/exameslaboratorio?pacienteId=${pacienteId}` : '/api/exameslaboratorio';
+          const url = pacienteId ? `${API_BASE}/api/exameslaboratorio?pacienteId=${pacienteId}` : `${API_BASE}/api/exameslaboratorio`;
           const res = await fetch(url, { headers: this.authHeaders() });
           if (!res.ok) throw new Error('Falha ao listar exames laboratoriais');
           const data = await res.json();
@@ -841,7 +855,7 @@
 
       async criarExame(dados) {
         try {
-          const res = await fetch('/api/exameslaboratorio', {
+          const res = await fetch(`${API_BASE}/api/exameslaboratorio`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -867,7 +881,7 @@
 
       async atualizarStatusExame(id, novoStatus, observacao = null) {
         try {
-          const res = await fetch(`/api/exameslaboratorio/${id}/status`, {
+          const res = await fetch(`${API_BASE}/api/exameslaboratorio/${id}/status`, {
             method: 'PUT',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -889,7 +903,7 @@
       // --- AUTENTICAÇÃO (RF26, RQ08) ---
       async login(login, senha) {
         try {
-          const res = await fetch('/api/auth/login', {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
             method: 'POST',
             headers: this.authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ login, senha })
@@ -920,7 +934,7 @@
 
       async registrar(dados) {
         try {
-          const res = await fetch('/api/auth/registrar', {
+          const res = await fetch(`${API_BASE}/api/auth/registrar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({
@@ -930,7 +944,8 @@
               perfil: dados.perfil || 'Profissional',
               nomeClinica: dados.nomeClinica || null,
               registroProfissional: dados.registroProfissional || null,
-              especialidade: dados.especialidade || null
+              especialidade: dados.especialidade || null,
+              codigoConvite: dados.codigoConvite ? String(dados.codigoConvite).trim() : null
             })
           });
 
@@ -962,6 +977,40 @@
           };
         } catch (e) {
           return { sucesso: false, erro: 'Falha de conexão com a API: ' + e.message };
+        }
+      },
+
+      async listarUsuarios() {
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/usuarios`, { headers: this.authHeaders() });
+          if (!res.ok) throw new Error('Falha ao listar usuários');
+          const data = await res.json();
+          return { sucesso: true, dados: data };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
+        }
+      },
+
+      async listarLogs() {
+        try {
+          const res = await fetch(`${API_BASE}/api/logs`, { headers: this.authHeaders() });
+          if (!res.ok) throw new Error('Falha ao listar logs de auditoria');
+          const data = await res.json();
+          return {
+            sucesso: true,
+            dados: data.map(l => ({
+              id: String(l.id),
+              timestamp: l.dataHora || new Date().toISOString(),
+              usuarioId: String(l.usuarioId),
+              usuarioNome: l.usuarioNome || `Usuário #${l.usuarioId}`,
+              usuarioEmail: l.usuarioEmail || '',
+              operacao: l.operacao,
+              detalhes: l.detalhes || '',
+              ipOrigem: l.ipOrigem || null
+            }))
+          };
+        } catch (e) {
+          return { sucesso: false, erro: e.message };
         }
       }
     };
@@ -1082,9 +1131,26 @@
           if (resEx.sucesso && Array.isArray(resEx.dados)) {
             setLabSamples(sanitizeData(resEx.dados));
           }
+          await carregarAuditoriaBanco();
         }
         conectarBackend();
       }, [isAuthenticated]);
+
+      const [dbUsers, setDbUsers] = useState([]);
+
+      const carregarAuditoriaBanco = async () => {
+        if (!api.token) return;
+        const [resLogs, resUsers] = await Promise.all([
+          api.listarLogs(),
+          api.listarUsuarios()
+        ]);
+        if (resLogs.sucesso && Array.isArray(resLogs.dados) && resLogs.dados.length > 0) {
+          setLogs(sanitizeData(resLogs.dados));
+        }
+        if (resUsers.sucesso && Array.isArray(resUsers.dados)) {
+          setDbUsers(sanitizeData(resUsers.dados));
+        }
+      };
 
       // Navegação entre Telas: 'dashboard' | 'agenda' | 'pacientes' | 'prontuario' | 'financeiro' | 'logs'
       const [activeTab, setActiveTab] = useState('dashboard');
@@ -1398,7 +1464,7 @@
               <SidebarItem icon="wallet" label="Financeiro" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
               <SidebarItem icon="star" label="Ouvidoria (RF32)" badge={reviews.length ? `${(reviews.reduce((s,r) => s + (r.mediaGeral || 5), 0) / reviews.length).toFixed(1)}★` : '5★'} active={activeTab === 'ouvidoria'} onClick={() => setActiveTab('ouvidoria')} />
               <SidebarItem icon="flask" label="Laboratório (RF34)" badge={labSamples.filter(s => s.status !== 3 && s.status !== 4 && s.status !== 'LaudoDisponivel' && s.status !== 'EntregueAoPaciente').length || null} active={activeTab === 'laboratorio'} onClick={() => setActiveTab('laboratorio')} />
-              <SidebarItem icon="lock" label="Auditoria" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
+              <SidebarItem icon="lock" label="Quem Está Usando (Auditoria)" badge={dbUsers.length ? `${dbUsers.length} contas` : null} active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
             </nav>
 
             {/* Card do Piloto Clínico */}
@@ -1503,6 +1569,20 @@
                 >
                   <span>💬</span>
                   <span>Dar Feedback</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('logs')}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition outline-none ${
+                    activeTab === 'logs'
+                      ? 'border-emerald-500 bg-slate-900 text-emerald-300 shadow-sm ring-2 ring-emerald-500/30'
+                      : 'border-slate-800 bg-slate-900 text-white hover:bg-slate-800 shadow-sm'
+                  }`}
+                  title="Ver quem está usando o sistema, contas cadastradas, IP e aparelhos"
+                >
+                  <span>🛡️</span>
+                  <span>Quem Está Usando</span>
                 </button>
 
                 <button
@@ -1637,7 +1717,14 @@
               )}
 
               {activeTab === 'logs' && (
-                <LogsView logs={logs} currentUser={currentUser} />
+                <LogsView
+                  logs={logs}
+                  dbUsers={dbUsers}
+                  isApiConnected={isApiConnected}
+                  onRefresh={carregarAuditoriaBanco}
+                  currentUser={currentUser}
+                  showToast={showToast}
+                />
               )}
             </main>
 
@@ -1650,6 +1737,7 @@
               <MobileItem icon="star" label="Ouvidoria" active={activeTab === 'ouvidoria'} onClick={() => setActiveTab('ouvidoria')} />
               <MobileItem icon="flask" label="Exames" active={activeTab === 'laboratorio'} onClick={() => setActiveTab('laboratorio')} />
               <MobileItem icon="wallet" label="Finanças" active={activeTab === 'financeiro'} onClick={() => setActiveTab('financeiro')} />
+              <MobileItem icon="lock" label="Acessos" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
             </nav>
 
             {/* BOTÃO FLUTUANTE DE FEEDBACK DO PILOTO (DISCRETO E ACESSÍVEL) */}
@@ -2000,6 +2088,7 @@
       const [perfil, setPerfil] = useState('Profissional'); // 'Profissional' | 'Administrador'
       const [especialidade, setEspecialidade] = useState('');
       const [registroProfissional, setRegistroProfissional] = useState('');
+      const [codigoConvite, setCodigoConvite] = useState('');
       const [senha, setSenha] = useState('');
       const [confirmarSenha, setConfirmarSenha] = useState('');
       const [showSenha, setShowSenha] = useState(false);
@@ -2010,8 +2099,8 @@
         e.preventDefault();
         setErro('');
 
-        if (!nome.trim() || !email.trim() || !senha) {
-          setErro('Preencha todos os campos obrigatórios.');
+        if (!nome.trim() || !email.trim() || !senha || !codigoConvite.trim()) {
+          setErro('Preencha todos os campos obrigatórios, incluindo o código de convite da clínica.');
           return;
         }
 
@@ -2034,10 +2123,11 @@
           perfil,
           nomeClinica: nomeClinica.trim() || 'Clínica Piloto',
           registroProfissional: registroProfissional.trim() || (perfil === 'Profissional' ? 'CRM-BR' : null),
-          especialidade: especialidade.trim() || (perfil === 'Profissional' ? 'Clínica Geral' : null)
+          especialidade: especialidade.trim() || (perfil === 'Profissional' ? 'Clínica Geral' : null),
+          codigoConvite: codigoConvite.trim()
         };
 
-        // 1. Se API conectada, registra no backend
+        // 1. Se API conectada, registra no backend (validando Código de Convite)
         if (api.isConnected) {
           const res = await api.registrar(dadosCadastro);
           setCarregando(false);
@@ -2045,13 +2135,18 @@
             onRegisterSuccess(res.usuario, senha, true);
             return;
           } else {
-            setErro(res.erro || 'Não foi possível cadastrar. Tente outro e-mail.');
+            setErro(res.erro || 'Não foi possível cadastrar. Verifique o código de convite.');
             return;
           }
         }
 
-        // 2. Modo Offline / Standalone
+        // 2. Modo Offline / Standalone: exige chave válida
         setCarregando(false);
+        const convitesValidos = ['CLINIX-PILOTO-2026', 'CLINIX2026', 'PILOTO2026'];
+        if (!convitesValidos.includes(codigoConvite.trim().toUpperCase())) {
+          setErro('Código de convite inválido. Solicite a chave de autorização ao responsável pelo Clinix.');
+          return;
+        }
         const novoUsuario = {
           id: 'u_' + Date.now(),
           name: dadosCadastro.nome,
@@ -2135,6 +2230,22 @@
               )}
 
               <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
+                <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <label htmlFor="reg-convite" className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-950 mb-1 flex items-center justify-between">
+                    <span>🔑 Código de Convite / Licença *</span>
+                    <span className="text-[10px] font-semibold text-amber-800 normal-case">Acesso restrito a clínicas autorizadas</span>
+                  </label>
+                  <input
+                    id="reg-convite"
+                    type="text"
+                    required
+                    value={codigoConvite}
+                    onChange={e => setCodigoConvite(e.target.value)}
+                    placeholder="Informe a chave fornecida pelo responsável"
+                    className="w-full rounded-xl border border-amber-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 uppercase tracking-wider outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                </div>
+
                 <div>
                   <label htmlFor="reg-nome" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                     Nome Completo *
@@ -6473,19 +6584,28 @@
       );
     }
 
-    // RF28, RN13, RQ07 - Trilha de auditoria (somente leitura)
-    function LogsView({ logs, currentUser }) {
+    // RF28, RN13, RQ07 - Trilha de auditoria (somente leitura) e Monitoramento de Contas do Banco
+    function LogsView({ logs, dbUsers = [], isApiConnected = false, onRefresh, currentUser, showToast }) {
       const [searchQuery, setSearchQuery] = useState('');
       const [logCategory, setLogCategory] = useState('todos');
       const [userFilter, setUserFilter] = useState('todos');
       const [visibleCount, setVisibleCount] = useState(50);
+      const [refreshing, setRefreshing] = useState(false);
+
+      const handleManualRefresh = async () => {
+        if (!onRefresh) return;
+        setRefreshing(true);
+        await onRefresh();
+        setRefreshing(false);
+        if (showToast) showToast('Registros de acesso e contas sincronizados com o banco de dados!', 'success');
+      };
 
       const LOG_CATEGORIES = {
-        acesso: { label: 'Acesso', icon: 'lock', test: /Autenticação|Encerramento|Alternância/ },
-        prontuario: { label: 'Prontuário', icon: 'clipboard', test: /Prontuário/ },
-        agenda: { label: 'Agenda', icon: 'calendar', test: /Agendamento|Agenda|Remarcação|Cancelamento|WhatsApp/ },
-        pacientes: { label: 'Pacientes', icon: 'users', test: /Paciente|LGPD|Portabilidade|Inativação/ },
-        financeiro: { label: 'Financeiro', icon: 'wallet', test: /Pagamento|Exportação|Relatório/ }
+        acesso: { label: 'Acesso & Login', icon: 'lock', test: /Autenticação|AUTENTICACAO|LOGIN|CADASTRO|Encerramento|Alternância/i },
+        prontuario: { label: 'Prontuário', icon: 'clipboard', test: /Prontuário|PRONTUARIO/i },
+        agenda: { label: 'Agenda', icon: 'calendar', test: /Agendamento|Agenda|Remarcação|Cancelamento|WhatsApp/i },
+        pacientes: { label: 'Pacientes', icon: 'users', test: /Paciente|LGPD|Portabilidade|Inativação|INATIVACAO/i },
+        financeiro: { label: 'Financeiro', icon: 'wallet', test: /Pagamento|Exportação|Relatório/i }
       };
       const OTHER_CATEGORY = { label: 'Outros', icon: 'clock' };
 
@@ -6539,8 +6659,103 @@
         ])
       ];
 
+      const displayUsers = dbUsers && dbUsers.length > 0 ? dbUsers : INITIAL_USERS.map((u, idx) => ({
+        id: idx + 1,
+        nome: u.name,
+        email: u.email,
+        perfil: u.role,
+        ativo: true,
+        especialidade: u.espec,
+        criadoEm: null,
+        ultimoAcesso: null
+      }));
+
       return (
         <div className="space-y-5 max-w-6xl mx-auto">
+          {/* PAINEL DE MONITORAMENTO DE CONTAS E ACESSOS NO BANCO DE DADOS */}
+          <section className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">
+                    Segurança & Controle de Licenças (RF27, RF28, RQ07)
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-extrabold mt-0.5">
+                  Quem Está Usando o Sistema ({displayUsers.length} {displayUsers.length === 1 ? 'conta cadastrada' : 'contas cadastradas'})
+                </h3>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Monitoramento em tempo real das contas registradas no banco MySQL, último login, IP de origem e dispositivo.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleManualRefresh}
+                disabled={refreshing}
+                className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition flex items-center gap-2 shrink-0"
+              >
+                <span className={refreshing ? 'animate-spin' : ''}>🔄</span>
+                <span>{refreshing ? 'Sincronizando...' : 'Atualizar Banco Agora'}</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                    <th className="px-5 py-2.5">ID</th>
+                    <th className="px-4 py-2.5">Nome / Credencial</th>
+                    <th className="px-4 py-2.5">Perfil RBAC</th>
+                    <th className="px-4 py-2.5">Especialidade / Cargo</th>
+                    <th className="px-4 py-2.5">Criado em</th>
+                    <th className="px-5 py-2.5">Último Login Registrado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {displayUsers.map(u => {
+                    const dtCriado = u.criadoEm ? new Date(u.criadoEm) : null;
+                    const dtUltimo = u.ultimoAcesso ? new Date(u.ultimoAcesso) : null;
+                    return (
+                      <tr key={u.id || u.email} className="hover:bg-slate-50/80 transition">
+                        <td className="px-5 py-3 font-bold text-slate-500">#{u.id}</td>
+                        <td className="px-4 py-3">
+                          <p className="font-bold text-slate-900">{u.nome}</p>
+                          <p className="text-[11px] text-slate-500">{u.email}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            u.perfil === 'Profissional'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : 'bg-slate-100 text-slate-800 border border-slate-300'
+                          }`}>
+                            {u.perfil}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {u.especialidade || u.cargo || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-slate-500 tabular-nums">
+                          {dtCriado && !isNaN(dtCriado) ? dtCriado.toLocaleString('pt-BR') : 'Carga Inicial'}
+                        </td>
+                        <td className="px-5 py-3 font-semibold tabular-nums">
+                          {dtUltimo && !isNaN(dtUltimo) ? (
+                            <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              {dtUltimo.toLocaleString('pt-BR')}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-normal">Sem login recente gravado</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
           <div className="flex flex-col lg:flex-row gap-2">
             <div className="relative flex-1">
               <label htmlFor="log-busca" className="sr-only">Buscar nos registros</label>
@@ -6634,7 +6849,14 @@
                         <tr className="border-b border-slate-100 last:border-b-0">
                           <td className="px-5 py-3 align-top font-semibold tabular-nums text-slate-700">{entry.time}</td>
                           <td className="px-3 py-3 align-top">
-                            <p className="font-bold text-slate-900">{entry.title}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-slate-900">{entry.title}</p>
+                              {entry.ipOrigem && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                  🌐 IP: {entry.ipOrigem}
+                                </span>
+                              )}
+                            </div>
                             <p className="mt-0.5 text-slate-600">{entry.detalhes}</p>
                           </td>
                           <td className="px-3 py-3 align-top whitespace-nowrap">

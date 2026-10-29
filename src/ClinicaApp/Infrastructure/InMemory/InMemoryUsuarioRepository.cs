@@ -29,4 +29,10 @@ public class InMemoryUsuarioRepository : IUsuarioRepository
     {
         _usuarios.Add(usuario);
     }
+
+    public void RegistrarUltimoAcesso(int id)
+    {
+        var usuario = ObterPorId(id);
+        usuario?.RegistrarAcesso(DateTime.Now);
+    }
 }

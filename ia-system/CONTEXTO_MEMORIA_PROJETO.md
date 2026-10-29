@@ -1,7 +1,7 @@
 # 🧠 MEMÓRIA VIVA DO PROJETO INTEGRADOR
 > **Sistema de Agendamento e Prontuário para Clínicas Pequenas**  
 > *Arquivo de Sincronização e Memória Universal entre Agentes de IA e IDEs*  
-> **Última Atualização:** 23/10/2026 | **Responsável pelo Projeto:** Davi Felinto
+> **Última Atualização:** 29/10/2026 | **Responsável pelo Projeto:** Davi Felinto
 > 📌 **Este arquivo é a memória COMPARTILHADA (estado do projeto).** Perfis, preferências e "onde parou" de cada pessoa ficam em `ia-system/membros/<NOME>.md`.
 
 ---
@@ -243,6 +243,7 @@ src/
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Validação ponta a ponta com a skill `agent-browser` no Chromium real: validados login (email/senha, toggle de visibilidade e pills de 1 clique), tela de cadastro (registro de Dra. Renata Silva via `POST /api/auth/registrar` com auto-login), modal de Feedback do Piloto (5 estrelas, sugestão e integração de métrica de 4.8★ para 4.9★), modal de dados do piloto (limpeza para clínica vazia e restauração de dados modelo) e logout. Corrigidos bugs críticos descobertos pelo browser (mapeamento do retorno de `api.login`, sincronização de `api.js` e persistência de sessão no `localStorage`). 68 testes xUnit 100% OK. | Implementar controle RBAC no prontuário para perfil recepção conforme LGPD/CFM. |
 | 23/10/2026 | Antigravity AI (usuário: Davi) | Implementação e homologação de RBAC / Sigilo Médico (LGPD Art. 11 & CFM 2.299/2021): bloqueio de Prontuários para perfil Recepcionista/Administrador no backend C# (`[Authorize(Roles = "Profissional")]` com HTTP 403 Forbidden) e na interface (ocultação na Sidebar, Pacientes, Dashboard e Busca Rápida). Validação automatizada com `agent-browser` no Chromium real confirmando bloqueio para Juliana e acesso liberado para Dr. Davi. 68 testes xUnit 100% OK. | Conduzir testes com a cliente real. |
 | 26/10/2026 | Antigravity AI (usuário: Davi) | Atualização do número de WhatsApp do Feedback do Piloto para `+55 61 99588-7443` (com o 9º dígito obrigatório do WhatsApp para celulares do Brasil) em `index.html` e `wwwroot/index.html`. Validação automatizada no navegador via `agent-browser` confirmando link de mensagem pré-formatada. 68 testes unitários xUnit 100% OK. | Conduzir testes com a cliente real. |
+| 29/10/2026 | Antigravity AI (usuário: Davi) | Diagnóstico do banco MySQL na nuvem (Render/Aiven); correção de Dapper em `LogAcesso.cs` (`GET /api/logs`); rastreamento automático de IP (`X-Forwarded-For`), dispositivo (`User-Agent`) e `ultimo_acesso` em logins/cadastros; blindagem de `POST /api/auth/registrar` com Código de Convite da clínica; endpoint `GET /api/auth/usuarios` e painel de monitoramento de contas na aba Auditoria. Validado com `agent-browser` e 70 testes unitários xUnit 100% aprovados. | Push para `origin/main` para deploy automático no Render. |
 
 *(Todo novo agente que assumir o projeto deve acrescentar uma linha nesta tabela ao final de sua sessão, indicando qual membro da equipe era o usuário).*
 

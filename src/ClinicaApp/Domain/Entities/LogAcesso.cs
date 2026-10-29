@@ -12,9 +12,17 @@ public class LogAcesso
     public int UsuarioId { get; private set; }
     public string Operacao { get; private set; }
     public string Detalhes { get; private set; }
+    public string? IpOrigem { get; private set; }
     public DateTime DataHora { get; private set; }
 
-    public LogAcesso(int id, int usuarioId, string operacao, string detalhes, DateTime? dataHora = null)
+    // RQ07: Construtor sem parâmetros exigido pelo Dapper para materialização relacional (MySQL BIGINT -> Int32)
+    protected LogAcesso()
+    {
+        Operacao = string.Empty;
+        Detalhes = string.Empty;
+    }
+
+    public LogAcesso(int id, int usuarioId, string operacao, string detalhes, DateTime? dataHora = null, string? ipOrigem = null)
     {
         if (usuarioId <= 0)
             throw new ArgumentException("Id do usuário deve ser válido.", nameof(usuarioId));
@@ -26,6 +34,7 @@ public class LogAcesso
         UsuarioId = usuarioId;
         Operacao = operacao;
         Detalhes = detalhes ?? string.Empty;
+        IpOrigem = ipOrigem;
         DataHora = dataHora ?? DateTime.Now;
     }
 }
