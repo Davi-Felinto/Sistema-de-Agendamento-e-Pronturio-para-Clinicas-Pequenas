@@ -135,14 +135,21 @@
   - **Privilégios Unificados para o Criador:** Dr. Davi Felinto (`davi@clinix.com`) recebeu claims de `Administrador` no token JWT (`TokenService.cs`), mantendo acesso tanto às funções clínicas quanto à administração e auditoria global.
   - **Endpoint de Exclusão de Contas:** Criado `DELETE /api/auth/usuarios/{id}` em `AuthController.cs` com remoção em cascata (`logs_acesso`, `administradores`, `profissionais_saude`, `usuarios`).
   - **Interface Web Sincronizada:** Botão `🛡️ Quem Está Usando`, menu de Auditoria na sidebar e navegação mobile agora são renderizados **exclusivamente** para Administradores. Tabela de contas enriquecida com botão vermelho `🗑️ Apagar` (com confirmação e bloqueio de exclusão da conta principal).
-  - **Tela de Login com 3 Perfis:** Atalhos rápidos de 1 clique para Dr. Davi (Admin), Juliana (Admin) e Dr. Miguel (Médico), facilitando demonstrar que o médico não tem acesso à auditoria.
+  - **Tela de Login com 2 Perfis de Demonstração (Commit 7badca4 / 3e1734f):** Atalhos rápidos de 1 clique simplificados para apenas 2 opções: Dr. Miguel (Profissional) e Juliana (Recepcionista). O perfil Administrador ficou reservado exclusivamente ao Dr. Davi Felinto (`davi@clinix.com`), digitado manualmente para total sigilo.
   - **Testes e Homologação:** 71/71 testes unitários xUnit passando com 100% de sucesso e homologação no Chromium via `agent-browser`.
-- **Próximo passo:** Apresentar o sistema ao cliente com total blindagem, controle de convites e isolamento de perfis.
+- **Auditoria Forense de Acessos da Cliente e Investigação de Produção (04/11/2026):**
+  - Investigados os registros em tempo real da API de produção no Render (`https://clinix-api-c58x.onrender.com/api/logs`) com credenciais de Admin do Davi.
+  - Constatado que a cliente real médica **está utilizando ativamente o sistema** em Brasília (acessos confirmados via iPhone Safari pela rede Apple iCloud Relay e Celular Android Chrome pela rede GigaCandanga).
+  - Identificada a razão de não aparecer um nome avulso: a cliente entra pelo atalho de 1 clique `[ Dr. Miguel (Profissional) ]`, autenticando diretamente com a conta de demonstração sem passar pela tela de cadastro manual.
+- **Grilling Session e Estratégia de Piloto / Infraestrutura:**
+  - Realizada sessão de *Grilling* para avaliar se o Render ainda vale a pena. Decisão alinhada com o Davi: manter o Render (custo zero, sem trabalho de gerenciar VPS), solucionando a latência de *cold start* (15 min de inatividade) através de um *keep-alive* automatizado a cada 10 minutos contra `GET /api/status`.
+  - Tarefa de automação do workflow `.github/workflows/keep-alive.yml` formalmente delegada para o Miguel em sua memória pessoal ([`MIGUEL.md`](MIGUEL.md)).
 
 ## 5. Histórico Pessoal de Sessões
 
 | Data | Agente / Ferramenta | O que foi feito | Próximo passo |
 |---|---|---|---|
+| 04/11/2026 | Antigravity AI (usuário: Davi) | Auditoria forense de logs no Render (`GET /api/logs`) comprovando acessos ativos da cliente real via iPhone e Android em Brasília sob o perfil do Dr. Miguel; esclarecido fluxo de cadastro vs. atalhos rápidos; conduzida sessão de *Grilling* sobre hospedagem do piloto e decidido manter Render com Keep-Alive de 10 min; tarefa do workflow do GitHub Actions delegada formalmente na memória do Miguel (`MIGUEL.md`). | Miguel configurar `.github/workflows/keep-alive.yml` e acompanhar testes contínuos da cliente. |
 | 29/10/2026 | Antigravity AI (usuário: Davi) | Exclusão definitiva de contas de teste #7 (`Maria das Colves`) e #8 (`alcilene felinto`) no banco de produção Render/Aiven; restrição estrita de auditoria (`GET /api/logs` e `GET /api/auth/usuarios`) para perfil Administrador (`[Authorize(Roles = "Administrador")]`); criação do endpoint `DELETE /api/auth/usuarios/{id}`; privilégios de Admin e Médico unificados para Dr. Davi; botões `🛡️ Quem Está Usando` e menu de Auditoria ocultados de médicos/clientes na UI; botão de exclusão de contas em 1 clique na tabela; tela de login com apenas 2 atalhos (Dr. Miguel como Profissional e Juliana como Recepcionista) e Administrador exclusivo para Davi; 71 testes unitários xUnit 100% aprovados e homologados no Chromium via `agent-browser`. | Apresentar à cliente com segurança e controle de licença ativos. |
 | 07/10/2026 | Antigravity AI | Blocos 1–3 concluídos (entidades, repositórios, Auth/Agenda/Prontuario/Financeiro services), 52 testes passando. | Banco de Dados II. |
 | 08/10/2026 | Antigravity AI | Optou por MVP visual antes do MySQL; scaffold da `ClinicaApp.Api`. | Etapa 2 do Bloco 5 (`Program.cs` da API). |

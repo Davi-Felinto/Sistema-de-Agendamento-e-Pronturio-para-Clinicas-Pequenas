@@ -112,8 +112,14 @@ Sempre que uma ação falhar, a API retornará um erro padrão. O Miguel deve de
    - Desenhar tratamento visual amigável para regras de negócio (modais e avisos para `RN01/RN02` conflito de horário, `RN10` cancelamento tardio, validação de CPF e campos obrigatórios).
    - Manter as chamadas desacopladas via contrato `api.js`.
 
-### Pedidos pendentes ao Davi
-- *(nenhum ainda)*
+3. **[DELEGADO PELO DAVI] Automação de Keep-Alive do Render via GitHub Actions:**
+   - **Contexto:** A aplicação está hospedada em produção no Render (`https://clinix-api-c58x.onrender.com`), conectada ao MySQL 8.4 na nuvem Aiven, e já está sendo usada ativamente por uma cliente real no piloto médico (acessos confirmados via iPhone e Android em Brasília).
+   - **Problema:** No plano gratuito do Render, a aplicação "adormece" após 15 minutos sem requisições (*cold start* de ~50 segundos para subir).
+   - **Solução solicitada pelo Davi:** Criar/ativar o workflow `.github/workflows/keep-alive.yml` no repositório GitHub com agendamento `cron: '*/10 * * * *'`, disparando um ping silencioso via `curl` no endpoint `GET /api/status` a cada 10 minutos para garantir disponibilidade 24/7 sem adormecer e com custo zero.
+   - **Verificação:** Checar na aba *Actions* do GitHub se os disparos periódicos estão ocorrendo com status verde (sucesso).
+
+### Pedidos pendentes do Davi para o Miguel
+- Criar e verificar o workflow de keep-alive (`.github/workflows/keep-alive.yml`) para manter a API no Render acordada para a cliente do piloto.
 
 ## 7. Histórico Pessoal de Sessões
 
@@ -122,4 +128,5 @@ Sempre que uma ação falhar, a API retornará um erro padrão. O Miguel deve de
 | 08/10/2026 | Antigravity AI (a pedido do Davi) | Criada a memória pessoal do Miguel. Escopo definido: apenas telas; integração com API fica com o Davi. | Primeira sessão: preencher perfil e levantar melhorias das telas do `index.html`. |
 | 10/10/2026 | Antigravity AI (a pedido do Davi) | Preparado ambiente Docker (MySQL 8.0 com seed completo de outubro/2026, API C# e phpMyAdmin) e criado guia detalhado em `docs/guias/GUIA_DOCKER_MIGUEL.md`. | Subir ambiente com `docker compose up -d`, testar sistema com dados reais e listar melhorias de UI/UX. |
 | 12/10/2026 | Antigravity AI (a pedido do Davi) | Pull Request #1 revisado e integrado cirurgicamente na branch main pelo Davi: todas as melhorias visuais, máscaras de CPF/telefone, validações e propostas de segurança (JWT/Rate Limit) foram incorporadas, harmonizadas com a persistência MySQL 8.4 em nuvem e contas da equipe. | Rodar `git pull origin main` para sincronizar o repositório local com as atualizações integradas. |
+| 04/11/2026 | Antigravity AI (a pedido do Davi) | Delegada pelo Davi a tarefa de Keep-Alive 24/7 no Render via GitHub Actions (`.github/workflows/keep-alive.yml`) para eliminar cold starts na navegação da cliente médica do piloto. | Criar/ativar o arquivo de workflow de keep-alive e acompanhar execuções periódicas. |
 
